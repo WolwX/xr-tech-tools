@@ -167,7 +167,7 @@ HISTORIQUE DES VERSIONS
 
 v1.2.0 (Janvier 2025) :
 ✨ Nouvelles fonctionnalités :
-- 100 scénarios commerciaux complets (50 nouveaux ajoutés)
+- 100 scénarios commerciaux complets (50 nouveaux ajoutés) - Fonctionnalité Scénario Commercial OK
 - Scénarios 51-100 strictement orientés conseil/vente
 - Respect périmètre REAC niveau 3 (pas de dépannage/SAV)
 
