@@ -1635,6 +1635,1662 @@ class CommercialScenariosDatabase {
       ]
     ),
 
+// SCÉNARIOS 51-67 - PARTIE 1/3
+// Périmètre strict : CONSEIL VENTE en magasin informatique (Activité 1 REAC)
+
+// FACILES (51-60)
+
+CommercialScenario(
+  id: 51,
+  clientProfile: "Étudiant en première année",
+  clientRequest: "cherche une souris sans fil confortable pour la fac",
+  budgetInfo: "Budget 20€",
+  clientAttitude: "Rapide, sait ce qu'il veut",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Utilisation laptop ou PC fixe ?",
+    "Taille de main ?",
+    "Transport fréquent ?",
+    "Pile ou rechargeable préféré ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Logitech M185",
+      price: "12€",
+      advantages: ["Sans fil fiable", "Compact", "Pile longue durée", "Prix doux"],
+      disadvantages: ["Basique", "Pas réglable", "1 seul bouton latéral"],
+      productUrl: "https://www.logitech.fr/fr-fr/products/mice/m185-wireless-mouse.html",
+    ),
+  ],
+  commonTraps: [
+    "Ne pas survendre du gaming",
+    "Vérifier compatibilité Mac/PC"
+  ],
+  skillsWorked: [
+    "Conseil périphérique basique",
+    "Vente rapide efficace"
+  ]
+),
+
+CommercialScenario(
+  id: 52,
+  clientProfile: "Lycéenne",
+  clientRequest: "a besoin d'une clé USB pour ses cours et exposés",
+  budgetInfo: "Budget 15€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Volume de documents estimé ?",
+    "Vidéos à stocker ?",
+    "Plusieurs clés ou une seule ?",
+    "Risque de perte fréquent ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "SanDisk Ultra 32GB USB 3.0",
+      price: "10€",
+      advantages: ["Capacité suffisante lycée", "Rapide USB 3.0", "Fiable"],
+      disadvantages: ["Petite taille", "Pas de capuchon rétractable"],
+      productUrl: "https://www.westerndigital.com/fr-fr/products/usb-flash-drives/sandisk-ultra-usb-3-0",
+    ),
+  ],
+  commonTraps: [
+    "32GB largement suffisant lycée",
+    "USB 3.0 minimum recommandé"
+  ],
+  skillsWorked: [
+    "Conseil stockage mobile",
+    "Dimensionnement besoin"
+  ]
+),
+
+CommercialScenario(
+  id: 53,
+  clientProfile: "Employé de bureau",
+  clientRequest: "cherche une webcam pour le télétravail",
+  budgetInfo: "Budget 60€",
+  clientAttitude: "Pressé, besoin urgent",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Ordinateur portable ou fixe ?",
+    "Webcam déjà intégrée ?",
+    "Qualité vidéo souhaitée ?",
+    "Micro intégré nécessaire ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Logitech C920 HD Pro",
+      price: "70€",
+      advantages: ["Full HD 1080p", "Micro stéréo", "Plug & play", "Qualité pro"],
+      disadvantages: ["Dépasse légèrement budget", "Câble 1.5m"],
+      productUrl: "https://www.logitech.fr/fr-fr/products/webcams/c920-pro-hd-webcam.html",
+    ),
+  ],
+  commonTraps: [
+    "Vérifier compatibilité logiciel visio",
+    "720p vs 1080p impact prix"
+  ],
+  skillsWorked: [
+    "Conseil télétravail",
+    "Argumentation dépassement budget"
+  ]
+),
+
+CommercialScenario(
+  id: 54,
+  clientProfile: "Retraité",
+  clientRequest: "veut un clavier avec grosses touches bien visibles",
+  budgetInfo: "Budget 30€",
+  clientAttitude: "Problèmes de vue, besoin simplicité",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Filaire ou sans fil ?",
+    "Touches rétroéclairées utiles ?",
+    "Pavé numérique nécessaire ?",
+    "Problèmes arthrite ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Logitech K120",
+      price: "15€",
+      advantages: ["Touches larges", "Filaire simple", "Frappe silencieuse", "Robuste"],
+      disadvantages: ["Basique", "Pas rétroéclairé", "Câble USB"],
+      productUrl: "https://www.logitech.fr/fr-fr/products/keyboards/k120-usb-keyboard.html",
+    ),
+  ],
+  commonTraps: [
+    "Simplicité prioritaire senior",
+    "Éviter sans-fil complexe"
+  ],
+  skillsWorked: [
+    "Conseil senior ergonomie",
+    "Adaptation handicap visuel"
+  ]
+),
+
+CommercialScenario(
+  id: 55,
+  clientProfile: "Parent",
+  clientRequest: "cherche un casque audio pour son enfant de 10 ans",
+  budgetInfo: "Budget 40€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Usage principal ?",
+    "Limitation volume importante ?",
+    "Filaire ou Bluetooth ?",
+    "Robustesse prioritaire ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "JBL JR310BT",
+      price: "40€",
+      advantages: ["Limité 85dB", "Bluetooth", "Léger", "Coloré"],
+      disadvantages: ["Autonomie 30h moyenne", "Son limité qualité"],
+      productUrl: "https://fr.jbl.com/casques-pour-enfants/JR310BT.html",
+    ),
+  ],
+  commonTraps: [
+    "Protection auditive enfant 85dB",
+    "Solidité importante"
+  ],
+  skillsWorked: [
+    "Audio enfant sécurisé",
+    "Conseil parental"
+  ]
+),
+
+CommercialScenario(
+  id: 56,
+  clientProfile: "Étudiant",
+  clientRequest: "a besoin d'un câble HDMI pour relier son PC à la TV",
+  budgetInfo: "Budget 15€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Distance entre PC et TV ?",
+    "4K nécessaire ?",
+    "Version HDMI TV ?",
+    "Usage fréquent ou ponctuel ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Câble HDMI 2.0 3m",
+      price: "12€",
+      advantages: ["4K@60Hz", "3m polyvalent", "Certifié", "Solide"],
+      disadvantages: ["Qualité standard", "Pas premium"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Mesurer distance réelle",
+    "HDMI 2.0 pour 4K"
+  ],
+  skillsWorked: [
+    "Câblage vidéo",
+    "Conseil connectique"
+  ]
+),
+
+CommercialScenario(
+  id: 57,
+  clientProfile: "Secrétaire",
+  clientRequest: "cherche un tapis de souris confortable",
+  budgetInfo: "Budget 20€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Problèmes poignet actuels ?",
+    "Taille bureau disponible ?",
+    "Souris laser ou optique ?",
+    "Préférence tissu ou rigide ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Tapis ergonomique repose-poignet gel",
+      price: "18€",
+      advantages: ["Gel confortable", "Antidérapant", "Grande taille", "Prévention TMS"],
+      disadvantages: ["Gel durcit avec temps", "Entretien délicat"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Ergonomie importante bureau",
+    "Taille adaptée mouvement"
+  ],
+  skillsWorked: [
+    "Accessoire ergonomique",
+    "Prévention santé travail"
+  ]
+),
+
+CommercialScenario(
+  id: 58,
+  clientProfile: "Adolescent",
+  clientRequest: "veut une manette pour jouer sur PC",
+  budgetInfo: "Budget 50€",
+  clientAttitude: "Connaît les marques, compare",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Jeux principalement joués ?",
+    "Filaire ou sans fil ?",
+    "PC ou aussi console ?",
+    "Vibrations importantes ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Xbox Controller sans fil",
+      price: "55€",
+      advantages: ["Compatible PC natif", "Ergonomique", "Sans fil Bluetooth", "Fiable"],
+      disadvantages: ["Dépasse légèrement", "Piles AA"],
+      productUrl: "https://www.xbox.com/fr-FR/accessories/controllers",
+    ),
+  ],
+  commonTraps: [
+    "Xbox controller = standard PC",
+    "PlayStation nécessite adaptateur"
+  ],
+  skillsWorked: [
+    "Manettes gaming PC",
+    "Compatibilité plateforme"
+  ]
+),
+
+CommercialScenario(
+  id: 59,
+  clientProfile: "Particulier",
+  clientRequest: "cherche un disque dur externe pour sauvegarder des photos",
+  budgetInfo: "Budget 70€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Volume de photos estimé ?",
+    "Sauvegarde unique ou régulière ?",
+    "Transport ou fixe ?",
+    "Mac ou PC ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Seagate Expansion 2TB USB 3.0",
+      price: "65€",
+      advantages: ["2TB large", "USB 3.0 rapide", "Compact", "Plug & play"],
+      disadvantages: ["Alimentation USB limite", "Plastique fragile"],
+      productUrl: "https://www.seagate.com/fr/fr/products/external-drives/expansion-portable-hard-drive/",
+    ),
+  ],
+  commonTraps: [
+    "2TB vs 1TB prix proche",
+    "Sauvegarde automatique logiciel"
+  ],
+  skillsWorked: [
+    "Stockage externe sauvegarde",
+    "Dimensionnement capacité"
+  ]
+),
+
+CommercialScenario(
+  id: 60,
+  clientProfile: "Employé",
+  clientRequest: "a besoin d'adaptateur USB-C vers HDMI pour présentation",
+  budgetInfo: "Budget 25€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.easy,
+  keyQuestions: [
+    "Laptop avec USB-C quel modèle ?",
+    "Résolution vidéoprojecteur ?",
+    "Usage fréquent ?",
+    "Autres ports nécessaires ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Adaptateur USB-C vers HDMI 4K",
+      price: "20€",
+      advantages: ["4K@60Hz", "Compact", "Plug & play", "Aluminium"],
+      disadvantages: ["Pas de charge simultanée", "Câble court"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Vérifier USB-C avec DisplayPort",
+    "Hub multiport si autres besoins"
+  ],
+  skillsWorked: [
+    "Adaptateurs connectique",
+    "Présentation professionnelle"
+  ]
+),
+
+// MOYENS (61-67)
+
+CommercialScenario(
+  id: 61,
+  clientProfile: "Étudiant en graphisme",
+  clientRequest: "cherche une tablette graphique pour débuter",
+  budgetInfo: "Budget 100€",
+  clientAttitude: "Passionné, beaucoup de questions",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Niveau dessin actuel ?",
+    "Avec ou sans écran ?",
+    "Taille surface souhaitée ?",
+    "Logiciel prévu ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Wacom Intuos S",
+      price: "80€",
+      advantages: ["Marque référence", "Stylet sans pile", "Logiciels inclus", "Taille débutant"],
+      disadvantages: ["Petite surface", "Sans écran", "Bluetooth en option"],
+      productUrl: "https://www.wacom.com/fr-fr/products/pen-tablets/wacom-intuos",
+    ),
+  ],
+  commonTraps: [
+    "Sans écran suffisant débutant",
+    "Avec écran = budget x5"
+  ],
+  skillsWorked: [
+    "Tablette graphique débutant",
+    "Conseil création numérique"
+  ]
+),
+
+CommercialScenario(
+  id: 62,
+  clientProfile: "Télétravailleur",
+  clientRequest: "veut un second écran pour son laptop",
+  budgetInfo: "Budget 200€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Taille écran laptop ?",
+    "Ports disponibles ?",
+    "Résolution souhaitée ?",
+    "Travail graphique ou bureautique ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Dell P2422H 24\" Full HD IPS",
+      price: "180€",
+      advantages: ["IPS qualité", "Pivot possible", "HDMI + DP", "Réglable hauteur"],
+      disadvantages: ["Full HD seulement", "Pas USB-C"],
+      productUrl: "https://www.dell.com/fr-fr/work/shop/ecrans-et-accessoires/p2422h/spd/dell-p2422h-monitor",
+    ),
+  ],
+  commonTraps: [
+    "Vérifier ports laptop",
+    "24\" optimal bureautique"
+  ],
+  skillsWorked: [
+    "Écran bureautique",
+    "Setup télétravail"
+  ]
+),
+
+CommercialScenario(
+  id: 63,
+  clientProfile: "Gamer débutant",
+  clientRequest: "cherche un écran pour jouer à des jeux",
+  budgetInfo: "Budget 250€",
+  clientAttitude: "Influencé par amis, veut 144Hz",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Carte graphique actuelle ?",
+    "Jeux principalement joués ?",
+    "1080p ou 1440p ?",
+    "Taille préférée ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "AOC 24G2U 24\" 144Hz IPS",
+      price: "200€",
+      advantages: ["144Hz fluide", "IPS couleurs", "FreeSync", "1ms"],
+      disadvantages: ["24\" petit gaming", "1080p seulement"],
+      productUrl: "https://eu.aoc.com/fr/gaming/products/monitors/24g2u-bk",
+    ),
+  ],
+  commonTraps: [
+    "GPU doit suivre 144Hz",
+    "IPS vs TN conseil"
+  ],
+  skillsWorked: [
+    "Écran gaming entrée gamme",
+    "Fréquence rafraîchissement"
+  ]
+),
+
+CommercialScenario(
+  id: 64,
+  clientProfile: "Étudiant",
+  clientRequest: "a besoin d'un ordinateur portable pour la fac",
+  budgetInfo: "Budget 600€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Filière d'études ?",
+    "Logiciels spécifiques ?",
+    "Transport quotidien ?",
+    "Autonomie importante ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Lenovo IdeaPad 3 15\" i5 8GB",
+      price: "550€",
+      advantages: ["Processeur correct", "8GB RAM", "SSD 256GB", "Autonomie 7h"],
+      disadvantages: ["Écran TN basique", "256GB juste"],
+      productUrl: "https://www.lenovo.com/fr/fr/laptops/ideapad/",
+    ),
+  ],
+  commonTraps: [
+    "SSD obligatoire confort",
+    "8GB minimum aujourd'hui"
+  ],
+  skillsWorked: [
+    "PC portable étudiant",
+    "Rapport qualité-prix"
+  ]
+),
+
+CommercialScenario(
+  id: 65,
+  clientProfile: "Famille",
+  clientRequest: "veulent une imprimante pour imprimer occasionnellement",
+  budgetInfo: "Budget 100€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Volume mensuel estimé ?",
+    "Couleur nécessaire ?",
+    "Scanner utile ?",
+    "WiFi important ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "HP DeskJet 2720e Multifonction",
+      price: "70€ + abonnement Instant Ink",
+      advantages: ["Multifonction", "WiFi", "Compact", "Abonnement encre"],
+      disadvantages: ["Lente", "Encre si pas abonnement cher"],
+      productUrl: "https://www.hp.com/fr-fr/shop/product.aspx?id=26K68B",
+    ),
+  ],
+  commonTraps: [
+    "Expliquer Instant Ink",
+    "Jet d'encre vs laser usage"
+  ],
+  skillsWorked: [
+    "Imprimante familiale",
+    "Modèle économique abonnement"
+  ]
+),
+
+CommercialScenario(
+  id: 66,
+  clientProfile: "Auto-entrepreneur",
+  clientRequest: "cherche un PC portable pour déplacements clients",
+  budgetInfo: "Budget 800€",
+  clientAttitude: "Besoin fiabilité et autonomie",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Applications métier ?",
+    "Taille écran préférée ?",
+    "Autonomie minimum ?",
+    "Garantie étendue souhaitée ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "HP ProBook 450 G9 15\" i5",
+      price: "750€",
+      advantages: ["Gamme pro", "Robuste", "Autonomie 10h", "Garantie 1 an"],
+      disadvantages: ["Design sobre", "Poids 1.8kg"],
+      productUrl: "https://www.hp.com/fr-fr/shop/list/laptops/probook",
+    ),
+  ],
+  commonTraps: [
+    "Gamme pro vs grand public",
+    "Autonomie critique déplacement"
+  ],
+  skillsWorked: [
+    "PC portable professionnel",
+    "Mobilité entreprise"
+  ]
+),
+
+CommercialScenario(
+  id: 67,
+  clientProfile: "Parent",
+  clientRequest: "veut une tablette pour son enfant de 8 ans",
+  budgetInfo: "Budget 150€",
+  clientAttitude: "Inquiet contenu, veut contrôle",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Usage éducatif ou loisir ?",
+    "Contrôle parental prioritaire ?",
+    "Robustesse importante ?",
+    "WiFi uniquement ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Samsung Galaxy Tab A8 10.5\"",
+      price: "170€",
+      advantages: ["Grand écran", "Android", "Contrôle parental Google", "Correcte"],
+      disadvantages: ["Dépasse budget", "Coque en plus", "Performances limitées"],
+      productUrl: "https://www.samsung.com/fr/tablets/galaxy-tab-a/",
+    ),
+  ],
+  commonTraps: [
+    "Coque protection essentielle",
+    "Configuration contrôle parental à prévoir"
+  ],
+  skillsWorked: [
+    "Tablette enfant",
+    "Sécurité parentale numérique"
+  ]
+),
+
+// SCÉNARIOS 68-84 - PARTIE 2/3
+// Périmètre strict : CONSEIL VENTE en magasin informatique
+
+// MOYENS (68-80)
+
+CommercialScenario(
+  id: 68,
+  clientProfile: "Particulier",
+  clientRequest: "veut un PC fixe pour toute la famille",
+  budgetInfo: "Budget 500€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Usages principaux ?",
+    "Jeux vidéo ou bureautique ?",
+    "Espace bureau disponible ?",
+    "Écran déjà possédé ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "HP Pavilion Desktop i5 8GB",
+      price: "480€",
+      advantages: ["Tour complète", "i5 polyvalent", "8GB RAM", "WiFi intégré"],
+      disadvantages: ["Écran non inclus", "SSD 256GB juste", "Pas gaming"],
+      productUrl: "https://www.hp.com/fr-fr/shop/list/desktops/pavilion",
+    ),
+  ],
+  commonTraps: [
+    "Écran à budgéter séparément",
+    "Clavier/souris basiques inclus"
+  ],
+  skillsWorked: [
+    "PC familial bureautique",
+    "Tour complète vs composants"
+  ]
+),
+
+CommercialScenario(
+  id: 69,
+  clientProfile: "Lycéen gamer",
+  clientRequest: "veut upgrader son PC avec une meilleure carte graphique",
+  budgetInfo: "Budget 300€",
+  clientAttitude: "Connaît les specs, cite des benchmarks",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Configuration actuelle complète ?",
+    "Alimentation watts ?",
+    "Résolution écran ?",
+    "Jeux principaux ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "AMD RX 6600 8GB",
+      price: "250€",
+      advantages: ["1080p excellent", "8GB VRAM", "Consommation raisonnable"],
+      disadvantages: ["Pas 1440p optimal", "Ray tracing limité"],
+      productUrl: "https://www.amd.com/fr/graphics/radeon-rx-6600",
+    ),
+  ],
+  commonTraps: [
+    "Vérifier alimentation suffisante",
+    "Bottleneck CPU possible"
+  ],
+  skillsWorked: [
+    "Upgrade carte graphique",
+    "Compatibilité composants"
+  ]
+),
+
+CommercialScenario(
+  id: 70,
+  clientProfile: "Secrétaire",
+  clientRequest: "cherche un casque confortable pour visioconférences",
+  budgetInfo: "Budget 80€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Durée quotidienne en visio ?",
+    "Filaire ou sans fil ?",
+    "Micro antibruit important ?",
+    "Usage bureau ou télétravail ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Jabra Evolve 20 USB",
+      price: "60€",
+      advantages: ["Pro certifié", "Micro antibruit", "Confortable", "Commandes câble"],
+      disadvantages: ["Filaire", "Design sobre", "Son basique musique"],
+      productUrl: "https://www.jabra.fr/business/office-headsets/jabra-evolve/jabra-evolve-20",
+    ),
+  ],
+  commonTraps: [
+    "Confort priorité usage long",
+    "Micro qualité professionnelle"
+  ],
+  skillsWorked: [
+    "Casque professionnel visio",
+    "Gamme business vs grand public"
+  ]
+),
+
+CommercialScenario(
+  id: 71,
+  clientProfile: "Photographe amateur",
+  clientRequest: "a besoin d'une carte SD rapide pour son appareil",
+  budgetInfo: "Budget 50€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Appareil photo modèle ?",
+    "Photo ou vidéo principalement ?",
+    "Résolution vidéo si applicable ?",
+    "Capacité souhaitée ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "SanDisk Extreme Pro 64GB UHS-I",
+      price: "45€",
+      advantages: ["170MB/s rapide", "V30 pour 4K", "Fiable", "64GB correct"],
+      disadvantages: ["Pas UHS-II", "64GB limite vidéo"],
+      productUrl: "https://www.westerndigital.com/fr-fr/products/memory-cards/sandisk-extreme-pro-uhs-i-sd",
+    ),
+  ],
+  commonTraps: [
+    "Vitesse selon usage photo/vidéo",
+    "Classe V30 minimum 4K"
+  ],
+  skillsWorked: [
+    "Cartes mémoire photo",
+    "Spécifications techniques"
+  ]
+),
+
+CommercialScenario(
+  id: 72,
+  clientProfile: "Étudiant",
+  clientRequest: "cherche une enceinte Bluetooth portable",
+  budgetInfo: "Budget 60€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Usage intérieur ou extérieur ?",
+    "Autonomie souhaitée ?",
+    "Taille/poids important ?",
+    "Résistance eau nécessaire ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "JBL Flip 5",
+      price: "100€",
+      advantages: ["Son excellent", "IPX7 étanche", "12h autonomie", "Robuste"],
+      disadvantages: ["Dépasse budget largement", "Lourde 540g"],
+      productUrl: "https://fr.jbl.com/enceintes-bluetooth/FLIP5.html",
+    ),
+    ScenarioSolution(
+      productName: "JBL Go 3",
+      price: "40€",
+      advantages: ["Dans budget", "IP67", "5h autonomie", "Compacte"],
+      disadvantages: ["Son limité", "Volume faible extérieur"],
+      productUrl: "https://fr.jbl.com/enceintes-bluetooth/GO3.html",
+    ),
+  ],
+  commonTraps: [
+    "Budget serré = compromis qualité",
+    "Usage extérieur = puissance"
+  ],
+  skillsWorked: [
+    "Enceintes portables",
+    "Compromis budget/qualité"
+  ]
+),
+
+CommercialScenario(
+  id: 73,
+  clientProfile: "Particulier",
+  clientRequest: "veut une multiprise parafoudre pour protéger son matériel",
+  budgetInfo: "Budget 30€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Nombre appareils à brancher ?",
+    "Valeur matériel à protéger ?",
+    "Prises USB nécessaires ?",
+    "Longueur câble ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Belkin BSV604 6 prises + 2 USB",
+      price: "35€",
+      advantages: ["Protection 525J", "2 USB", "2m câble", "Garantie connectée"],
+      disadvantages: ["Dépasse légèrement", "Encombrante"],
+      productUrl: "https://www.belkin.com/fr/",
+    ),
+  ],
+  commonTraps: [
+    "Joules protection important",
+    "Garantie équipements connectés"
+  ],
+  skillsWorked: [
+    "Protection électrique",
+    "Conseil sécurité matériel"
+  ]
+),
+
+CommercialScenario(
+  id: 74,
+  clientProfile: "Gamer",
+  clientRequest: "cherche un tapis de souris gaming",
+  budgetInfo: "Budget 30€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Taille bureau disponible ?",
+    "Sensibilité souris haute ou basse ?",
+    "RGB important ?",
+    "Jeux FPS ou MOBA ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "SteelSeries QcK Heavy Large",
+      price: "25€",
+      advantages: ["Grande taille", "Surface tissu", "Épais 6mm", "Bords cousus"],
+      disadvantages: ["Pas RGB", "Noir basique"],
+      productUrl: "https://fr.steelseries.com/gaming-mousepads/qck-heavy-series",
+    ),
+  ],
+  commonTraps: [
+    "Taille selon sensibilité souris",
+    "RGB = gadget cher"
+  ],
+  skillsWorked: [
+    "Accessoires gaming",
+    "Surface vs taille"
+  ]
+),
+
+CommercialScenario(
+  id: 75,
+  clientProfile: "Télétravailleur",
+  clientRequest: "a besoin d'un support pour surélever son laptop",
+  budgetInfo: "Budget 40€",
+  clientAttitude: "Mal de dos, cherche ergonomie",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Taille laptop ?",
+    "Fixe ou réglable préféré ?",
+    "Clavier externe possédé ?",
+    "Hauteur bureau ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Support laptop aluminium réglable",
+      price: "35€",
+      advantages: ["Réglable hauteur", "Aluminium stable", "Ventilation", "Pliable"],
+      disadvantages: ["Clavier externe obligatoire", "Lourd transporter"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Clavier souris externes nécessaires",
+    "Ergonomie écran à hauteur yeux"
+  ],
+  skillsWorked: [
+    "Ergonomie télétravail",
+    "Prévention posture"
+  ]
+),
+
+CommercialScenario(
+  id: 76,
+  clientProfile: "Étudiant en architecture",
+  clientRequest: "cherche une souris précise pour logiciels CAO",
+  budgetInfo: "Budget 60€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Logiciels utilisés ?",
+    "Filaire ou sans fil ?",
+    "Boutons programmables utiles ?",
+    "Gaucher ou droitier ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Logitech MX Master 3S",
+      price: "110€",
+      advantages: ["Très précise 8000DPI", "Ergonomique", "Boutons perso", "Autonomie"],
+      disadvantages: ["Dépasse budget", "Lourde", "Droitier uniquement"],
+      productUrl: "https://www.logitech.fr/fr-fr/products/mice/mx-master-3s.html",
+    ),
+    ScenarioSolution(
+      productName: "Logitech M720 Triathlon",
+      price: "50€",
+      advantages: ["Multi-device", "Précise", "Autonomie 2 ans", "Ergonomique"],
+      disadvantages: ["Moins précise", "Design sobre"],
+      productUrl: "https://www.logitech.fr/fr-fr/products/mice/m720-triathlon.html",
+    ),
+  ],
+  commonTraps: [
+    "Précision DPI important CAO",
+    "Ergonomie usage intensif"
+  ],
+  skillsWorked: [
+    "Souris professionnelle",
+    "CAO/DAO besoins"
+  ]
+),
+
+CommercialScenario(
+  id: 77,
+  clientProfile: "Couple",
+  clientRequest: "veulent un NAS simple pour sauvegarder leurs photos",
+  budgetInfo: "Budget 300€",
+  clientAttitude: "Pas techniques, veulent du simple",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Volume photos estimé ?",
+    "Accès à distance souhaité ?",
+    "Niveau technique configuration ?",
+    "Sauvegarde automatique importante ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "WD My Cloud Home 4TB",
+      price: "280€",
+      advantages: ["Simple", "Application mobile", "4TB", "Auto backup"],
+      disadvantages: ["Performances limitées", "Dépendance cloud WD"],
+      productUrl: "https://www.westerndigital.com/fr-fr/products/cloud-storage/wd-my-cloud-home",
+    ),
+  ],
+  commonTraps: [
+    "NAS vs cloud simplicité",
+    "Configuration à accompagner"
+  ],
+  skillsWorked: [
+    "Stockage réseau grand public",
+    "Vulgarisation NAS"
+  ]
+),
+
+CommercialScenario(
+  id: 78,
+  clientProfile: "Graphiste freelance",
+  clientRequest: "cherche un écran pour retouche photo",
+  budgetInfo: "Budget 400€",
+  clientAttitude: "Exigeant sur les couleurs",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Type travaux graphiques ?",
+    "Calibration importante ?",
+    "Taille souhaitée ?",
+    "Mac ou PC ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "BenQ SW270C 27\" 2K",
+      price: "500€",
+      advantages: ["Calibré usine", "99% sRGB", "USB-C", "Pivot"],
+      disadvantages: ["Dépasse budget", "Pas 4K"],
+      productUrl: "https://www.benq.eu/fr-fr/monitor/photographer/sw270c.html",
+    ),
+  ],
+  commonTraps: [
+    "Dalle IPS obligatoire",
+    "Calibration usine important"
+  ],
+  skillsWorked: [
+    "Écran professionnel graphisme",
+    "Colorimétrie"
+  ]
+),
+
+CommercialScenario(
+  id: 79,
+  clientProfile: "Particulier",
+  clientRequest: "veut un routeur WiFi plus performant",
+  budgetInfo: "Budget 100€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Surface logement ?",
+    "Nombre d'appareils connectés ?",
+    "Murs épais ?",
+    "Débit internet actuel ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "TP-Link Archer AX20 WiFi 6",
+      price: "80€",
+      advantages: ["WiFi 6", "Dual band", "4 antennes", "Bon rapport qualité-prix"],
+      disadvantages: ["Config nécessaire", "Pas mesh"],
+      productUrl: "https://www.tp-link.com/fr/home-networking/wifi-router/archer-ax20/",
+    ),
+  ],
+  commonTraps: [
+    "WiFi 6 futur-proof",
+    "Surface vs puissance"
+  ],
+  skillsWorked: [
+    "Routeurs WiFi domestique",
+    "WiFi 5 vs 6"
+  ]
+),
+
+CommercialScenario(
+  id: 80,
+  clientProfile: "Retraité",
+  clientRequest: "cherche une tablette simple pour lire et naviguer",
+  budgetInfo: "Budget 250€",
+  clientAttitude: "Veut très simple, peur de se tromper",
+  difficulty: DifficultyLevel.medium,
+  keyQuestions: [
+    "Taille écran préférée ?",
+    "Déjà utilisé tablette/smartphone ?",
+    "Lecture livres numériques ?",
+    "WiFi uniquement ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "iPad 10.2\" 64GB WiFi",
+      price: "400€",
+      advantages: ["Très simple", "Fiable", "Écosystème Apple", "Support long"],
+      disadvantages: ["Dépasse budget", "64GB limite"],
+      productUrl: "https://www.apple.com/fr/ipad-10.2/",
+    ),
+    ScenarioSolution(
+      productName: "Samsung Galaxy Tab A8 64GB",
+      price: "200€",
+      advantages: ["Dans budget", "Grand écran 10.5\"", "Interface simple"],
+      disadvantages: ["Performances moyennes", "Moins intuitif qu'iPad"],
+      productUrl: "https://www.samsung.com/fr/tablets/galaxy-tab-a/",
+    ),
+  ],
+  commonTraps: [
+    "iPad = simplicité mais cher",
+    "Android = apprentissage"
+  ],
+  skillsWorked: [
+    "Tablette senior",
+    "iOS vs Android simplicité"
+  ]
+),
+
+// DIFFICILES (81-84)
+
+CommercialScenario(
+  id: 81,
+  clientProfile: "Étudiant gamer sérieux",
+  clientRequest: "veut monter un PC gaming complet",
+  budgetInfo: "Budget 1200€ tout compris",
+  clientAttitude: "Très technique, cite des specs, compare tout",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Jeux principaux et résolution ?",
+    "Périphériques déjà possédés ?",
+    "RGB important ?",
+    "Évolutivité prioritaire ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Config Ryzen 5 7600 + RTX 4060",
+      price: "1150€ tour complète",
+      advantages: ["1440p fluide", "Évolutif", "Performances solides"],
+      disadvantages: ["Écran non inclus", "Pas RGB excessif"],
+      productUrl: "https://www.ldlc.com/informatique/ordinateur-de-bureau/pc-de-bureau/c4266/",
+    ),
+  ],
+  commonTraps: [
+    "Équilibrer composants",
+    "Éviter RGB superflu budget serré"
+  ],
+  skillsWorked: [
+    "PC gaming complet",
+    "Client très averti technique"
+  ]
+),
+
+CommercialScenario(
+  id: 82,
+  clientProfile: "Famille hésitante",
+  clientRequest: "ne savent pas quoi choisir entre PC fixe, portable ou tablette",
+  budgetInfo: "Budget 600€",
+  clientAttitude: "Perdus, beaucoup de questions, indécis",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Usages principaux de chacun ?",
+    "Mobilité nécessaire ?",
+    "Plusieurs utilisateurs ?",
+    "Priorité budget ou durabilité ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "PC portable 15\" polyvalent",
+      price: "550€",
+      advantages: ["Polyvalent", "Mobile si besoin", "Complet"],
+      disadvantages: ["Compromis performances", "Écran moyen"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Guider vers meilleur choix",
+    "Éviter sur-vente"
+  ],
+  skillsWorked: [
+    "Conseil orientation achat",
+    "Famille indécise"
+  ]
+),
+
+CommercialScenario(
+  id: 83,
+  clientProfile: "Auto-entrepreneur",
+  clientRequest: "a besoin de plusieurs équipements pour son bureau",
+  budgetInfo: "Budget global 1500€ à optimiser",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Équipements déjà possédés ?",
+    "Activité professionnelle ?",
+    "Priorités dans budget ?",
+    "Facture professionnelle ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Pack PC + écran + périphériques + imprimante",
+      price: "800€ + 250€ + 100€ + 200€",
+      advantages: ["Setup complet", "Cohérent", "Pro"],
+      disadvantages: ["Budget serré répartition", "Compromis qualité"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Prioriser selon métier",
+    "Étaler investissements possibles"
+  ],
+  skillsWorked: [
+    "Pack professionnel complet",
+    "Optimisation budget global"
+  ]
+),
+
+CommercialScenario(
+  id: 84,
+  clientProfile: "Client difficile exigeant",
+  clientRequest: "veut le meilleur rapport qualité-prix, compare 10 sites",
+  budgetInfo: "Budget 700€ PC portable",
+  clientAttitude: "Méfiant, remet en question, négocie",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Critères prioritaires exacts ?",
+    "Prix vus ailleurs ?",
+    "Disponibilité immédiate importante ?",
+    "SAV et garantie prioritaires ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Lenovo IdeaPad 5 Pro 16\" 2.5K",
+      price: "750€",
+      advantages: ["Écran excellent", "Performances solides", "Build qualité"],
+      disadvantages: ["Dépasse légèrement", "Lourd 2kg"],
+      productUrl: "https://www.lenovo.com/fr/fr/laptops/ideapad/",
+    ),
+  ],
+  commonTraps: [
+    "Justifier prix vs concurrence",
+    "Valoriser service magasin"
+  ],
+  skillsWorked: [
+    "Client difficile comparateur",
+    "Argumentation prix service"
+  ]
+),
+
+// SCÉNARIOS 85-100 - PARTIE 3/3
+// Périmètre strict : CONSEIL VENTE en magasin informatique
+
+// DIFFICILES (85-92)
+
+CommercialScenario(
+  id: 85,
+  clientProfile: "Parent inquiet",
+  clientRequest: "veut équiper son ado pour le lycée mais budget limité",
+  budgetInfo: "Budget 400€ maximum",
+  clientAttitude: "Stressé par budget, veut durable",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Filière lycée général ou technique ?",
+    "Logiciels imposés par lycée ?",
+    "Transport quotidien ?",
+    "Possibilité échelonner achat ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Chromebook Lenovo 14\" + souris + housse",
+      price: "320€ + 15€ + 25€",
+      advantages: ["Léger", "Autonomie excellente", "Chrome OS simple", "Dans budget"],
+      disadvantages: ["Limité hors ligne", "Pas Windows natif", "Stockage cloud"],
+      productUrl: "https://www.lenovo.com/fr/fr/laptops/lenovo/student-chromebooks/",
+    ),
+    ScenarioSolution(
+      productName: "PC portable Windows 14\" reconditionné",
+      price: "380€",
+      advantages: ["Windows complet", "Reconditionné garanti", "Performances correctes"],
+      disadvantages: ["Occasion", "Batterie usagée possible"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Chromebook si bureautique uniquement",
+    "Windows si logiciels spécifiques"
+  ],
+  skillsWorked: [
+    "Budget contraint conseil",
+    "Reconditionné vs neuf entrée gamme"
+  ]
+),
+
+CommercialScenario(
+  id: 86,
+  clientProfile: "Créateur de contenu débutant",
+  clientRequest: "veut s'équiper pour YouTube/streaming",
+  budgetInfo: "Budget 800€ équipement complet",
+  clientAttitude: "Motivé mais néophyte technique",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Type contenu créé ?",
+    "Gaming ou face cam ?",
+    "Éclairage déjà possédé ?",
+    "Micro ou casque prioritaire ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Webcam C920 + Micro USB + Éclairage LED",
+      price: "70€ + 80€ + 60€",
+      advantages: ["Qualité correcte début", "Évolutif", "Reste budget PC"],
+      disadvantages: ["Pas matériel pro", "Investissement étalé meilleur"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Prioriser selon contenu",
+    "Pas tout acheter d'un coup"
+  ],
+  skillsWorked: [
+    "Setup création contenu",
+    "Priorisation équipements"
+  ]
+),
+
+CommercialScenario(
+  id: 87,
+  clientProfile: "Senior avec budget confortable",
+  clientRequest: "veut un ordinateur très simple mais de qualité",
+  budgetInfo: "Budget 1000€ flexible",
+  clientAttitude: "Peut payer mais veut simplicité absolue",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Usage principal ?",
+    "Déjà utilisé Mac ou PC ?",
+    "Mobilité nécessaire ?",
+    "Assistance configuration souhaitée ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "iMac 24\" M1",
+      price: "1500€",
+      advantages: ["Tout-en-un", "Très simple", "Fiable", "Design épuré"],
+      disadvantages: ["Dépasse budget", "Écosystème Apple"],
+      productUrl: "https://www.apple.com/fr/imac-24/",
+    ),
+    ScenarioSolution(
+      productName: "HP All-in-One 24\" i5",
+      price: "800€ + configuration 100€",
+      advantages: ["Dans budget", "Tout-en-un", "Windows familier"],
+      disadvantages: ["Moins intuitif que Mac", "Configuration nécessaire"],
+      productUrl: "https://www.hp.com/fr-fr/shop/list/desktops/all-in-one",
+    ),
+  ],
+  commonTraps: [
+    "Mac = simplicité mais prix",
+    "Service configuration valoriser"
+  ],
+  skillsWorked: [
+    "Senior budget élevé",
+    "Simplicité vs prix"
+  ]
+),
+
+CommercialScenario(
+  id: 88,
+  clientProfile: "Client comparateur acharné",
+  clientRequest: "a fait un tableau Excel comparatif de 20 modèles",
+  budgetInfo: "Budget 900€ PC portable",
+  clientAttitude: "Analytique, veut justification chaque choix",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Critères pondération tableau ?",
+    "Dealbreakers absolus ?",
+    "Marques préférées/évitées ?",
+    "Délai achat ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "ASUS Zenbook 14\" OLED i7",
+      price: "950€",
+      advantages: ["OLED magnifique", "i7 performant", "Léger 1.4kg", "Premium"],
+      disadvantages: ["Dépasse 50€", "Autonomie moyenne"],
+      productUrl: "https://www.asus.com/fr/laptops/for-home/zenbook/",
+    ),
+  ],
+  commonTraps: [
+    "S'appuyer sur son analyse",
+    "Guider choix final"
+  ],
+  skillsWorked: [
+    "Client hyper-informé",
+    "Argumentation face à data"
+  ]
+),
+
+CommercialScenario(
+  id: 89,
+  clientProfile: "Entreprise TPE",
+  clientRequest: "veut équiper 3 postes de travail",
+  budgetInfo: "Budget 2000€ total",
+  clientAttitude: "Pragmatique, veut facturation pro",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Activité entreprise ?",
+    "Logiciels métier ?",
+    "Tours ou portables ?",
+    "Garantie étendue souhaitée ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "3x HP ProDesk 400 G9 SFF",
+      price: "3 x 600€ = 1800€",
+      advantages: ["Gamme pro", "Fiable", "Compact", "Garantie 1 an"],
+      disadvantages: ["Écrans non inclus", "Performances limitées"],
+      productUrl: "https://www.hp.com/fr-fr/shop/list/desktops/prodesk",
+    ),
+  ],
+  commonTraps: [
+    "Remise volume négocier",
+    "Garantie pro important"
+  ],
+  skillsWorked: [
+    "Vente B2B petit volume",
+    "Pack entreprise"
+  ]
+),
+
+CommercialScenario(
+  id: 90,
+  clientProfile: "Gamer compétitif",
+  clientRequest: "veut setup clavier + souris haut de gamme",
+  budgetInfo: "Budget 300€",
+  clientAttitude: "Exigeant performances, cite des pro-gamers",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Jeux compétitifs joués ?",
+    "Switchs clavier préférés ?",
+    "Poids souris idéal ?",
+    "RGB important ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Logitech G Pro X + G Pro X Superlight",
+      price: "150€ + 150€",
+      advantages: ["Utilisés par pros", "Performances top", "Personnalisables"],
+      disadvantages: ["Cher", "Design sobre"],
+      productUrl: "https://www.logitechg.com/fr-fr/",
+    ),
+  ],
+  commonTraps: [
+    "Justifier prix par performances",
+    "Alternative milieu gamme proposer"
+  ],
+  skillsWorked: [
+    "Périphériques gaming haut de gamme",
+    "Client expert exigeant"
+  ]
+),
+
+CommercialScenario(
+  id: 91,
+  clientProfile: "Étudiant en montage vidéo",
+  clientRequest: "cherche disque dur externe rapide pour projets 4K",
+  budgetInfo: "Budget 200€",
+  clientAttitude: "",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Volume projets mensuel ?",
+    "Travail sur disque ou copie ?",
+    "PC ou Mac ?",
+    "Vitesse critique ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Samsung T7 Shield 2TB SSD externe",
+      price: "200€",
+      advantages: ["SSD ultra rapide", "USB 3.2 Gen 2", "Robuste IP65", "Compact"],
+      disadvantages: ["Prix élevé", "2TB peut être juste"],
+      productUrl: "https://www.samsung.com/fr/memory-storage/portable-ssd/t7-shield-usb-3-2-2tb-grey-mu-pe2t0s-ww/",
+    ),
+  ],
+  commonTraps: [
+    "SSD obligatoire montage 4K",
+    "HDD trop lent même USB 3"
+  ],
+  skillsWorked: [
+    "Stockage professionnel création",
+    "SSD externe performances"
+  ]
+),
+
+CommercialScenario(
+  id: 92,
+  clientProfile: "Famille nombreuse 5 enfants",
+  clientRequest: "veulent plusieurs équipements pour toute la famille",
+  budgetInfo: "Budget 1500€ à répartir",
+  clientAttitude: "Besoin prioriser, pas tout d'un coup possible",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Âges des enfants ?",
+    "Équipements déjà possédés ?",
+    "Besoins scolaires vs loisir ?",
+    "Échelonner achats possible ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "PC familial + 2 tablettes + imprimante",
+      price: "500€ + 2x300€ + 100€",
+      advantages: ["Couvre besoins essentiels", "Équilibré"],
+      disadvantages: ["Budget serré", "Compromis qualité"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Prioriser besoins scolaires",
+    "Étalement possible suggérer"
+  ],
+  skillsWorked: [
+    "Budget familial complexe",
+    "Priorisation multi-besoins"
+  ]
+),
+
+// TRÈS DIFFICILES (93-100)
+
+CommercialScenario(
+  id: 93,
+  clientProfile: "Photographe professionnel",
+  clientRequest: "veut station de travail pour retouche haute résolution",
+  budgetInfo: "Budget 3000€",
+  clientAttitude: "Exigences très précises calibration",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Résolution fichiers RAW ?",
+    "Logiciels Adobe ou autres ?",
+    "Écran déjà possédé ?",
+    "Calibrage matériel nécessaire ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "PC i9 32GB + Écran BenQ SW271C calibré",
+      price: "1800€ + 1100€",
+      advantages: ["Puissance Pro", "Écran calibré usine", "4K", "Setup complet"],
+      disadvantages: ["Budget serré répartition", "RAM pourrait être 64GB"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "CPU + RAM priorité retouche",
+    "Écran = investissement critique"
+  ],
+  skillsWorked: [
+    "Station travail pro photo",
+    "Besoins professionnels précis"
+  ]
+),
+
+CommercialScenario(
+  id: 94,
+  clientProfile: "Étudiant double cursus ingénieur",
+  clientRequest: "a besoin PC portable très puissant et portable",
+  budgetInfo: "Budget 1800€",
+  clientAttitude: "Très technique, besoins CAO + dev",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Logiciels CAO utilisés ?",
+    "Compilation code intensive ?",
+    "Poids maximum acceptable ?",
+    "Autonomie critique ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Lenovo ThinkPad P15s Gen 3",
+      price: "1750€",
+      advantages: ["Quadro GPU", "i7 puissant", "32GB RAM", "Certif pro"],
+      disadvantages: ["Lourd 1.9kg", "Autonomie moyenne charge"],
+      productUrl: "https://www.lenovo.com/fr/fr/laptops/thinkpad/p-series/",
+    ),
+  ],
+  commonTraps: [
+    "GPU pro vs gaming CAO",
+    "Compromis puissance/mobilité"
+  ],
+  skillsWorked: [
+    "Workstation mobile",
+    "Besoins techniques complexes"
+  ]
+),
+
+CommercialScenario(
+  id: 95,
+  clientProfile: "Client mécontent service précédent",
+  clientRequest: "a eu mauvaise expérience ailleurs, très méfiant",
+  budgetInfo: "Budget 700€ mais réticent",
+  clientAttitude: "Méfiant extrême, teste vendeur",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Qu'est-ce qui n'a pas marché avant ?",
+    "Attentes principales ?",
+    "Garanties importantes ?",
+    "Délai réflexion nécessaire ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Selon besoin réel client",
+      price: "Variable",
+      advantages: ["Conseil honnête", "Pas pression vente", "SAV transparent"],
+      disadvantages: ["Client peut ne pas acheter", "Temps investi"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Restaurer confiance priorité",
+    "Ne pas forcer vente"
+  ],
+  skillsWorked: [
+    "Gestion client échaudé",
+    "Relation confiance"
+  ]
+),
+
+CommercialScenario(
+  id: 96,
+  clientProfile: "Entrepreneur lancement startup",
+  clientRequest: "veut équiper bureau 10 personnes progressivement",
+  budgetInfo: "Budget 8000€ phase 1",
+  clientAttitude: "Visionnaire mais budget serré",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Domaine activité startup ?",
+    "Priorités phase 1 ?",
+    "Croissance prévue ?",
+    "Besoins logiciels ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Mix PC fixes + portables selon postes",
+      price: "5x 800€ fixes + 5x 1000€ portables partiellement",
+      advantages: ["Évolutif", "Adapté rôles", "Optimisé budget"],
+      disadvantages: ["Setup complexe", "Gestion parc"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Phases investissement",
+    "Mix matériel selon rôles"
+  ],
+  skillsWorked: [
+    "Équipement entreprise moyen",
+    "Stratégie investissement"
+  ]
+),
+
+CommercialScenario(
+  id: 97,
+  clientProfile: "Parent enfant handicapé",
+  clientRequest: "cherche équipement adapté handicap moteur",
+  budgetInfo: "Budget 600€ + aides possibles",
+  clientAttitude: "Besoin aide spécialisée",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Type handicap précis ?",
+    "Préconisations ergothérapeute ?",
+    "Âge enfant ?",
+    "Aides financières déjà contactées ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "PC + périphériques adaptés",
+      price: "500€ + souris trackball + clavier adapté",
+      advantages: ["Adapté besoin", "Évolutif", "Améliore autonomie"],
+      disadvantages: ["Périphériques spécialisés chers", "Configuration spécifique"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Orienter vers spécialistes handicap",
+    "Aides MDPH mentionner"
+  ],
+  skillsWorked: [
+    "Accessibilité handicap",
+    "Empathie situation délicate"
+  ]
+),
+
+CommercialScenario(
+  id: 98,
+  clientProfile: "Streameur Twitch établi",
+  clientRequest: "veut upgrade complet setup streaming",
+  budgetInfo: "Budget 4000€",
+  clientAttitude: "Sait ce qu'il veut, veut validation pro",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Config actuelle ?",
+    "Goulots d'étranglement ?",
+    "Dual PC ou single ?",
+    "Qualité stream cible ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "PC i9 + RTX 4070 + Élgato capture + Audio interface",
+      price: "2200€ + 500€ + 200€ + 150€",
+      advantages: ["Setup complet pro", "Single PC puissant", "Qualité élevée"],
+      disadvantages: ["Single PC vs dual PC", "Budget serré audio"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Encoder x264 vs NVENC",
+    "Investir audio important"
+  ],
+  skillsWorked: [
+    "Setup streaming professionnel",
+    "Client expert validation"
+  ]
+),
+
+CommercialScenario(
+  id: 99,
+  clientProfile: "Architecte cabinet établi",
+  clientRequest: "veut renouveler parc machines 5 postes CAO",
+  budgetInfo: "Budget 15000€",
+  clientAttitude: "Professionnel, veut garanties pro étendues",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Logiciels CAO/BIM utilisés ?",
+    "Rendu 3D intensif ?",
+    "Garantie sur site nécessaire ?",
+    "Installation et config incluses ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "5x Workstation Dell Precision",
+      price: "5 x 2800€ = 14000€",
+      advantages: ["Certif pro", "Quadro GPU", "Garantie 3 ans sur site", "Support"],
+      disadvantages: ["Prix élevé", "Config temps"],
+      productUrl: "https://www.dell.com/fr-fr/work/shop/workstations-de-bureau/precision-tower-3660/spd/precision-3660-workstation",
+    ),
+  ],
+  commonTraps: [
+    "Garantie sur site critique pro",
+    "Certifications logiciels important"
+  ],
+  skillsWorked: [
+    "Vente B2B workstations",
+    "Garanties professionnelles"
+  ]
+),
+
+CommercialScenario(
+  id: 100,
+  clientProfile: "Client unique situation complexe",
+  clientRequest: "besoins multiples contradictoires, budget/attentes décalés",
+  budgetInfo: "Budget inadapté à demande",
+  clientAttitude: "Situation délicate à gérer",
+  difficulty: DifficultyLevel.hard,
+  keyQuestions: [
+    "Prioriser absolument quoi ?",
+    "Compromis acceptables ?",
+    "Budget vraiment ferme ?",
+    "Timing flexible ?"
+  ],
+  solutions: [
+    ScenarioSolution(
+      productName: "Solution sur mesure négociée",
+      price: "Variable",
+      advantages: ["Adapté réalité", "Client satisfait", "Relation long terme"],
+      disadvantages: ["Complexe", "Temps important", "Compromis nécessaires"],
+      productUrl: "",
+    ),
+  ],
+  commonTraps: [
+    "Écoute active essentielle",
+    "Créativité solution"
+  ],
+  skillsWorked: [
+    "Situation complexe atypique",
+    "Négociation consultation"
+  ]
+),
+
 ];
 
   static List<CommercialScenario> getScenariosByDifficulty(DifficultyLevel difficulty) {

@@ -30,11 +30,12 @@ Widget _comingSoonPage(String title) {
 
 final List<Tool> availableTools = [
   // 1. SCÉNARIOS COMMERCIAUX (Ancien "Scénario Piqueur" renommé)
-  const Tool(
+const Tool(
   name: 'Scénarios Commerciaux',
   description: 'Générateur de scénarios avec chifoumi et timer',
   icon: Icons.business_center,
-  destination: CommercialScenarioScreen(), // au lieu de ScenarioPickerScreen()
+  destination: CommercialScenarioScreen(),
+  version: 'v1.2',  // NOUVEAU
 ),
   
   // L'ancien Scénarios Commerciaux (index 2) est supprimé.

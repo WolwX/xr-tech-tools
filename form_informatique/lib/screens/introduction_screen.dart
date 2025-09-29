@@ -19,13 +19,11 @@ class _IntroductionScreenState extends State<IntroductionScreen>
   void initState() {
     super.initState();
     
-    // Animation controller pour les particules - Plus rapide et fluide
     _animationController = AnimationController(
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 10),
       vsync: this,
-    )..repeat();
+    )..repeat(reverse: true); 
 
-    // Génération des étoiles
     _generateStars();
   }
 
@@ -40,6 +38,10 @@ class _IntroductionScreenState extends State<IntroductionScreen>
         speed: random.nextDouble() * 2 + 0.5,
         phase: random.nextDouble() * math.pi * 2,
         twinkleSpeed: random.nextDouble() * 2 + 0.5,
+        velocityX: (random.nextDouble() - 0.5) * 0.0002,
+        velocityY: (random.nextDouble() - 0.5) * 0.0002,
+        driftAmplitudeX: random.nextDouble() * 0.02,
+        driftAmplitudeY: random.nextDouble() * 0.02,
       );
     });
   }
@@ -50,11 +52,10 @@ class _IntroductionScreenState extends State<IntroductionScreen>
     super.dispose();
   }
 
-  // Fonction de navigation vers le Dashboard
   void _navigateToDashboard(BuildContext context) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (ctx) => DashboardScreen(),
+        builder: (ctx) => const DashboardScreen(),
       ),
     );
   }
@@ -65,12 +66,11 @@ class _IntroductionScreenState extends State<IntroductionScreen>
     
     return Scaffold(
       body: Container(
-        // FOND : Dégradé de deux Bleus (Foncé vers Clair)
         decoration: const BoxDecoration( 
           gradient: LinearGradient(
             colors: [
-              Color(0xFF1A237E), // Bleu indigo très foncé (haut)
-              Color(0xFF00B0FF), // Bleu azur/vibrant (bas)
+              Color(0xFF1A237E),
+              Color(0xFF00B0FF),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -79,7 +79,6 @@ class _IntroductionScreenState extends State<IntroductionScreen>
         
         child: Stack(
           children: [
-            // Particules étoilées animées
             AnimatedBuilder(
               animation: _animationController,
               builder: (context, child) {
@@ -90,7 +89,6 @@ class _IntroductionScreenState extends State<IntroductionScreen>
               },
             ),
 
-            // Contenu principal
             Positioned.fill(
               child: SafeArea( 
                 child: SingleChildScrollView(
@@ -104,15 +102,13 @@ class _IntroductionScreenState extends State<IntroductionScreen>
                         children: <Widget>[
                           const SizedBox(height: 50), 
                           
-                          // Icône principale (blanche)
-                          Icon(
+                          const Icon(
                             Icons.construction,
                             size: 100,
                             color: Colors.white,
                           ),
                           const SizedBox(height: 30),
                           
-                          // Titre principal (texte blanc)
                           Text(
                             "XR Tech Tools",
                             style: theme.textTheme.displaySmall?.copyWith(
@@ -124,7 +120,6 @@ class _IntroductionScreenState extends State<IntroductionScreen>
                           
                           const SizedBox(height: 180),
                           
-                          // Nouveau bouton Power On compact avec icône
                           PowerOnButton(
                             onTap: () => _navigateToDashboard(context),
                           ),
@@ -138,7 +133,6 @@ class _IntroductionScreenState extends State<IntroductionScreen>
               ),
             ),
 
-            // Pied de page fixe
             const Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -153,7 +147,6 @@ class _IntroductionScreenState extends State<IntroductionScreen>
   }
 }
 
-// Widget pour le bouton Power On personnalisé
 class PowerOnButton extends StatefulWidget {
   final VoidCallback onTap;
 
@@ -221,16 +214,16 @@ class _PowerOnButtonState extends State<PowerOnButton>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.power_settings_new,
-                    color: const Color(0xFF00B0FF),
+                    color: Color(0xFF00B0FF),
                     size: 24,
                   ),
                   const SizedBox(width: 12),
-                  Text(
+                  const Text(
                     'Power On',
                     style: TextStyle(
-                      color: const Color(0xFF00B0FF),
+                      color: Color(0xFF00B0FF),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -245,7 +238,6 @@ class _PowerOnButtonState extends State<PowerOnButton>
   }
 }
 
-// Classe pour représenter une particule étoile
 class StarParticle {
   final double x;
   final double y;
@@ -254,6 +246,10 @@ class StarParticle {
   final double speed;
   final double phase;
   final double twinkleSpeed;
+  final double velocityX;
+  final double velocityY;
+  final double driftAmplitudeX;
+  final double driftAmplitudeY;
 
   StarParticle({
     required this.x,
@@ -263,10 +259,13 @@ class StarParticle {
     required this.speed,
     required this.phase,
     required this.twinkleSpeed,
+    required this.velocityX,
+    required this.velocityY,
+    required this.driftAmplitudeX,
+    required this.driftAmplitudeY,
   });
 }
 
-// Painter pour dessiner les étoiles animées
 class StarsPainter extends CustomPainter {
   final List<StarParticle> stars;
   final double animationValue;
@@ -278,58 +277,60 @@ class StarsPainter extends CustomPainter {
     final paint = Paint()..style = PaintingStyle.fill;
 
     for (var star in stars) {
-      // Calcul de l'opacité avec animation de scintillement plus fluide
       final time = animationValue * 2 * math.pi;
       final twinkle = math.sin(time * star.twinkleSpeed + star.phase);
       final pulse = math.cos(time * star.speed * 0.7 + star.phase * 1.5);
       
-      // Combinaison de deux ondes pour un effet plus complexe
       final combinedTwinkle = (twinkle * 0.6 + pulse * 0.4);
       final currentOpacity = (star.opacity + combinedTwinkle * 0.4).clamp(0.1, 1.0);
       
       paint.color = Colors.white.withOpacity(currentOpacity);
 
-      final x = star.x * size.width;
-      final y = star.y * size.height;
+      // NOUVEAU : Calcul de la position avec mouvement
+      final driftX = star.velocityX * animationValue * 1000;
+      final driftY = star.velocityY * animationValue * 1000;
+      
+      final oscillationX = math.sin(time * star.speed * 0.3 + star.phase) * star.driftAmplitudeX;
+      final oscillationY = math.cos(time * star.speed * 0.4 + star.phase * 1.3) * star.driftAmplitudeY;
+      
+      double finalX = ((star.x + driftX + oscillationX) % 1.0) * size.width;
+      double finalY = ((star.y + driftY + oscillationY) % 1.0) * size.height;
+      
+      if (finalX < 0) finalX += size.width;
+      if (finalY < 0) finalY += size.height;
 
-      // Taille variable avec l'animation
       final currentSize = star.size + (twinkle * 0.3);
 
-      // Dessiner l'étoile comme un petit cercle
       canvas.drawCircle(
-        Offset(x, y),
+        Offset(finalX, finalY),
         currentSize,
         paint,
       );
 
-      // Ajouter un effet de croix pour certaines étoiles plus brillantes
       if (star.size > 1.5 && currentOpacity > 0.7) {
         paint.color = Colors.white.withOpacity(currentOpacity * 0.6);
         paint.strokeWidth = 0.8;
         
         final crossSize = currentSize * 2;
-        // Ligne horizontale
         canvas.drawLine(
-          Offset(x - crossSize, y),
-          Offset(x + crossSize, y),
+          Offset(finalX - crossSize, finalY),
+          Offset(finalX + crossSize, finalY),
           paint,
         );
-        // Ligne verticale
         canvas.drawLine(
-          Offset(x, y - crossSize),
-          Offset(x, y + crossSize),
+          Offset(finalX, finalY - crossSize),
+          Offset(finalX, finalY + crossSize),
           paint,
         );
       }
 
-      // Ajouter un halo pour les plus grandes étoiles
       if (star.size > 1.8 && currentOpacity > 0.8) {
         final haloPaint = Paint()
           ..color = Colors.white.withOpacity(currentOpacity * 0.15)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
         
         canvas.drawCircle(
-          Offset(x, y),
+          Offset(finalX, finalY),
           currentSize * 3,
           haloPaint,
         );

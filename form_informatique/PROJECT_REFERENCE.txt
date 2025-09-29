@@ -1,0 +1,153 @@
+XR TECH TOOLS - DOCUMENT DE RÉFÉRENCE PROJET
+==============================================
+
+INFORMATIONS GÉNÉRALES
+----------------------
+- Nom du projet : XR Tech Tools
+- Technologie : Flutter / Dart
+- Version actuelle : v1.1.280925
+- Développeurs : XR (humain) & Claude (IA)
+- Objectif : Application d'outils pédagogiques pour la formation en réalité étendue et informatique
+
+ARCHITECTURE DU PROJET
+-----------------------
+lib/
+├── main.dart
+├── models/
+│   ├── commercial_scenario.dart
+│   ├── scenarios.dart
+│   └── tool.dart
+├── data/
+│   ├── commercial_scenarios_data.dart (50 scénarios)
+│   ├── scenarios_data.dart
+│   └── tool_data.dart
+├── services/
+│   ├── commercial_scenario_service.dart
+│   └── scenarios_service.dart
+├── screens/
+│   ├── introduction_screen.dart
+│   ├── dashboard_screen.dart
+│   ├── commercial_scenario_screen.dart
+│   └── scenarios_picker_screen.dart
+├── widgets/
+│   ├── app_footer.dart
+│   ├── animated_start_button.dart
+│   └── tool_tile.dart
+
+FONCTIONNALITÉS IMPLÉMENTÉES
+-----------------------------
+
+1. Écran d'Introduction
+   - Fond dégradé bleu (Color(0xFF1A237E) → Color(0xFF00B0FF))
+   - Animation de particules étoilées scintillantes
+   - Bouton "Power On" animé avec feedback haptique
+   - Footer avec signature XR & Claude
+
+2. Dashboard
+   - Grille adaptive (2-3 colonnes selon taille écran)
+   - 9 outils listés (1 seul fonctionnel actuellement)
+   - Design compact avec ToolTile personnalisé
+
+3. Scénarios Commerciaux (COMPLET)
+   
+   Base de données : 50 scénarios répartis en 3 niveaux
+   - Facile : 16 scénarios
+   - Moyen : 22 scénarios  
+   - Difficile : 12 scénarios
+
+   Modes de jeu :
+   - Mode Classique : Tirage aléatoire tous niveaux
+   - Mode Défi : Chifoumi (Pierre-Feuille-Ciseaux) détermine la difficulté
+     * Victoire → Facile
+     * Égalité → Moyen
+     * Défaite → Difficile
+
+   Fonctionnalités :
+   - Timer 30 minutes (démarrage/pause/reprise)
+   - Affichage scénario avec profil client, budget, consignes
+   - Correction détaillée (questions clés, solutions, pièges, compétences)
+   - Liens directs vers produits (url_launcher)
+   - Auto-évaluation (Réussi/À revoir)
+   - Compteurs de statistiques :
+     * Chifoumi : Victoires/Égalités/Défaites
+     * Scénarios : Réussis/Échoués par difficulté
+     * Taux de réussite global
+   - Bouton de signalement d'anomalie (email automatique)
+
+THÈME & DESIGN
+--------------
+Couleur principale : Bleu (#00B0FF)
+Palette complète : 10 nuances de bleu (50 à 900)
+
+Particularités :
+- Pas de localStorage/sessionStorage (restrictions Claude.ai)
+- Immersive mode activé (barre de statut visible)
+- Design compact pour optimiser l'espace
+- Footer présent sur tous les écrans
+
+OUTILS À DÉVELOPPER (8 restants)
+---------------------------------
+1. Scénarios Commerciaux ✓ FAIT
+2. Conversion unités de valeur - Métriques XR (FOV, PPD, etc.)
+3. Calculateur espace disque - Stockage données XR
+4. Pannes informatique - Diagnostic interactif
+5. Procédures - Guides pas-à-pas
+6. Touches BIOS et BOOT - Référence fabricants
+7. Fiches Hardware - Spécifications techniques XR
+8. QCM - Tests de connaissances
+9. Liens utiles - Ressources externes
+
+DÉPENDANCES IMPORTANTES
+------------------------
+dependencies:
+  flutter:
+    sdk: flutter
+  url_launcher: ^6.x.x
+
+CONTRAINTES TECHNIQUES
+----------------------
+✗ Pas de localStorage/sessionStorage
+✓ État géré en mémoire (useState, variables)
+✓ Compatible Web, Mobile, Desktop
+✓ Design responsive
+
+DERNIÈRES MODIFICATIONS
+-----------------------
+v1.1.280925 :
+- Implémentation complète des 50 scénarios commerciaux
+- Ajout mode Défi avec Chifoumi
+- Système de statistiques détaillées par difficulté
+- Bouton signalement anomalie avec email pré-rempli
+- Optimisation affichage mobile
+
+NOTES DE DÉVELOPPEMENT
+----------------------
+Points d'attention :
+- Les scénarios utilisent des URLs LDLC, Apple, Samsung, etc.
+- Le timer ne persiste pas entre sessions (en mémoire)
+- Les statistiques sont réinitialisées à chaque lancement
+- Footer version suit format : MAJEURE.MINEURE.JJMMAA
+
+Améliorations suggérées :
+- Persister les stats (shared_preferences)
+- Historique des scénarios tirés
+- Mode révision des scénarios échoués
+- Thème sombre
+- Badges de progression
+
+CONTACT & FEEDBACK
+------------------
+Email signalement : xavier.redondo@groupeleparc.fr
+
+==============================================
+COMMENT UTILISER CE DOCUMENT
+==============================================
+
+Pour reprendre le projet avec Claude :
+1. Partager ce fichier texte en début de conversation
+2. Ajouter les fichiers de code concernés si modification spécifique
+3. Préciser la fonctionnalité à développer/corriger
+
+Exemple de prompt :
+"Bonjour Claude, voici le document de référence du projet XR Tech Tools.
+Je souhaiterais [développer l'outil X / corriger le bug Y / ajouter la fonctionnalité Z]."

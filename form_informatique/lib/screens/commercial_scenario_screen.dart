@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/commercial_scenario.dart';
 import '../services/commercial_scenario_service.dart';
 import '../widgets/app_footer.dart';
@@ -15,6 +16,55 @@ class CommercialScenarioScreen extends StatefulWidget {
 }
 
 class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
+
+@override
+void initState() {
+  super.initState();
+  _loadStatistics();  // NOUVEAU : Charger les stats au démarrage
+}
+
+// NOUVELLE MÉTHODE : Charger les statistiques sauvegardées
+Future<void> _loadStatistics() async {
+  final prefs = await SharedPreferences.getInstance();
+  
+  setState(() {
+    // Charger les compteurs chifoumi
+    _chifousiWins = prefs.getInt('chifousi_wins') ?? 0;
+    _chifousiDraws = prefs.getInt('chifousi_draws') ?? 0;
+    _chifousiLosses = prefs.getInt('chifousi_losses') ?? 0;
+    
+    // Charger les réussites par difficulté
+    _successByDifficulty[DifficultyLevel.easy] = prefs.getInt('success_easy') ?? 0;
+    _successByDifficulty[DifficultyLevel.medium] = prefs.getInt('success_medium') ?? 0;
+    _successByDifficulty[DifficultyLevel.hard] = prefs.getInt('success_hard') ?? 0;
+    
+    // Charger les essais par difficulté
+    _attemptsByDifficulty[DifficultyLevel.easy] = prefs.getInt('attempts_easy') ?? 0;
+    _attemptsByDifficulty[DifficultyLevel.medium] = prefs.getInt('attempts_medium') ?? 0;
+    _attemptsByDifficulty[DifficultyLevel.hard] = prefs.getInt('attempts_hard') ?? 0;
+  });
+}
+
+// NOUVELLE MÉTHODE : Sauvegarder les statistiques
+Future<void> _saveStatistics() async {
+  final prefs = await SharedPreferences.getInstance();
+  
+  // Sauvegarder les compteurs chifoumi
+  await prefs.setInt('chifousi_wins', _chifousiWins);
+  await prefs.setInt('chifousi_draws', _chifousiDraws);
+  await prefs.setInt('chifousi_losses', _chifousiLosses);
+  
+  // Sauvegarder les réussites par difficulté
+  await prefs.setInt('success_easy', _successByDifficulty[DifficultyLevel.easy] ?? 0);
+  await prefs.setInt('success_medium', _successByDifficulty[DifficultyLevel.medium] ?? 0);
+  await prefs.setInt('success_hard', _successByDifficulty[DifficultyLevel.hard] ?? 0);
+  
+  // Sauvegarder les essais par difficulté
+  await prefs.setInt('attempts_easy', _attemptsByDifficulty[DifficultyLevel.easy] ?? 0);
+  await prefs.setInt('attempts_medium', _attemptsByDifficulty[DifficultyLevel.medium] ?? 0);
+  await prefs.setInt('attempts_hard', _attemptsByDifficulty[DifficultyLevel.hard] ?? 0);
+}
+
   CommercialScenario? _currentScenario;
   TimerState _timerState = const TimerState(
     totalDuration: Duration(minutes: 30),
@@ -31,12 +81,16 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
   int _chifousiWins = 0;
   int _chifousiDraws = 0;
   int _chifousiLosses = 0;
-  
-  int _scenariosSuccess = 0;
-  int _scenariosFailed = 0;
 
   // Compteurs de réussites par difficulté
   final Map<DifficultyLevel, int> _successByDifficulty = {
+    DifficultyLevel.easy: 0,
+    DifficultyLevel.medium: 0,
+    DifficultyLevel.hard: 0,
+  };
+
+  // NOUVEAU : Compteurs d'essais par difficulté
+  final Map<DifficultyLevel, int> _attemptsByDifficulty = {
     DifficultyLevel.easy: 0,
     DifficultyLevel.medium: 0,
     DifficultyLevel.hard: 0,
@@ -52,9 +106,29 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     return _successByDifficulty[difficulty] ?? 0;
   }
 
+// NOUVELLE MÉTHODE À AJOUTER ICI
+int _getAttemptsByDifficulty(DifficultyLevel difficulty) {
+  return _attemptsByDifficulty[difficulty] ?? 0;
+}
+
+Color _getDifficultyColor(DifficultyLevel difficulty) {
+  switch (difficulty) {
+    case DifficultyLevel.easy:
+      return Colors.green;
+    case DifficultyLevel.medium:
+      return Colors.orange;
+    case DifficultyLevel.hard:
+      return Colors.red;
+  }
+}
+
   void _startRandomScenario() {
+    final scenario = CommercialScenarioService.drawRandomScenario();  // Tirer D'ABORD
     setState(() {
-      _currentScenario = CommercialScenarioService.drawRandomScenario();
+      _currentScenario = scenario;
+      // PUIS incrémenter
+      _attemptsByDifficulty[scenario.difficulty] = 
+        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
       _showCorrection = false;
       _showChifoumi = false;
       _chifousiGame = null;
@@ -88,8 +162,9 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
           _chifousiLosses++;
           break;
       }
-    });
-  }
+  });
+  _saveStatistics();  // NOUVEAU : Sauvegarder après chaque chifoumi
+}
 
   void _launchScenarioFromChifoumi() {
     if (_chifousiGame == null) return;
@@ -97,6 +172,9 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     final scenario = CommercialScenarioService.drawChallengeScenario(_chifousiGame!.result);
     setState(() {
       _currentScenario = scenario;
+      // Incrémenter les essais
+      _attemptsByDifficulty[scenario.difficulty] = 
+        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
       _showChifoumi = false;
       _showCorrection = false;
       _chifousiGame = null;
@@ -408,7 +486,7 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
                       if (_currentScenario == null && !_showChifoumi)
                         _buildWelcomeMessage(),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 32),
                     ],
                   ),
                 ),
@@ -426,161 +504,204 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
     );
   }
 
-  Widget _buildModeSelection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Text(
-              'Choisissez votre mode de tirage',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+Widget _buildModeSelection() {
+  return Card(
+    child: Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          // TITRE EN PREMIER
+          Text(
+            'Générateur de Scénarios Commerciaux',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 24),
-            
-            ElevatedButton.icon(
-              icon: const Icon(Icons.casino, size: 24),
-              label: const Text(
-                'Tirage Classique',
-                style: TextStyle(fontSize: 18),
-              ),
-              onPressed: _startRandomScenario,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-              ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          
+          // DESCRIPTION
+          Text(
+            'Entraînez-vous au conseil client avec des situations réalistes',
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            textAlign: TextAlign.center,
+          ),
+          
+          const SizedBox(height: 40),  // AUGMENTÉ de 24 à 40
+          
+          // SOUS-TITRE
+          Text(
+            'Choisissez votre mode de tirage',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            
-            const SizedBox(height: 12),
-            
-            ElevatedButton.icon(
-              icon: const Icon(Icons.fitness_center, size: 24),
-              label: const Text(
-                'Mode Défi (Chifoumi)',
-                style: TextStyle(fontSize: 18),
-              ),
-              onPressed: _showChifousiInterface,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-              ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),  // AUGMENTÉ de 20 à 24
+          
+          // BOUTON TIRAGE CLASSIQUE
+          ElevatedButton.icon(
+            icon: const Icon(Icons.casino, size: 24),
+            label: const Text(
+              'Tirage Classique',
+              style: TextStyle(fontSize: 18),
             ),
-            
-            const SizedBox(height: 16),
-            
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.info_outline, color: Colors.orange, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Mode Défi : Pierre-Feuille-Ciseaux',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade800,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Victoire = Facile  •  Égalité = Moyen  •  Défaite = Difficile',
-                    style: TextStyle(
-                      color: Colors.orange.shade700,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+            onPressed: _startRandomScenario,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
             ),
-          ],
-        ),
+          ),
+          
+          const SizedBox(height: 16),  // AUGMENTÉ de 12 à 16
+          
+          // BOUTON MODE DÉFI
+          ElevatedButton.icon(
+            icon: const Icon(Icons.fitness_center, size: 24),
+            label: const Text(
+              'Mode Défi (Chifoumi)',
+              style: TextStyle(fontSize: 18),
+            ),
+            onPressed: _showChifousiInterface,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+            ),
+          ),
+          
+          const SizedBox(height: 40),  // NOUVEAU : Espace avant les stats
+          
+          // Bloc stats déplacé en bas avec plus d'espace
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildChifousiInterface() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Text(
-              'Pierre - Feuille - Ciseaux',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+Widget _buildChifousiInterface() {
+  return Card(
+    child: Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          // TITRE AVEC "CHIFOUMI"
+          Text(
+            '"Chifoumi"',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade600,
+              fontStyle: FontStyle.italic,
             ),
-            const SizedBox(height: 16),
-            
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildCounterBadge('Victoires', _chifousiWins, Colors.green),
-                  _buildCounterBadge('Égalités', _chifousiDraws, Colors.orange),
-                  _buildCounterBadge('Défaites', _chifousiLosses, Colors.red),
-                ],
-              ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pierre - Feuille - Ciseaux',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
-            
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          
+          // COMPTEURS DE SCORE
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCounterBadge('Victoires', _chifousiWins, Colors.green),
+                _buildCounterBadge('Égalités', _chifousiDraws, Colors.orange),
+                _buildCounterBadge('Défaites', _chifousiLosses, Colors.red),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // CHOIX PIERRE FEUILLE CISEAUX
+          if (_chifousiGame == null) ...[
+            const Text(
+              'Faites votre choix :',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
             const SizedBox(height: 20),
             
-            if (_chifousiGame == null) ...[
-              const Text(
-                'Faites votre choix :',
-                style: TextStyle(fontSize: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildChifousiButton(
+                  choice: ChifousiChoice.rock,
+                  icon: '🪨',
+                  label: 'Pierre',
+                ),
+                _buildChifousiButton(
+                  choice: ChifousiChoice.paper,
+                  icon: '📄',
+                  label: 'Feuille',
+                ),
+                _buildChifousiButton(
+                  choice: ChifousiChoice.scissors,
+                  icon: '✂️',
+                  label: 'Ciseaux',
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // ENCADRÉ EXPLICATIF EN BAS (après les boutons de choix)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.shade200, width: 2),
               ),
-              const SizedBox(height: 20),
-              
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Row(
                 children: [
-                  _buildChifousiButton(
-                    choice: ChifousiChoice.rock,
-                    icon: '🪨',
-                    label: 'Pierre',
-                  ),
-                  _buildChifousiButton(
-                    choice: ChifousiChoice.paper,
-                    icon: '📄',
-                    label: 'Feuille',
-                  ),
-                  _buildChifousiButton(
-                    choice: ChifousiChoice.scissors,
-                    icon: '✂️',
-                    label: 'Ciseaux',
+                  Icon(Icons.info_outline, color: Colors.orange.shade700, size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Mode Défi : Pierre-Feuille-Ciseaux',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange.shade800,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Victoire = Facile  •  Égalité = Moyen  •  Défaite = Difficile',
+                          style: TextStyle(
+                            color: Colors.orange.shade700,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ] else ...[
-              _buildChifousiResult(),
-            ],
+            ),
+          ] else ...[
+            // RÉSULTAT DU JEU
+            _buildChifousiResult(),
           ],
-        ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCounterBadge(String label, int count, Color color) {
     return Column(
@@ -738,93 +859,115 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
     }
   }
 
-  Widget _buildTimerWidget() {
-    final minutes = _timerState.remainingTime.inMinutes;
-    final seconds = _timerState.remainingTime.inSeconds % 60;
-    final isLowTime = _timerState.remainingTime.inMinutes < 5;
-    
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isLowTime 
-            ? [Colors.red.shade700, Colors.red.shade500]
-            : [const Color(0xFF1A237E), const Color(0xFF00B0FF)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+Widget _buildTimerWidget() {
+  final minutes = _timerState.remainingTime.inMinutes;
+  final seconds = _timerState.remainingTime.inSeconds % 60;
+  final isLowTime = _timerState.remainingTime.inMinutes < 5;
+  
+  return Container(
+    width: double.infinity,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: isLowTime 
+          ? [Colors.red.shade700, Colors.red.shade500]
+          : [const Color(0xFF1A237E), const Color(0xFF00B0FF)],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.2),
+          blurRadius: 8,
+          offset: const Offset(0, -2),
         ),
+      ],
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+    child: Row(
+      children: [
+        // Icône horloge
+        const Icon(Icons.timer, size: 24, color: Colors.white),
+        const SizedBox(width: 12),
+        
+        // Temps restant
+        Text(
+          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        
+        const SizedBox(width: 16),
+        
+        // Bouton Démarrer/Reprendre/Pause
+        Expanded(
+          child: !_timerState.isRunning && !_timerState.isFinished
+            ? ElevatedButton.icon(
+                onPressed: _timerState.isPaused ? _resumeTimer : _startTimer,
+                icon: const Icon(Icons.play_arrow, size: 18),
+                label: Text(_timerState.isPaused ? 'Reprendre' : 'Démarrer'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF00B0FF),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              )
+            : _timerState.isRunning
+              ? ElevatedButton.icon(
+                  onPressed: _pauseTimer,
+                  icon: const Icon(Icons.pause, size: 18),
+                  label: const Text('Pause'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF00B0FF),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        
+        const SizedBox(width: 12),
+        
+        // Icône correction
+        IconButton(
+          onPressed: _showCorrectionManually,
+          icon: const Icon(Icons.help_outline, size: 24),
+          tooltip: 'Voir la correction',
+          color: Colors.white,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildScenarioDisplay() {
+  if (_currentScenario == null) return const SizedBox();
+  
+  return Card(
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(
+        color: _getDifficultyColor(_currentScenario!.difficulty),
+        width: 4,
+      ),
+    ),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
+            color: _getDifficultyColor(_currentScenario!.difficulty).withOpacity(0.3),
+            blurRadius: 12,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.timer, size: 24, color: Colors.white),
-                  const SizedBox(width: 12),
-                  Text(
-                    '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              IconButton(
-                onPressed: _showCorrectionManually,
-                icon: const Icon(Icons.help_outline, size: 24),
-                tooltip: 'Voir la correction',
-                color: Colors.white,
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (!_timerState.isRunning && !_timerState.isFinished) ...[
-            ElevatedButton.icon(
-              onPressed: _timerState.isPaused ? _resumeTimer : _startTimer,
-              icon: const Icon(Icons.play_arrow, size: 20),
-              label: Text(_timerState.isPaused ? 'Reprendre' : 'Démarrer le chrono'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF00B0FF),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ] else if (_timerState.isRunning) ...[
-            ElevatedButton.icon(
-              onPressed: _pauseTimer,
-              icon: const Icon(Icons.pause, size: 20),
-              label: const Text('Mettre en pause'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF00B0FF),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScenarioDisplay() {
-    if (_currentScenario == null) return const SizedBox();
-    
-    return Card(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -839,21 +982,44 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getDifficultyColor(_currentScenario!.difficulty),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    _currentScenario!.difficultyLabel,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
+Container(
+  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  decoration: BoxDecoration(
+    color: _currentScenario!.difficulty == DifficultyLevel.easy 
+        ? Colors.green 
+        : _currentScenario!.difficulty == DifficultyLevel.medium 
+            ? Colors.orange 
+            : Colors.red,
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(3, (index) {
+          int filledStars = _currentScenario!.difficulty == DifficultyLevel.easy ? 1 
+              : _currentScenario!.difficulty == DifficultyLevel.medium ? 2 
+              : 3;
+          return Icon(
+            index < filledStars ? Icons.star : Icons.star_border,
+            color: Colors.white,
+            size: 16,
+          );
+        }),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        _currentScenario!.difficultyLabel,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
+        ),
+      ),
+    ],
+  ),
+),
               ],
             ),
             const Divider(height: 30, thickness: 2),
@@ -1050,8 +1216,9 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCorrectionSheet() {
     if (_currentScenario == null) return const SizedBox();
@@ -1171,13 +1338,13 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
                       ElevatedButton.icon(
                         onPressed: () {
                           setState(() {
-                            _scenariosSuccess++;
                             if (_currentScenario != null) {
                               _successByDifficulty[_currentScenario!.difficulty] = 
                                 (_successByDifficulty[_currentScenario!.difficulty] ?? 0) + 1;
                             }
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
+                        });
+                        _saveStatistics();  // NOUVEAU : Sauvegarder après validation
+                        ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('✓ Scénario validé comme réussi !'),
                               backgroundColor: Colors.green,
@@ -1196,7 +1363,6 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
                       ElevatedButton.icon(
                         onPressed: () {
                           setState(() {
-                            _scenariosFailed++;
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -1228,7 +1394,14 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
                 ElevatedButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Nouveau Scénario'),
-                  onPressed: _startRandomScenario,
+                  onPressed: () {
+                    setState(() {
+                      _currentScenario = null;
+                      _showCorrection = false;
+                      _showChifoumi = false;
+                    });
+                    _resetTimer();
+                  },
                 ),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.fitness_center),
@@ -1373,7 +1546,7 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
                           mode: LaunchMode.externalApplication,
                         );
                       } else {
-                        if (context.mounted) {
+                        if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Impossible d\'ouvrir le lien : ${solution.productUrl}'),
@@ -1399,237 +1572,216 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
     );
   }
 
-  Widget _buildWelcomeMessage() {
-    final stats = CommercialScenarioService.getScenarioStats();
-    final totalAttempts = _scenariosSuccess + _scenariosFailed;
-    final successRate = totalAttempts > 0 
-        ? ((_scenariosSuccess / totalAttempts) * 100).toStringAsFixed(0) 
-        : '0';
-    
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.only(top: 20),
-      child: Column(
-        children: [
-          Icon(Icons.business_center, size: 50, color: Colors.grey.shade400),
-          const SizedBox(height: 16),
-          Text(
-            'Générateur de Scénarios Commerciaux',
-            style: TextStyle(
-              fontSize: 24, 
-              color: Colors.grey.shade600, 
-              fontWeight: FontWeight.bold
-            ),
-            textAlign: TextAlign.center,
+Widget _buildWelcomeMessage() {
+  final stats = CommercialScenarioService.getScenarioStats();
+  
+  return Container(
+    alignment: Alignment.center,
+    padding: const EdgeInsets.only(top: 20),
+    child: Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.blue.shade200, width: 2),
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Entraînez-vous au conseil client avec des situations réalistes',
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.shade200, width: 2),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '${stats['total']} scénarios disponibles', 
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold, 
-                    color: Colors.blue.shade700,
-                    fontSize: 18,
-                  ),
+          child: Column(
+            children: [
+              Text(
+                '${stats['total']} scénarios disponibles', 
+                style: TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  color: Colors.blue.shade700,
+                  fontSize: 18,
                 ),
-                const SizedBox(height: 12),
-                
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildStatItem('Faciles', stats['facile']!, Colors.green),
-                    _buildStatItem('Moyens', stats['moyen']!, Colors.orange),
-                    _buildStatItem('Difficiles', stats['difficile']!, Colors.red),
-                  ],
-                ),
-                
-                if (totalAttempts > 0) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(thickness: 2, color: Colors.blue.shade200),
-                  ),
-                  
-                  Row(
-                    children: [
-                      Icon(Icons.emoji_events, color: Colors.blue.shade700, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'VOS RÉUSSITES',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade700,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green.withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '${_getSuccessByDifficulty(DifficultyLevel.easy)}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                            const Text(
-                              'Faciles',
-                              style: TextStyle(fontSize: 11, color: Colors.green),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.orange.withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '${_getSuccessByDifficulty(DifficultyLevel.medium)}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                              ),
-                            ),
-                            const Text(
-                              'Moyens',
-                              style: TextStyle(fontSize: 11, color: Colors.orange),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.withOpacity(0.3)),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '${_getSuccessByDifficulty(DifficultyLevel.hard)}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                            ),
-                            const Text(
-                              'Difficiles',
-                              style: TextStyle(fontSize: 11, color: Colors.red),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Taux de réussite global : ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.blue.shade800,
-                          ),
-                        ),
-                        Text(
-                          '$successRate%',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade900,
-                          ),
-                        ),
-                        Text(
-                          ' ($totalAttempts scénarios)',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.blue.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String label, int count, Color color) {
-    return Column(
+              ),
+              const SizedBox(height: 12),
+              
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    Column(
       children: [
         Text(
-          '$count', 
-          style: TextStyle(
-            fontSize: 24, 
-            fontWeight: FontWeight.bold, 
-            color: color
-          )
+          '${stats['facile']}',
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
         ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.star, color: Colors.green, size: 14),
+            Icon(Icons.star_border, color: Colors.green, size: 14),
+            Icon(Icons.star_border, color: Colors.green, size: 14),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text('Faciles', style: TextStyle(fontSize: 12)),
+      ],
+    ),
+    Column(
+      children: [
         Text(
-          label, 
-          style: TextStyle(fontSize: 13, color: color, fontWeight: FontWeight.w600)
+          '${stats['moyen']}',
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.orange,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.star, color: Colors.orange, size: 14),
+            Icon(Icons.star, color: Colors.orange, size: 14),
+            Icon(Icons.star_border, color: Colors.orange, size: 14),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text('Moyens', style: TextStyle(fontSize: 12)),
+      ],
+    ),
+    Column(
+      children: [
+        Text(
+          '${stats['difficile']}',
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.star, color: Colors.red, size: 14),
+            Icon(Icons.star, color: Colors.red, size: 14),
+            Icon(Icons.star, color: Colors.red, size: 14),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text('Difficiles', style: TextStyle(fontSize: 12)),
+      ],
+    ),
+  ],
+),
+              
+              // NOUVEAU : Ligne de séparation
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Divider(thickness: 2, color: Colors.blue.shade200),
+              ),
+              
+              // NOUVEAU : Statistiques de réussite
+              Text(
+                'Statistiques de réussite',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade700,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    Column(
+      children: [
+        Text(
+          '${_getSuccessByDifficulty(DifficultyLevel.easy)} / ${_getAttemptsByDifficulty(DifficultyLevel.easy)}',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.star, color: Colors.green, size: 14),
+            Icon(Icons.star_border, color: Colors.green, size: 14),
+            Icon(Icons.star_border, color: Colors.green, size: 14),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Faciles',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
         ),
       ],
-    );
-  }
-
-  Color _getDifficultyColor(DifficultyLevel difficulty) {
-    switch (difficulty) {
-      case DifficultyLevel.easy:
-        return Colors.green;
-      case DifficultyLevel.medium:
-        return Colors.orange;
-      case DifficultyLevel.hard:
-        return Colors.red;
-    }
-  }
+    ),
+    Column(
+      children: [
+        Text(
+          '${_getSuccessByDifficulty(DifficultyLevel.medium)} / ${_getAttemptsByDifficulty(DifficultyLevel.medium)}',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.orange,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.star, color: Colors.orange, size: 14),
+            Icon(Icons.star, color: Colors.orange, size: 14),
+            Icon(Icons.star_border, color: Colors.orange, size: 14),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Moyens',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    ),
+    Column(
+      children: [
+        Text(
+          '${_getSuccessByDifficulty(DifficultyLevel.hard)} / ${_getAttemptsByDifficulty(DifficultyLevel.hard)}',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.star, color: Colors.red, size: 14),
+            Icon(Icons.star, color: Colors.red, size: 14),
+            Icon(Icons.star, color: Colors.red, size: 14),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Difficiles',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }

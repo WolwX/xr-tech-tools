@@ -23,8 +23,6 @@ class _ScenarioPickerScreenState extends State<ScenarioPickerScreen> {
       try {
         _currentScenario = ScenarioService.drawScenario();
       } catch (e) {
-        // Debug: Afficher l'erreur si le service ne fonctionne pas
-        print('Erreur lors du tirage: $e');
         // Scénario de test temporaire
         _currentScenario = Scenario(
           titre: "Test de Scénario", 

@@ -73,7 +73,7 @@ class AppFooter extends StatelessWidget {
         
         // Numéro de version avec convention MAJEURE.MINEURE.DDMMAA
         Text(
-          " - Version v1.1.280925",
+          " - Version v1.2.290925",
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withOpacity(0.7),
           ),
