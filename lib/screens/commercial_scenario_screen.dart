@@ -448,15 +448,73 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.business_center),
-            SizedBox(width: 8),
-            Text('Scénarios Commerciaux'),
-          ],
+appBar: AppBar(
+  leading: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        icon: const Icon(Icons.home),
+        onPressed: () {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        },
+        tooltip: 'Dashboard',
+      ),
+      IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          // Si on est sur un scénario ou le chifoumi, revenir à l'accueil
+          if (_currentScenario != null || _showChifoumi) {
+            setState(() {
+              _currentScenario = null;
+              _showChifoumi = false;
+              _showCorrection = false;
+              _chifousiGame = null;
+            });
+            _resetTimer();
+          } else {
+            // Sinon, quitter vers le dashboard
+            Navigator.of(context).pop();
+          }
+        },
+        tooltip: 'Retour',
+      ),
+    ],
+  ),
+  leadingWidth: 100,
+  title: const Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(Icons.business_center),
+      SizedBox(width: 8),
+      Text('Scénarios Commerciaux'),
+    ],
+  ),
+  actions: [
+    Center(
+      child: Padding(
+        padding: const EdgeInsets.only(right: 16.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0x33FFFFFF),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0x4DFFFFFF),
+            ),
+          ),
+          child: const Text(
+            'v1.2',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
+    ),
+  ],
+),
       body: Column(
         children: [
           Expanded(
@@ -505,74 +563,151 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
   }
 
 Widget _buildModeSelection() {
-  return Card(
-    child: Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        children: [
-          // TITRE EN PREMIER
-          Text(
-            'Générateur de Scénarios Commerciaux',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // ✅ NOUVELLE SECTION : Introduction encadrée en bleu
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF00B0FF).withOpacity(0.1),
+              const Color(0xFF1A237E).withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(height: 8),
-          
-          // DESCRIPTION
-          Text(
-            'Entraînez-vous au conseil client avec des situations réalistes',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            textAlign: TextAlign.center,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFF00B0FF).withOpacity(0.3),
+            width: 1,
           ),
-          
-          const SizedBox(height: 40),  // AUGMENTÉ de 24 à 40
-          
-          // SOUS-TITRE
-          Text(
-            'Choisissez votre mode de tirage',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00B0FF),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.contact_support,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Text(
+                    'Conseil Commercial & Vente',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1A237E),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
+            const SizedBox(height: 16),
+            const Text(
+              'Entraînez-vous au conseil client avec des situations réalistes de magasin informatique. '
+              'Développez vos compétences en vente, analyse des besoins et proposition de solutions adaptées.',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildInfoChip('IDI', Colors.blue.shade700),
+                const SizedBox(width: 8),
+                _buildInfoChip('ADRN', Colors.green.shade700),
+                const SizedBox(width: 8),
+                _buildInfoChip('TIP', Colors.orange.shade700),
+              ],
+            ),
+          ],
+        ),
+      ),
+      
+      const SizedBox(height: 40),
+      
+      // ✅ SECTION EXISTANTE : Choix du mode (dans une Card séparée)
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              // SOUS-TITRE
+              Text(
+                'Choisissez votre mode de tirage',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              
+              // BOUTON TIRAGE CLASSIQUE
+              ElevatedButton.icon(
+                icon: const Icon(Icons.casino, size: 24),
+                label: const Text(
+                  'Tirage Classique',
+                  style: TextStyle(fontSize: 18),
+                ),
+                onPressed: _startRandomScenario,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // BOUTON MODE DÉFI
+              ElevatedButton.icon(
+                icon: const Icon(Icons.fitness_center, size: 24),
+                label: const Text(
+                  'Mode Défi (Chifoumi)',
+                  style: TextStyle(fontSize: 18),
+                ),
+                onPressed: _showChifousiInterface,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),  // AUGMENTÉ de 20 à 24
-          
-          // BOUTON TIRAGE CLASSIQUE
-          ElevatedButton.icon(
-            icon: const Icon(Icons.casino, size: 24),
-            label: const Text(
-              'Tirage Classique',
-              style: TextStyle(fontSize: 18),
-            ),
-            onPressed: _startRandomScenario,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-            ),
-          ),
-          
-          const SizedBox(height: 16),  // AUGMENTÉ de 12 à 16
-          
-          // BOUTON MODE DÉFI
-          ElevatedButton.icon(
-            icon: const Icon(Icons.fitness_center, size: 24),
-            label: const Text(
-              'Mode Défi (Chifoumi)',
-              style: TextStyle(fontSize: 18),
-            ),
-            onPressed: _showChifousiInterface,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-            ),
-          ),
-          
-          const SizedBox(height: 40),  // NOUVEAU : Espace avant les stats
-          
-          // Bloc stats déplacé en bas avec plus d'espace
-        ],
+        ),
+      ),
+    ],
+  );
+}
+
+// ✅ NOUVELLE MÉTHODE : Widget pour les badges IDI/ADRN/TIP
+Widget _buildInfoChip(String label, Color color) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: color.withOpacity(0.3)),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+        color: color,
       ),
     ),
   );

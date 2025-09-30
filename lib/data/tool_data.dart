@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/tool.dart'; // Importe la classe Tool
 // Utilisation du nom de fichier exact pour l'écran de tirage
 import '../screens/commercial_scenario_screen.dart'; 
+import '../screens/malfunction_home_screen.dart';
 
 // --- Fonction utilitaire pour créer une page temporaire (Bientôt disponible) ---
 Widget _comingSoonPage(String title) {
@@ -58,10 +59,11 @@ const Tool(
 
   // 4. Pannes informatique (Ancien index 5)
   Tool(
-    name: 'Pannes informatique',
-    description: 'Guide interactif pour le diagnostic et le dépannage rapide des problèmes matériels et logiciels courants.',
+    name: 'Pannes Informatiques',
+    description: 'Générateur de pannes pour entrainement, ainsi qu\'outils de dépannage rapide.',
     icon: Icons.bug_report_outlined,
-    destination: _comingSoonPage('Pannes informatique'),
+    destination: const MalfunctionHomeScreen(),
+    version: 'v0.1',
   ),
 
   // 5. Procédures (Ancien index 6)

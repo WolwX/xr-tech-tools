@@ -20,6 +20,23 @@ const MaterialColor primaryBlue = MaterialColor(
   },
 );
 
+// Définition d'une couleur d'accent pour l'ensemble de l'application (l'orange)
+const MaterialColor primaryOrange = MaterialColor(
+  0xFFFF6B35, // Valeur principale (500)
+  <int, Color>{
+    50: Color(0xFFFFF3EF),
+    100: Color(0xFFFFE0D4),
+    200: Color(0xFFFFC9B7),
+    300: Color(0xFFFFA98E),
+    400: Color(0xFFFF896B),
+    500: Color(0xFFFF6B35), // Votre couleur principale
+    600: Color(0xFFE65F30), // Plus sombre pour les ombres
+    700: Color(0xFFCC542B), // La nuance 700 que vous voulez utiliser
+    800: Color(0xFFB34925),
+    900: Color(0xFF80341A),
+  },
+);
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
