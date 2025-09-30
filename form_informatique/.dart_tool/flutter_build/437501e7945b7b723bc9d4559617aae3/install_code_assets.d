@@ -1,1 +1,0 @@
- D:\\Bibliotheques\\Documents\\form_informatique\\form_informatique\\.dart_tool\\flutter_build\\437501e7945b7b723bc9d4559617aae3\\native_assets.json: 
