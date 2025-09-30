@@ -5,9 +5,31 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.1.280925
-- Développeurs : XR (humain) & Claude (IA)
-- Objectif : Application d'outils pédagogiques pour la formation en réalité étendue et informatique
+- Version actuelle : v1.2.0
+- Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
+- Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
+- Contact : WolwX@hotmail.com
+- Dépôt GitHub : https://github.com/WolwX/xr-tech-tools
+
+DOUBLE OBJECTIF
+---------------
+Pour les Apprenants (IDI, ADRN, TIP) :
+- S'entraîner sur des cas pratiques réels
+- Développer leurs compétences techniques
+- Se préparer aux certifications professionnelles
+- Réviser les concepts clés
+
+Pour les Professionnels :
+- Accéder rapidement à des outils de conversion et calcul
+- Consulter des références techniques (BIOS, hardware)
+- Utiliser des guides de diagnostic et procédures
+- Optimiser leurs interventions quotidiennes
+
+TITRES PROFESSIONNELS VISÉS
+----------------------------
+- IDI - Installateur Dépanneur en Informatique (RNCP34147)
+- ADRN - Agent De Reconditionnement en appareil Numérique (RNCP38718)
+- TIP - Technicien Informatique de Proximité (RNCP40799)
 
 ARCHITECTURE DU PROJET
 -----------------------
@@ -18,7 +40,7 @@ lib/
 │   ├── scenarios.dart
 │   └── tool.dart
 ├── data/
-│   ├── commercial_scenarios_data.dart (50 scénarios)
+│   ├── commercial_scenarios_data.dart (100 scénarios - COMPLET)
 │   ├── scenarios_data.dart
 │   └── tool_data.dart
 ├── services/
@@ -45,15 +67,29 @@ FONCTIONNALITÉS IMPLÉMENTÉES
 
 2. Dashboard
    - Grille adaptive (2-3 colonnes selon taille écran)
-   - 9 outils listés (1 seul fonctionnel actuellement)
+   - 10 outils listés (1 fonctionnel, 9 en développement)
    - Design compact avec ToolTile personnalisé
 
-3. Scénarios Commerciaux (COMPLET)
+3. Scénarios Commerciaux (✅ COMPLET v1.2.0) - OUTIL PÉDAGOGIQUE
    
-   Base de données : 50 scénarios répartis en 3 niveaux
-   - Facile : 16 scénarios
-   - Moyen : 22 scénarios  
-   - Difficile : 12 scénarios
+   Base de données : 100 scénarios répartis en 3 niveaux
+   - Facile : 33 scénarios (⭐)
+   - Moyen : 45 scénarios (⭐⭐)
+   - Difficile : 22 scénarios (⭐⭐⭐)
+
+   PÉRIMÈTRE :
+   - Conseil et vente en magasin informatique
+   - Matériel informatique fixe/mobile et périphériques
+   - Formation aux compétences relationnelles et commerciales
+   - Conforme aux référentiels RNCP (IDI, ADRN, TIP)
+
+   Exemples de scénarios :
+   - Étudiant cherche PC portable pour la fac
+   - Parent veut tablette pour enfant
+   - Auto-entrepreneur équipe son bureau
+   - Gamer cherche écran 144Hz
+   - Senior veut ordinateur simple
+   - Famille avec budget limité
 
    Modes de jeu :
    - Mode Classique : Tirage aléatoire tous niveaux
@@ -65,14 +101,21 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    Fonctionnalités :
    - Timer 30 minutes (démarrage/pause/reprise)
    - Affichage scénario avec profil client, budget, consignes
-   - Correction détaillée (questions clés, solutions, pièges, compétences)
+   - Correction détaillée (questions clés, solutions, pièges, compétences RNCP)
    - Liens directs vers produits (url_launcher)
    - Auto-évaluation (Réussi/À revoir)
-   - Compteurs de statistiques :
+   - Statistiques persistantes (SharedPreferences) :
      * Chifoumi : Victoires/Égalités/Défaites
-     * Scénarios : Réussis/Échoués par difficulté
-     * Taux de réussite global
+     * Scénarios : Réussis / Essais par difficulté
+     * Format affichage : "X / Y" (réussis sur total d'essais)
    - Bouton de signalement d'anomalie (email automatique)
+
+   Améliorations UX v1.2.0 :
+   - Page d'accueil aérée (espacement 40px au lieu de 24px)
+   - Bloc statistiques séparé visuellement (32px)
+   - Page Chifoumi avec titre "Chifoumi" + "Pierre-Feuille-Ciseaux"
+   - Encadré explicatif orange déplacé en bas de la page chifoumi
+   - Meilleure hiérarchie visuelle de l'information
 
 THÈME & DESIGN
 --------------
@@ -80,22 +123,40 @@ Couleur principale : Bleu (#00B0FF)
 Palette complète : 10 nuances de bleu (50 à 900)
 
 Particularités :
-- Pas de localStorage/sessionStorage (restrictions Claude.ai)
+- Pas de localStorage/sessionStorage (restrictions environnement artifacts)
+- SharedPreferences pour persistance des statistiques
 - Immersive mode activé (barre de statut visible)
-- Design compact pour optimiser l'espace
+- Design compact et responsive
 - Footer présent sur tous les écrans
 
-OUTILS À DÉVELOPPER (8 restants)
+OUTILS À DÉVELOPPER (9 restants)
 ---------------------------------
-1. Scénarios Commerciaux ✓ FAIT
-2. Conversion unités de valeur - Métriques XR (FOV, PPD, etc.)
-3. Calculateur espace disque - Stockage données XR
-4. Pannes informatique - Diagnostic interactif
-5. Procédures - Guides pas-à-pas
-6. Touches BIOS et BOOT - Référence fabricants
-7. Fiches Hardware - Spécifications techniques XR
-8. QCM - Tests de connaissances
-9. Liens utiles - Ressources externes
+
+OUTILS À DOUBLE USAGE (Pédagogique + Professionnel) :
+2. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
+   Usage : Formation calculs techniques + Utilisation terrain
+3. Calculateur Espace Disque - Conversions Mo/Go/To
+   Usage : Apprentissage capacités + Calculs rapides pro
+4. Touches BIOS et BOOT - Référence fabricants
+   Usage : Mémorisation formation + Consultation rapide
+5. Fiches Hardware - Spécifications techniques
+   Usage : Étude matériel + Référence technique
+6. Liens Utiles - Ressources externes
+   Usage : Apprentissage + Accès ressources
+
+OUTILS PRINCIPALEMENT PÉDAGOGIQUES :
+1. ✅ Scénarios Commerciaux - COMPLET (100 scénarios)
+7. Procédures Techniques - Guides pas-à-pas
+   Usage : Entraînement méthodologique IDI/ADRN/TIP
+8. QCM - Tests de connaissances par module
+   Usage : Évaluation compétences par titre RNCP
+9. Diagnostic Pannes - Guide interactif
+   Usage : Formation résolution problèmes
+10. (À définir)
+
+Note importante : Les outils 2-6 servent à la fois pour :
+- La formation des apprenants aux trois titres RNCP (IDI, ADRN, TIP)
+- L'usage professionnel quotidien des techniciens en exercice
 
 DÉPENDANCES IMPORTANTES
 ------------------------
@@ -103,51 +164,141 @@ dependencies:
   flutter:
     sdk: flutter
   url_launcher: ^6.x.x
+  shared_preferences: ^2.x.x
 
 CONTRAINTES TECHNIQUES
 ----------------------
-✗ Pas de localStorage/sessionStorage
-✓ État géré en mémoire (useState, variables)
+✗ Pas de localStorage/sessionStorage dans les artifacts
+✓ SharedPreferences pour la persistance des données
+✓ État géré en mémoire (setState, variables)
 ✓ Compatible Web, Mobile, Desktop
 ✓ Design responsive
 
-DERNIÈRES MODIFICATIONS
------------------------
-v1.1.280925 :
-- Implémentation complète des 50 scénarios commerciaux
-- Ajout mode Défi avec Chifoumi
-- Système de statistiques détaillées par difficulté
-- Bouton signalement anomalie avec email pré-rempli
-- Optimisation affichage mobile
+HISTORIQUE DES VERSIONS
+------------------------
+
+v1.2.0 (Janvier 2025) :
+✨ Nouvelles fonctionnalités :
+- 100 scénarios commerciaux complets (50 nouveaux ajoutés)
+- ✅ Fonctionnalité "Scénarios Commercial" terminée
+- Scénarios orientés conseil/vente en magasin
+- Conformité référentiels RNCP (IDI, ADRN, TIP)
+
+🎨 Améliorations UX/UI :
+- Page d'accueil scénarios aérée (espacement augmenté)
+- Page Chifoumi réorganisée avec titre "Chifoumi"
+- Encadré explicatif orange déplacé en bas de page chifoumi
+- Meilleure séparation visuelle des statistiques
+
+🛠 Corrections :
+- Cohérence avec les trois référentiels RNCP
+- Focus sur compétences transversales
+
+v1.1.0 (Janvier 2025) :
+✨ Nouvelles fonctionnalités :
+- Persistance des statistiques avec SharedPreferences
+- Sauvegarde auto victoires/égalités/défaites chifoumi
+- Conservation réussites et essais par difficulté
+
+🎨 Améliorations UX/UI :
+- Affichage "X / Y" (réussites / essais) par difficulté
+- Séparation visuelle stats globales et personnelles
+- Code couleur par niveau (vert/orange/rouge)
+
+🔧 Technique :
+- Implémentation _loadStatistics() et _saveStatistics()
+- Sauvegarde après chaque chifoumi et validation
+- Gestion robuste valeurs nulles avec ??
+
+v1.0.0 (Septembre 2025) :
+🎉 Version initiale :
+- Application Flutter fonctionnelle
+- 50 scénarios commerciaux de base
+- Mode tirage classique et mode défi
+- Timer 30 minutes avec pause/reprise
+- Système de correction détaillée
+- Signalement anomalies par email
+- Footer avec version
 
 NOTES DE DÉVELOPPEMENT
-----------------------
-Points d'attention :
-- Les scénarios utilisent des URLs LDLC, Apple, Samsung, etc.
-- Le timer ne persiste pas entre sessions (en mémoire)
-- Les statistiques sont réinitialisées à chaque lancement
-- Footer version suit format : MAJEURE.MINEURE.JJMMAA
+-----------------------
 
-Améliorations suggérées :
-- Persister les stats (shared_preferences)
+Points d'attention :
+- Les scénarios utilisent des URLs réelles (Logitech, Dell, HP, etc.)
+- Le timer ne persiste pas entre sessions (en mémoire)
+- Les statistiques PERSISTENT via SharedPreferences (depuis v1.1.0)
+- Footer version suit format : MAJEURE.MINEURE ou MAJEURE.MINEURE.JJMMAA
+
+Scénarios - Bonnes pratiques :
+- Conseil commercial UNIQUEMENT (pas de dépannage)
+- Matériel grand public (PC, tablettes, smartphones, périphériques)
+- Budgets réalistes (50€ à 1500€ généralement)
+- Situations de magasin/comptoir
+- Client = particulier ou petite entreprise
+- Compétences transversales IDI/ADRN/TIP
+
+Outils futurs - Double usage :
+- Convertisseurs : formation + usage professionnel
+- Références techniques : apprentissage + consultation rapide
+- Procédures : entraînement + guide terrain
+- QCM : évaluation formation par titre RNCP
+
+Améliorations futures suggérées :
+- Développement des 9 outils restants
 - Historique des scénarios tirés
 - Mode révision des scénarios échoués
+- Filtres par type de client ou matériel
+- Filtres par titre RNCP concerné
+- Export/import des statistiques
 - Thème sombre
 - Badges de progression
 
-CONTACT & FEEDBACK
-------------------
-Email signalement : xavier.redondo@groupeleparc.fr
+STRUCTURE DES SCÉNARIOS
+------------------------
+Chaque scénario contient :
+- id : numéro unique (1-100)
+- clientProfile : type de client
+- clientRequest : demande formulée
+- budgetInfo : contrainte budgétaire
+- clientAttitude : comportement/état d'esprit
+- difficulty : easy/medium/hard
+- keyQuestions : questions à poser au client
+- solutions : produits/services à proposer (avec prix, avantages, inconvénients, URL)
+- commonTraps : pièges à éviter
+- skillsWorked : compétences RNCP travaillées (IDI/ADRN/TIP)
+
+CONTACT & SUPPORT
+-----------------
+Email : WolwX@hotmail.com
+GitHub : https://github.com/WolwX/xr-tech-tools
 
 ==============================================
 COMMENT UTILISER CE DOCUMENT
 ==============================================
 
 Pour reprendre le projet avec Claude :
+
 1. Partager ce fichier texte en début de conversation
 2. Ajouter les fichiers de code concernés si modification spécifique
 3. Préciser la fonctionnalité à développer/corriger
+4. Mentionner le(s) titre(s) RNCP concerné(s) si pertinent
 
 Exemple de prompt :
 "Bonjour Claude, voici le document de référence du projet XR Tech Tools.
 Je souhaiterais [développer l'outil X / corriger le bug Y / ajouter la fonctionnalité Z]."
+
+Pour ajouter des scénarios :
+"Voici le PROJECT_REFERENCE.txt. Je voudrais ajouter 10 nouveaux scénarios 
+commerciaux de niveau [facile/moyen/difficile] axés sur les compétences [IDI/ADRN/TIP]."
+
+Pour développer un outil :
+"Voici le PROJECT_REFERENCE.txt. Je veux développer l'outil Conversion Unités XR
+pour usage double : formation (IDI/TIP) et professionnel."
+
+Pour modifier l'UI :
+"Voici le PROJECT_REFERENCE.txt et le fichier [nom_fichier.dart].
+Je voudrais modifier [description de la modification UX]."
+
+==============================================
+FIN DU DOCUMENT - Version 1.2.0
+==============================================
