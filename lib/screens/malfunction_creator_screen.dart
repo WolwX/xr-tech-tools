@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // ← AJOUTÉ
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/malfunction.dart';
 import '../services/malfunction_service.dart';
 import '../widgets/app_footer.dart';
@@ -16,7 +16,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
   Malfunction? _currentMalfunction;
   final TextEditingController _numberController = TextEditingController();
 
-  // ← NOUVELLES VARIABLES POUR LES STATISTIQUES
+  // Statistiques Mode Créateur (format "pannes tirées")
   int _totalMalfunctionsDrawn = 0;
   int _easyDrawn = 0;
   int _mediumDrawn = 0;
@@ -25,7 +25,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
   @override
   void initState() {
     super.initState();
-    _loadStatistics(); // ← AJOUTÉ
+    _loadStatistics();
   }
 
   @override
@@ -34,7 +34,6 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     super.dispose();
   }
 
-  // ← NOUVELLES MÉTHODES POUR GÉRER LES STATISTIQUES
   Future<void> _loadStatistics() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -71,12 +70,11 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     _saveStatistics();
   }
 
-  // MÉTHODES DE TIRAGE MODIFIÉES
   void _drawRandomMalfunction() {
     setState(() {
       _currentMalfunction = MalfunctionService.drawRandomMalfunction();
     });
-    _incrementStats(_currentMalfunction!.difficulty); // ← AJOUTÉ
+    _incrementStats(_currentMalfunction!.difficulty);
   }
 
   Color _getDifficultyColor(MalfunctionDifficulty difficulty) {
@@ -124,7 +122,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     setState(() {
       _currentMalfunction = malfunction;
     });
-    _incrementStats(malfunction.difficulty); // ← AJOUTÉ
+    _incrementStats(malfunction.difficulty);
   }
   
   void _selectMalfunctionByDifficulty(MalfunctionDifficulty difficulty) {
@@ -145,7 +143,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     setState(() {
       _currentMalfunction = random;
     });
-    _incrementStats(random.difficulty); // ← AJOUTÉ
+    _incrementStats(random.difficulty);
   }
 
   @override
@@ -255,6 +253,11 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
   }
 
   Widget _buildWelcomeSection() {
+    // Calcul du total de pannes disponibles
+    final stats = MalfunctionService.getCompleteStats();
+    final totalPannes = stats['total'] as int;
+    final byDifficulty = stats['byDifficulty'] as Map<String, dynamic>;
+
     return Column(
       children: [
         Container(
@@ -423,7 +426,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
                       controller: _numberController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: 'Entrez le numéro (1-${MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.easy).length + MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.medium).length + MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.hard).length})',
+                        hintText: 'Entrez le numéro (1-$totalPannes)',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -523,7 +526,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
         
         const SizedBox(height: 24),
         
-        // ← NOUVELLE SECTION STATISTIQUES
+        // STATISTIQUES (FORMAT IDENTIQUE AUX SCÉNARIOS COMMERCIAUX)
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -541,45 +544,87 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
                 children: [
                   const Icon(Icons.bar_chart, color: Color(0xFFFF6B35), size: 24),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Vos statistiques',
+                  Text(
+                    '$totalPannes pannes disponibles',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.orange.shade800,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      '$_totalMalfunctionsDrawn',
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFFF6B35),
-                      ),
-                    ),
-                    const Text(
-                      'pannes tirées au total',
-                      style: TextStyle(fontSize: 14, color: Colors.black87),
-                    ),
-                  ],
+              const SizedBox(height: 20),
+              
+              // Statistiques globales (affichage comme scénarios commerciaux)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildStatColumn(
+                    byDifficulty['easy'] as int,
+                    'Faciles',
+                    Colors.green,
+                    1,
+                  ),
+                  _buildStatColumn(
+                    byDifficulty['medium'] as int,
+                    'Moyens',
+                    Colors.orange,
+                    2,
+                  ),
+                  _buildStatColumn(
+                    byDifficulty['hard'] as int,
+                    'Difficiles',
+                    Colors.red,
+                    3,
+                  ),
+                ],
+              ),
+              
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Divider(thickness: 2, color: Colors.orange.shade200),
+              ),
+              
+              // Statistiques personnelles (tirages)
+              Center(
+                child: Text(
+                  'Vos tirages',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange.shade800,
+                    fontSize: 16,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
-              _buildStatRow('Faciles', _easyDrawn, Colors.green),
-              const SizedBox(height: 8),
-              _buildStatRow('Moyens', _mediumDrawn, Colors.orange),
-              const SizedBox(height: 8),
-              _buildStatRow('Difficiles', _hardDrawn, Colors.red),
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildUserStatColumn(
+                    _easyDrawn,
+                    totalPannes > 0 ? byDifficulty['easy'] as int : 0,
+                    'Faciles',
+                    Colors.green,
+                    1,
+                  ),
+                  _buildUserStatColumn(
+                    _mediumDrawn,
+                    totalPannes > 0 ? byDifficulty['medium'] as int : 0,
+                    'Moyens',
+                    Colors.orange,
+                    2,
+                  ),
+                  _buildUserStatColumn(
+                    _hardDrawn,
+                    totalPannes > 0 ? byDifficulty['hard'] as int : 0,
+                    'Difficiles',
+                    Colors.red,
+                    3,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -623,38 +668,75 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     );
   }
 
-  // ← NOUVELLE MÉTHODE POUR AFFICHER LES STATS
-  Widget _buildStatRow(String label, int count, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.star, color: color, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
+  // Widget pour les stats globales (total de pannes disponibles)
+  Widget _buildStatColumn(int count, String label, Color color, int stars) {
+    return Column(
+      children: [
+        Text(
+          '$count',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: color,
           ),
-          Text(
-            '$count',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            3,
+            (index) => Icon(
+              index < stars ? Icons.star : Icons.star_border,
               color: color,
+              size: 18,
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey[700],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Widget pour les stats utilisateur (format "X / Y" comme scénarios commerciaux)
+  Widget _buildUserStatColumn(int drawn, int total, String label, Color color, int stars) {
+    return Column(
+      children: [
+        Text(
+          '$drawn / $total',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            3,
+            (index) => Icon(
+              index < stars ? Icons.star : Icons.star_border,
+              color: color,
+              size: 14,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
     );
   }
 
@@ -664,7 +746,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Card principale avec bordure colorée - ENGLOBE TOUT
+        // Card principale avec bordure colorée
         Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -845,17 +927,81 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
                               'Temps estimé : ${_currentMalfunction!.estimatedTime}',
                               style: const TextStyle(fontSize: 16),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Compétences : ${_currentMalfunction!.skillsWorked.join(", ")}',
-                              style: const TextStyle(fontSize: 16),
+                            const SizedBox(height: 12),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Compétences : ',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: () {
+                                      // Déterminer les badges à afficher selon la logique
+                                      List<Map<String, dynamic>> badges = [];
+                                      
+                                      bool hasIDI = _currentMalfunction!.skillsWorked.any(
+                                        (s) => s.toUpperCase().contains('IDI')
+                                      );
+                                      bool hasTIP = _currentMalfunction!.skillsWorked.any(
+                                        (s) => s.toUpperCase().contains('TIP')
+                                      );
+                                      
+                                      // Si IDI, on ajoute IDI et ADRN
+                                      if (hasIDI) {
+                                        badges.add({
+                                          'label': 'IDI',
+                                          'color': Colors.blue.shade700,
+                                        });
+                                        badges.add({
+                                          'label': 'ADRN',
+                                          'color': Colors.green.shade700,
+                                        });
+                                      }
+                                      
+                                      // Si TIP, on l'ajoute
+                                      if (hasTIP) {
+                                        badges.add({
+                                          'label': 'TIP',
+                                          'color': Colors.orange.shade700,
+                                        });
+                                      }
+                                      
+                                      return badges.map((badge) {
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: (badge['color'] as Color).withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: (badge['color'] as Color).withOpacity(0.3)
+                                            ),
+                                          ),
+                                          child: Text(
+                                            badge['label'] as String,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: badge['color'] as Color,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList();
+                                    }(),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
 
                   // Procédure de création

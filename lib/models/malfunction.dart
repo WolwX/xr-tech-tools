@@ -22,6 +22,7 @@ class Malfunction {
   final MalfunctionCategory category;
   final MalfunctionDifficulty difficulty;
   final List<String> symptoms;           // Ce que l'utilisateur VOIT
+  final String clientAttitude; 
   final List<String> creationSteps;      // Comment CRÉER la panne
   final List<String> creationTips;       // Conseils pour bien simuler
   final List<String> diagnosisSteps;     // Comment DIAGNOSTIQUER
@@ -36,6 +37,7 @@ class Malfunction {
     required this.category,
     required this.difficulty,
     required this.symptoms,
+    required this.clientAttitude,
     required this.creationSteps,
     required this.creationTips,
     required this.diagnosisSteps,

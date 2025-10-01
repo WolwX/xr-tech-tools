@@ -17,6 +17,7 @@ final List<Malfunction> allMalfunctions = [
       'Aucun voyant LED n\'est allumé',
       'Le système ne détecte pas le clavier',
     ],
+    clientAttitude: 'Client stressé car il a du travail urgent à terminer',
     creationSteps: [
       'Débrancher le câble USB du clavier',
       'Ou désactiver le clavier dans le Gestionnaire de périphériques',
@@ -51,6 +52,7 @@ final List<Malfunction> allMalfunctions = [
       'Mouvements imprécis',
       'Double-clics non intentionnels',
     ],
+    clientAttitude: 'Client agacé par ce problème récurrent',
     creationSteps: [
       'Coller un petit morceau de scotch transparent sur le capteur optique',
       'Ou utiliser la souris sur une surface inadaptée (verre, miroir)',
@@ -86,6 +88,7 @@ final List<Malfunction> allMalfunctions = [
       'Message "Câble réseau débranché"',
       'Impossible d\'accéder à internet',
     ],
+    clientAttitude: 'Client calme et patient',
     creationSteps: [
       'Débrancher le câble Ethernet du PC ou du switch',
       'Ou débrancher légèrement pour créer un faux contact',
@@ -120,6 +123,7 @@ final List<Malfunction> allMalfunctions = [
       'Icône WiFi barrée ou absente',
       'Message "WiFi désactivé"',
     ],
+    clientAttitude: 'Client confus ne comprenant pas ce qui s\'est passé',
     creationSteps: [
       'Désactiver le WiFi via le bouton physique ou le raccourci clavier',
       'Ou désactiver dans les paramètres Windows (Mode avion)',
@@ -156,6 +160,7 @@ final List<Malfunction> allMalfunctions = [
       'Écran noir, pas d\'affichage',
       'Les ventilateurs tournent mais rien ne s\'affiche',
     ],
+    clientAttitude: 'Client paniqué pensant que son ordinateur est cassé',
     creationSteps: [
       'Éteindre l\'ordinateur et débrancher l\'alimentation',
       'Ouvrir le boîtier',
@@ -194,6 +199,7 @@ final List<Malfunction> allMalfunctions = [
       'Le disque n\'apparaît pas dans le BIOS',
       'Impossible de démarrer Windows',
     ],
+    clientAttitude: 'Client inquiet de perdre toutes ses données',
     creationSteps: [
       'Éteindre et débrancher l\'ordinateur',
       'Ouvrir le boîtier',
@@ -232,6 +238,7 @@ final List<Malfunction> allMalfunctions = [
       'Icône réseau absente ou barrée',
       'Message "Aucune connexion disponible"',
     ],
+    clientAttitude: 'Client frustré car il travaille en télétravail',
     creationSteps: [
       'Ouvrir le Gestionnaire de périphériques',
       'Trouver la carte réseau Ethernet',
@@ -266,6 +273,7 @@ final List<Malfunction> allMalfunctions = [
       'Adresse IP en 169.254.x.x',
       'Message "Pas de connexion Internet"',
     ],
+    clientAttitude: 'Client perplexe devant les messages techniques',
     creationSteps: [
       'Ouvrir Services.msc en administrateur',
       'Trouver "Client DHCP"',
@@ -304,6 +312,7 @@ final List<Malfunction> allMalfunctions = [
       'Message d\'erreur "Aucune application associée"',
       'PDF s\'ouvre avec le mauvais programme',
     ],
+    clientAttitude: 'Client impatient ayant des documents urgents à consulter',
     creationSteps: [
       'Clic droit sur un fichier PDF',
       'Ouvrir avec > Choisir une autre application',
@@ -340,6 +349,7 @@ final List<Malfunction> allMalfunctions = [
       'Les vidéos ne se lancent pas',
       'Formats vidéo non reconnus',
     ],
+    clientAttitude: 'Client déçu ne pouvant pas regarder ses vidéos',
     creationSteps: [
       'Désinstaller VLC ou le lecteur Windows Media',
       'Ou déplacer l\'exécutable VLC dans un autre dossier',
@@ -376,6 +386,7 @@ final List<Malfunction> allMalfunctions = [
       'Message "Operating system not found"',
       'L\'ordinateur tente de booter sur USB/CD',
     ],
+    clientAttitude: 'Client désemparé après avoir manipulé le BIOS',
     creationSteps: [
       'Redémarrer et entrer dans le BIOS (F2, DEL ou F10 selon fabricant)',
       'Aller dans Boot Menu / Boot Order',
@@ -415,6 +426,7 @@ final List<Malfunction> allMalfunctions = [
       'Message "No boot device"',
       'Impossible d\'accéder au système',
     ],
+    clientAttitude: 'Client très inquiet après une mise à jour du BIOS',
     creationSteps: [
       'Entrer dans le BIOS',
       'Aller dans Advanced / Peripherals',
@@ -455,6 +467,7 @@ final List<Malfunction> allMalfunctions = [
       'Statut "Hors connexion" dans Windows',
       'Impossible d\'imprimer quoi que ce soit',
     ],
+    clientAttitude: 'Client pressé ayant des documents urgents à imprimer',
     creationSteps: [
       'Ouvrir Panneau de configuration > Périphériques et imprimantes',
       'Clic droit sur l\'imprimante',
@@ -490,6 +503,7 @@ final List<Malfunction> allMalfunctions = [
       'Impossible d\'annuler les documents',
       'Nouvelles impressions ne partent pas',
     ],
+    clientAttitude: 'Client exaspéré car ce problème se répète souvent',
     creationSteps: [
       'Ouvrir Services.msc',
       'Trouver "Spouleur d\'impression"',
