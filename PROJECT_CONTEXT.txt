@@ -1,0 +1,73 @@
+# XR TECH TOOLS - CONTEXTE PROJET (Pour Claude AI)
+
+## 📍 SOURCE OFFICIELLE
+**GitHub** : https://github.com/WolwX/xr-tech-tools
+
+> ⚠️ **IMPORTANT** : Le README.md, CHANGELOG.md et PROJECT_REFERENCE.txt sur GitHub sont la source de vérité. Toujours consulter le dépôt pour l'état actuel du projet.
+
+---
+
+## ⚡ INFOS RAPIDES
+
+- **Nom** : XR Tech Tools
+- **Tech** : Flutter / Dart
+- **Version** : Voir GitHub (dernière : v1.3.300925)
+- **Objectif** : Boîte à outils pro + pédagogique techniciens IT
+- **Titres visés** : IDI, ADRN, TIP (RNCP34147, RNCP38718, RNCP40799)
+- **Contact** : WolwX@hotmail.com
+- **Développeurs** : XR (Xavier Redondo) & Claude (Anthropic)
+
+---
+
+## 📋 ÉTAT ACTUEL (Résumé)
+
+**Outils fonctionnels** :
+- ✅ Scénarios Commerciaux (100 scénarios - 3 niveaux)
+- ✅ Mode Créateur de Pannes (14 pannes - 6 catégories)
+
+**En développement** : 8 outils restants
+
+---
+
+## 📝 NOTES PERSONNELLES DE DÉVELOPPEMENT
+
+### Décisions en cours
+<!-- Ajoutez ici vos réflexions, décisions d'architecture, idées -->
+
+### TODO prioritaires
+<!-- Vos prochaines étapes -->
+
+### Questions ouvertes
+<!-- Points à clarifier -->
+
+### Contexte local
+<!-- Infos spécifiques à votre environnement de dev -->
+
+---
+
+## 🤖 INSTRUCTIONS POUR CLAUDE
+
+**Workflow systématique** :
+1. Lire ce PROJECT_CONTEXT.txt pour le contexte rapide
+2. Consulter le GitHub (web_fetch) pour l'état actuel détaillé
+3. Vérifier PROJECT_REFERENCE.txt sur GitHub pour guidelines techniques
+4. Procéder à la tâche demandée
+
+**Lors de chaque demande** :
+- Toujours vérifier la version actuelle sur GitHub avant de répondre
+- Consulter le CHANGELOG.md pour l'historique récent
+- Référer au PROJECT_REFERENCE.txt pour les contraintes techniques
+- Ne jamais supposer l'état du projet sans vérifier
+
+---
+
+## 🔗 LIENS UTILES
+
+- **Dépôt** : https://github.com/WolwX/xr-tech-tools
+- **README** : https://github.com/WolwX/xr-tech-tools/blob/main/README.md
+- **CHANGELOG** : https://github.com/WolwX/xr-tech-tools/blob/main/CHANGELOG.md
+- **PROJECT_REFERENCE** : https://github.com/WolwX/xr-tech-tools/blob/main/PROJECT_REFERENCE.txt
+
+---
+
+*Dernière mise à jour : 01/10/2025*
