@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.2.0
+- Version actuelle : v1.3.300925
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -37,19 +37,24 @@ lib/
 ├── main.dart
 ├── models/
 │   ├── commercial_scenario.dart
+│   ├── malfunction.dart
 │   ├── scenarios.dart
 │   └── tool.dart
 ├── data/
 │   ├── commercial_scenarios_data.dart (100 scénarios - COMPLET)
+│   ├── malfunctions_data.dart (14 pannes)
 │   ├── scenarios_data.dart
 │   └── tool_data.dart
 ├── services/
 │   ├── commercial_scenario_service.dart
+│   ├── malfunction_service.dart
 │   └── scenarios_service.dart
 ├── screens/
 │   ├── introduction_screen.dart
 │   ├── dashboard_screen.dart
 │   ├── commercial_scenario_screen.dart
+│   ├── malfunction_home_screen.dart
+│   ├── malfunction_creator_screen.dart
 │   └── scenarios_picker_screen.dart
 ├── widgets/
 │   ├── app_footer.dart
@@ -67,10 +72,10 @@ FONCTIONNALITÉS IMPLÉMENTÉES
 
 2. Dashboard
    - Grille adaptive (2-3 colonnes selon taille écran)
-   - 10 outils listés (1 fonctionnel, 9 en développement)
+   - 10 outils listés (2 fonctionnels, 8 en développement)
    - Design compact avec ToolTile personnalisé
 
-3. Scénarios Commerciaux (COMPLET v1.2.0) - OUTIL PÉDAGOGIQUE
+3. Scénarios Commerciaux (✅ COMPLET v1.3) - OUTIL PÉDAGOGIQUE
    
    Base de données : 100 scénarios répartis en 3 niveaux
    - Facile : 33 scénarios (⭐)
@@ -89,12 +94,47 @@ FONCTIONNALITÉS IMPLÉMENTÉES
 
    Fonctionnalités :
    - Timer 30 minutes (démarrage/pause/reprise)
+   - Sélection par numéro (1-100)
+   - Sélection par difficulté (3 boutons)
    - Affichage scénario avec profil client, budget, consignes
+   - Numérotation "#X" dans "DEMANDE CLIENT"
    - Correction détaillée (questions clés, solutions, pièges, compétences RNCP)
    - Liens directs vers produits
    - Auto-évaluation (Réussi/À revoir)
    - Statistiques persistantes (SharedPreferences)
    - Bouton de signalement d'anomalie
+
+4. Pannes Informatiques (v0.1) - OUTIL PÉDAGOGIQUE
+   
+   Base de données : 14 pannes réparties en 3 niveaux
+   - Facile : 4 pannes
+   - Moyen : 6 pannes
+   - Difficile : 4 pannes
+   
+   6 catégories :
+   - Matériel (hardware)
+   - Logiciel (software)
+   - BIOS/UEFI (setup)
+   - Réseau/Internet (network)
+   - Impression (printer)
+   - Périphérique (peripheral)
+
+   Mode Créateur (✅ COMPLET) :
+   - Tirage aléatoire de pannes
+   - Sélection par numéro
+   - Sélection par difficulté
+   - Instructions détaillées de création
+   - Procédure étape par étape
+   - Conseils de simulation
+   - Numérotation "#X - Nom de la panne"
+   - Statistiques décentralisées :
+     * Total pannes tirées
+     * Compteur par difficulté
+     * Persistance SharedPreferences
+     * Affichage en bas de l'écran
+
+   Mode Dépanneur (🚧 EN DÉVELOPPEMENT) :
+   - Non implémenté
 
 THÈME & DESIGN
 --------------
@@ -102,28 +142,29 @@ Couleur principale : Bleu (#00B0FF)
 Palette complète : 10 nuances de bleu (50 à 900)
 
 Particularités :
+- Architecture statistiques décentralisée
 - SharedPreferences pour persistance des statistiques
 - Design compact et responsive
 - Footer présent sur tous les écrans
 
-OUTILS À DÉVELOPPER (9 restants)
+OUTILS À DÉVELOPPER (8 restants)
 ---------------------------------
 
 OUTILS PROFESSIONNELS (Usage quotidien techniciens) :
-1. ✅ Scénarios Commerciaux - COMPLET (pédagogique)
-2. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
-3. Calculateur Espace Disque - Conversions Mo/Go/To
-4. Touches BIOS et BOOT - Référence fabricants
-5. Fiches Hardware - Spécifications techniques
-6. Liens Utiles - Ressources externes
+3. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
+4. Calculateur Espace Disque - Conversions Mo/Go/To
+5. Touches BIOS et BOOT - Référence fabricants
+6. Fiches Hardware - Spécifications techniques
+7. Liens Utiles - Ressources externes
 
 OUTILS PÉDAGOGIQUES (Formation IDI, ADRN, TIP) :
-7. Procédures Techniques - Guides pas-à-pas
-8. QCM - Tests de connaissances par module
-9. Diagnostic Pannes - Guide interactif
+1. ✅ Scénarios Commerciaux - COMPLET v1.3
+2. ✅ Pannes Informatiques - Mode Créateur COMPLET v0.1
+8. Procédures Techniques - Guides pas-à-pas
+9. QCM - Tests de connaissances par module
 10. (À définir)
 
-Note : Certains outils (2-6) servent DOUBLE USAGE :
+Note : Certains outils (3-7) servent DOUBLE USAGE :
 - Formation des apprenants aux trois titres RNCP
 - Utilisation professionnelle quotidienne des techniciens
 
@@ -139,11 +180,43 @@ CONTRAINTES TECHNIQUES
 ----------------------
 ✓ SharedPreferences pour la persistance
 ✓ État géré en mémoire (setState)
+✓ Architecture statistiques décentralisée
 ✓ Compatible Web, Mobile, Desktop
 ✓ Design responsive
 
 HISTORIQUE DES VERSIONS
 ========================
+
+v1.3.300925 (30 Septembre 2025)
+--------------------------------
+✨ Nouvelles fonctionnalités :
+- Scénarios Commerciaux : Sélection par numéro (1-100)
+- Scénarios Commerciaux : Sélection par difficulté (3 boutons compacts)
+- Scénarios Commerciaux : Numérotation "#X" dans "DEMANDE CLIENT"
+- Pannes Informatiques : Statistiques décentralisées dans Mode Créateur
+  * Compteur total de pannes tirées
+  * Compteur par difficulté (facile, moyen, difficile)
+  * Persistance avec SharedPreferences
+  * Affichage en bas de l'écran de sélection
+
+🎨 Améliorations UX/UI :
+- Scénarios Commerciaux : Interface de sélection redesignée (format compact)
+- Scénarios Commerciaux : Augmentation taille de police "Choisissez votre mode de tirage" (18px → 20px)
+- Pannes Informatiques : Architecture statistiques décentralisée
+  * Mode Créateur gère ses propres stats (malfunction_creator_screen.dart)
+  * Mode Dépanneur conserve ses stats (malfunction_home_screen.dart)
+
+🛠 Corrections :
+- Scénarios Commerciaux : Bug statistiques Chifoumi corrigé
+  * Stats ne s'incrémentent plus lors du "Rejouer"
+  * Stats s'incrémentent uniquement au "Lancer le scénario"
+- Pannes Informatiques : Duplication statistiques Mode Créateur supprimée
+
+📋 Documentation :
+- Footer version mise à jour : 1.3.300925
+- README.md mis à jour
+- CHANGELOG.md mis à jour
+- PROJECT_REFERENCE mis à jour
 
 v1.2.0 (Janvier 2025)
 ---------------------
@@ -152,6 +225,10 @@ v1.2.0 (Janvier 2025)
 - ✅ Fonctionnalité "Scénarios Commercial" terminée
 - Scénarios orientés conseil/vente en magasin
 - Conformité référentiels RNCP (IDI, ADRN, TIP)
+- Pannes Informatiques : Nouvelle fonctionnalité (v0.1)
+  * Mode Créateur complet avec 14 pannes
+  * 6 catégories de pannes
+  * 3 niveaux de difficulté
 
 🎨 Améliorations UX/UI :
 - Page d'accueil aérée (espacement optimisé)
@@ -200,6 +277,19 @@ Scénarios - Bonnes pratiques :
 - Compétences transversales IDI/ADRN/TIP
 - Situations de magasin/comptoir
 
+Pannes - Bonnes pratiques :
+- Pannes inspirées des examens de certification
+- Catégorisation claire (6 catégories)
+- Procédures détaillées de création
+- Conseils de simulation réalistes
+- Conformité référentiels RNCP
+
+Architecture statistiques :
+- Décentralisée : chaque écran gère ses stats
+- SharedPreferences pour persistance
+- Pas de state management global
+- Autonomie et maintenabilité
+
 Outils futurs - Double usage :
 - Convertisseurs : formation + usage pro
 - Références techniques : apprentissage + consultation rapide
@@ -207,7 +297,9 @@ Outils futurs - Double usage :
 - QCM : évaluation formation
 
 Améliorations suggérées :
-- Développer les 9 outils restants
+- Développer le Mode Dépanneur (pannes)
+- Enrichir base de pannes (30-40 pannes)
+- Développer les 8 outils restants
 - Historique des scénarios
 - Mode révision ciblée
 - Export/import statistiques
@@ -229,6 +321,20 @@ Chaque scénario contient :
 - commonTraps : pièges à éviter
 - skillsWorked : compétences RNCP mobilisées
 
+STRUCTURE DES PANNES
+---------------------
+Chaque panne contient :
+- id : numéro unique
+- name : nom de la panne
+- description : description détaillée
+- symptoms : symptômes observables
+- category : catégorie (6 types)
+- difficulty : easy/medium/hard
+- estimatedTime : temps estimé de création
+- creationSteps : procédure de création
+- creationTips : conseils de simulation
+- skillsWorked : compétences RNCP mobilisées
+
 CONTACT & SUPPORT
 -----------------
 Email : WolwX@hotmail.com
@@ -247,9 +353,12 @@ Exemples :
 "Voici le CHANGELOG. Je veux développer l'outil Conversion Unités XR 
 pour usage professionnel et formation IDI/TIP."
 
-"Voici le CHANGELOG. Je veux ajouter 20 scénarios niveau moyen 
-axés sur les compétences ADRN (reconditionnement)."
+"Voici le CHANGELOG. Je veux développer le Mode Dépanneur des pannes
+informatiques avec système de diagnostic guidé."
+
+"Voici le CHANGELOG. Je veux ajouter 20 pannes niveau moyen 
+axées sur les compétences ADRN (reconditionnement)."
 
 ==============================================
-FIN DU DOCUMENT - Version 1.2.0
+FIN DU DOCUMENT - Version 1.3.300925
 ==============================================
