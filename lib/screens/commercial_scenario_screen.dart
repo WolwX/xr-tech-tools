@@ -30,6 +30,7 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
   bool _showCorrection = false;
   ChifousiGame? _chifousiGame;
   bool _showChifoumi = false;
+  bool _hasEvaluated = false;
   
   int _chifousiWins = 0;
   int _chifousiDraws = 0;
@@ -119,11 +120,10 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     final scenario = CommercialScenarioService.drawRandomScenario();
     setState(() {
       _currentScenario = scenario;
-      _attemptsByDifficulty[scenario.difficulty] = 
-        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
       _showCorrection = false;
       _showChifoumi = false;
       _chifousiGame = null;
+      _hasEvaluated = false;
     });
     _resetTimer();
   }
@@ -151,11 +151,7 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     
     final scenario = CommercialScenarioService.drawChallengeScenario(_chifousiGame!.result);
     setState(() {
-      _currentScenario = scenario;
-      
-      _attemptsByDifficulty[scenario.difficulty] = 
-        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
-      
+      _currentScenario = scenario;    
       // ✅ CORRECTION : Incrémenter les stats chifoumi ICI
       switch (_chifousiGame!.result) {
         case ChifousiResult.win:
@@ -172,6 +168,7 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _showChifoumi = false;
       _showCorrection = false;
       _chifousiGame = null;
+      _hasEvaluated = false;
     });
     
     _saveStatistics();
@@ -208,11 +205,10 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     
     setState(() {
       _currentScenario = scenario;
-      _attemptsByDifficulty[scenario.difficulty] = 
-        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
       _showCorrection = false;
       _showChifoumi = false;
       _chifousiGame = null;
+      _hasEvaluated = false;
     });
     _resetTimer();
     _scenarioNumberController.clear();
@@ -235,11 +231,10 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     
     setState(() {
       _currentScenario = random;
-      _attemptsByDifficulty[random.difficulty] = 
-        (_attemptsByDifficulty[random.difficulty] ?? 0) + 1;
       _showCorrection = false;
       _showChifoumi = false;
       _chifousiGame = null;
+      _hasEvaluated = false;
     });
     _resetTimer();
   }
@@ -306,6 +301,47 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       });
     });
   }
+
+Future<bool> _checkEvaluationBeforeLeaving() async {
+  if (_currentScenario == null || _hasEvaluated || !_showCorrection) {
+    return true;
+  }
+
+  final shouldLeave = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber, color: Colors.orange, size: 28),
+            SizedBox(width: 12),
+            Expanded(child: Text('Auto-évaluation non effectuée')),
+          ],
+        ),
+        content: const Text(
+          'Vous n\'avez pas encore fait votre auto-évaluation pour ce scénario.\n\n'
+          'Souhaitez-vous vraiment quitter sans évaluer votre travail ?',
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Rester et évaluer', style: TextStyle(fontSize: 16)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+            ),
+            child: const Text('Quitter sans évaluer', style: TextStyle(fontSize: 16)),
+          ),
+        ],
+      );
+    },
+  );
+
+  return shouldLeave ?? false;
+}
 
   void _resetTimer() {
     _timer?.cancel();
@@ -527,15 +563,19 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
             ),
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () {
+              onPressed: () async {  // ← AJOUTER async
                 if (_currentScenario != null || _showChifoumi) {
-                  setState(() {
-                    _currentScenario = null;
-                    _showChifoumi = false;
-                    _showCorrection = false;
-                    _chifousiGame = null;
-                  });
-                  _resetTimer();
+                  final canLeave = await _checkEvaluationBeforeLeaving();  // ← AJOUTER
+                  if (canLeave) {  // ← AJOUTER
+                    setState(() {
+                      _currentScenario = null;
+                      _showChifoumi = false;
+                      _showCorrection = false;
+                      _chifousiGame = null;
+                      _hasEvaluated = false;  // ← AJOUTER
+                    });
+                    _resetTimer();
+                  }  // ← AJOUTER
                 } else {
                   Navigator.of(context).pop();
                 }
@@ -713,8 +753,6 @@ Widget _buildModeSelection() {
             Row(
               children: [
                 _buildInfoChip('IDI', Colors.blue.shade700),
-                const SizedBox(width: 8),
-                _buildInfoChip('ADRN', Colors.green.shade700),
                 const SizedBox(width: 8),
                 _buildInfoChip('TIP', Colors.orange.shade700),
               ],
@@ -1311,240 +1349,294 @@ Widget _buildModeSelection() {
     );
   }
 
-  Widget _buildScenarioDisplay() {
-    if (_currentScenario == null) return const SizedBox();
-    
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: _getDifficultyColor(_currentScenario!.difficulty),
-          width: 4,
-        ),
+Widget _buildScenarioDisplay() {
+  if (_currentScenario == null) return const SizedBox();
+  
+  return Card(
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(
+        color: _getDifficultyColor(_currentScenario!.difficulty),
+        width: 4,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: _getDifficultyColor(_currentScenario!.difficulty).withOpacity(0.3),
-              blurRadius: 12,
-              spreadRadius: 2,
-              offset: const Offset(0, 4),
+    ),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: _getDifficultyColor(_currentScenario!.difficulty).withOpacity(0.3),
+            blurRadius: 12,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // En-tête avec badge difficulté
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Scénario Commercial',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: _getDifficultyColor(_currentScenario!.difficulty),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(3, (index) {
+                          int filledStars = _currentScenario!.difficulty == DifficultyLevel.easy ? 1 
+                              : _currentScenario!.difficulty == DifficultyLevel.medium ? 2 
+                              : 3;
+                          return Icon(
+                            index < filledStars ? Icons.star : Icons.star_border,
+                            color: Colors.white,
+                            size: 16,
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _currentScenario!.difficultyLabel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
+            const Divider(height: 30, thickness: 2),
+            
+            // Section DEMANDE CLIENT
+            Stack(
+              children: [
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Icon(
+                    Icons.chat_bubble_outline,
+                    size: 60,
+                    color: Colors.blue.shade100.withOpacity(0.3),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.blue.shade200, width: 2),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.person, size: 24, color: Colors.blue.shade700),
+                          const SizedBox(width: 8),
+                          Text(
+                            'DEMANDE CLIENT #${_currentScenario!.id}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '${_currentScenario!.clientProfile} qui ${_currentScenario!.clientRequest}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Section BUDGET
+            Stack(
+              children: [
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Icon(
+                    Icons.euro,
+                    size: 60,
+                    color: Colors.green.shade100.withOpacity(0.3),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.shade200, width: 2),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.account_balance_wallet, size: 24, color: Colors.green.shade700),
+                          const SizedBox(width: 8),
+                          Text(
+                            'BUDGET',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _currentScenario!.budgetInfo,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Section CONSIGNES
+            Stack(
+              children: [
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Icon(
+                    Icons.lightbulb_outline,
+                    size: 60,
+                    color: Colors.amber.shade100.withOpacity(0.3),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.shade300, width: 2),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.lightbulb, size: 24, color: Colors.amber.shade700),
+                          const SizedBox(width: 8),
+                          Text(
+                            'CONSIGNES',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Analysez la demande, posez les bonnes questions et proposez une solution adaptée. '
+                        'Vous pouvez faire des recherches en ligne.',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Section AUTRES INFORMATIONS (AJOUTÉE)
+            if (_currentScenario!.clientAttitude.isNotEmpty)
+              Stack(
+                children: [
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Icon(
+                      Icons.psychology_outlined,
+                      size: 60,
+                      color: Colors.purple.shade100.withOpacity(0.3),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.purple.shade200, width: 2),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.psychology, size: 24, color: Colors.purple.shade700),
+                            const SizedBox(width: 8),
+                            Text(
+                              'AUTRES INFORMATIONS',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _currentScenario!.clientAttitude,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Scénario Commercial',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: _getDifficultyColor(_currentScenario!.difficulty),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(3, (index) {
-                            int filledStars = _currentScenario!.difficulty == DifficultyLevel.easy ? 1 
-                                : _currentScenario!.difficulty == DifficultyLevel.medium ? 2 
-                                : 3;
-                            return Icon(
-                              index < filledStars ? Icons.star : Icons.star_border,
-                              color: Colors.white,
-                              size: 16,
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _currentScenario!.difficultyLabel,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(height: 30, thickness: 2),
-              
-              Stack(
-                children: [
-                  Positioned(
-                    right: 10,
-                    top: 10,
-                    child: Icon(
-                      Icons.chat_bubble_outline,
-                      size: 60,
-                      color: Colors.blue.shade100.withOpacity(0.3),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.shade200, width: 2),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.person, size: 24, color: Colors.blue.shade700),
-                            const SizedBox(width: 8),
-                            Text(
-                              'DEMANDE CLIENT #${_currentScenario!.id}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          '${_currentScenario!.clientProfile} qui ${_currentScenario!.clientRequest}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 16),
-              
-              Stack(
-                children: [
-                  Positioned(
-                    right: 10,
-                    top: 10,
-                    child: Icon(
-                      Icons.euro,
-                      size: 60,
-                      color: Colors.green.shade100.withOpacity(0.3),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.shade200, width: 2),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.account_balance_wallet, size: 24, color: Colors.green.shade700),
-                            const SizedBox(width: 8),
-                            Text(
-                              'BUDGET',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _currentScenario!.budgetInfo,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 16),
-              
-              Stack(
-                children: [
-                  Positioned(
-                    right: 10,
-                    top: 10,
-                    child: Icon(
-                      Icons.lightbulb_outline,
-                      size: 60,
-                      color: Colors.amber.shade100.withOpacity(0.3),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.amber.shade300, width: 2),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.lightbulb, size: 24, color: Colors.amber.shade700),
-                            const SizedBox(width: 8),
-                            Text(
-                              'CONSIGNES',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amber.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Analysez la demande, posez les bonnes questions et proposez une solution adaptée. '
-                          'Vous pouvez faire des recherches en ligne.',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
-    );
-  }
-
+    ),
+  );
+}
 // PARTIE 4BIS/4 : Méthodes _buildCorrectionSheet et _buildWelcomeMessage
 
   Widget _buildCorrectionSheet() {
@@ -1628,124 +1720,170 @@ Widget _buildModeSelection() {
               Icons.school,
             ),
             
-            const SizedBox(height: 20),
-            
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.shade200),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.assessment, color: Colors.blue.shade700),
-                      const SizedBox(width: 8),
-                      Text(
-                        'AUTO-ÉVALUATION',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade800,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Avez-vous réussi ce scénario ?',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            if (_currentScenario != null) {
-                              _successByDifficulty[_currentScenario!.difficulty] = 
-                                (_successByDifficulty[_currentScenario!.difficulty] ?? 0) + 1;
-                            }
-                          });
-                          _saveStatistics();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('✓ Scénario validé comme réussi !'),
-                              backgroundColor: Colors.green,
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.check_circle, size: 20),
-                        label: const Text('Réussi'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('✗ Scénario marqué comme à retravailler'),
-                              backgroundColor: Colors.red,
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.cancel, size: 20),
-                        label: const Text('À revoir'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+const SizedBox(height: 20),
+
+if (!_hasEvaluated)  // ← AJOUTER CE IF
+  Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.blue.shade50,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: Colors.blue.shade200),
+    ),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            Icon(Icons.assessment, color: Colors.blue.shade700),
+            const SizedBox(width: 8),
+            Text(
+              'AUTO-ÉVALUATION',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue.shade800,
               ),
             ),
-            
+          ],
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Avez-vous réussi ce scénario ?',
+          style: TextStyle(fontSize: 14),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  if (_currentScenario != null) {
+                    // ← AJOUTER l'incrémentation de tentative
+                    _attemptsByDifficulty[_currentScenario!.difficulty] = 
+                      (_attemptsByDifficulty[_currentScenario!.difficulty] ?? 0) + 1;
+                    _successByDifficulty[_currentScenario!.difficulty] = 
+                      (_successByDifficulty[_currentScenario!.difficulty] ?? 0) + 1;
+                    _hasEvaluated = true;  // ← AJOUTER
+                  }
+                });
+                _saveStatistics();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('✓ Scénario validé comme réussi !'),
+                    backgroundColor: Colors.green,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.check_circle, size: 20),
+              label: const Text('Réussi'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  if (_currentScenario != null) {
+                    // ← AJOUTER l'incrémentation de tentative
+                    _attemptsByDifficulty[_currentScenario!.difficulty] = 
+                      (_attemptsByDifficulty[_currentScenario!.difficulty] ?? 0) + 1;
+                    _hasEvaluated = true;  // ← AJOUTER
+                  }
+                });
+                _saveStatistics();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('✗ Scénario marqué comme à retravailler'),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.cancel, size: 20),
+              label: const Text('À revoir'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  )
+else  // ← AJOUTER CE ELSE
+  Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.green.shade50,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: Colors.green.shade200),
+    ),
+    child: Row(
+      children: [
+        Icon(Icons.check_circle, color: Colors.green.shade700),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Text(
+            'Auto-évaluation effectuée',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),            
             const SizedBox(height: 20),
             
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Nouveau Scénario'),
-                  onPressed: () {
-                    setState(() {
-                      _currentScenario = null;
-                      _showCorrection = false;
-                      _showChifoumi = false;
-                    });
-                    _resetTimer();
-                  },
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.fitness_center),
-                  label: const Text('Mode Défi'),
-                  onPressed: () {
-                    setState(() {
-                      _currentScenario = null;
-                      _showCorrection = false;
-                      _showChifoumi = true;
-                    });
-                    _resetTimer();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    ElevatedButton.icon(
+      icon: const Icon(Icons.refresh),
+      label: const Text('Nouveau Scénario'),
+      onPressed: () async {  // ← AJOUTER async
+        final canLeave = await _checkEvaluationBeforeLeaving();  // ← AJOUTER
+        if (canLeave) {  // ← AJOUTER
+          setState(() {
+            _currentScenario = null;
+            _showCorrection = false;
+            _showChifoumi = false;
+            _hasEvaluated = false;  // ← AJOUTER
+          });
+          _resetTimer();
+        }  // ← AJOUTER
+      },
+    ),
+    ElevatedButton.icon(
+      icon: const Icon(Icons.fitness_center),
+      label: const Text('Mode Défi'),
+      onPressed: () async {  // ← AJOUTER async
+        final canLeave = await _checkEvaluationBeforeLeaving();  // ← AJOUTER
+        if (canLeave) {  // ← AJOUTER
+          setState(() {
+            _currentScenario = null;
+            _showCorrection = false;
+            _showChifoumi = true;
+            _hasEvaluated = false;  // ← AJOUTER
+          });
+          _resetTimer();
+        }  // ← AJOUTER
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange,
+        foregroundColor: Colors.white,
+      ),
+    ),
+  ],
+),
           ],
         ),
       ),
