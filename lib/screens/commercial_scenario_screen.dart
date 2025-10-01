@@ -1649,19 +1649,19 @@ Widget _buildScenarioDisplay() {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 32),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Fiche de Correction',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.shade800,
+              Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 32),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Fiche de Correction #${_currentScenario!.id}',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.shade800,
+                      ),
                     ),
                   ),
-                ),
                 Tooltip(
                   message: 'Signaler une anomalie',
                   waitDuration: const Duration(milliseconds: 300),
