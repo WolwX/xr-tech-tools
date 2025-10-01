@@ -1,464 +1,295 @@
-XR TECH TOOLS - DOCUMENT DE RÉFÉRENCE PROJET
-==============================================
+# XR TECH TOOLS - GUIDE DÉVELOPPEUR
 
-INFORMATIONS GÉNÉRALES
-----------------------
-- Nom du projet : XR Tech Tools
-- Technologie : Flutter / Dart
-- Version actuelle : v1.3.300925
-- Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
-- Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
-- Contact : WolwX@hotmail.com
-- Dépôt GitHub : https://github.com/WolwX/xr-tech-tools
+> **Note** : Ce document complète le README.md avec des informations techniques détaillées pour les développeurs.  
+> Voir [README.md](README.md) pour la vue d'ensemble du projet.  
+> Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique des versions.
 
-DOUBLE OBJECTIF
----------------
-Pour les Apprenants (IDI, ADRN, TIP) :
-- S'entraîner sur des cas pratiques réels
-- Développer leurs compétences techniques
-- Se préparer aux certifications professionnelles
-- Réviser les concepts clés
+---
 
-Pour les Professionnels :
-- Accéder rapidement à des outils de conversion et calcul
-- Consulter des références techniques (BIOS, hardware)
-- Utiliser des guides de diagnostic et procédures
-- Optimiser leurs interventions quotidiennes
+## 🎯 PÉRIMÈTRE & OBJECTIFS
 
-TITRES PROFESSIONNELS VISÉS
-----------------------------
-- IDI - Installateur Dépanneur en Informatique (RNCP34147)
-- ADRN - Agent De Reconditionnement en appareil Numérique (RNCP38718)
-- TIP - Technicien Informatique de Proximité (RNCP40799)
+### Double Usage
+**Pour les Apprenants (IDI, ADRN, TIP)** :
+- S'entraîner sur cas pratiques réels
+- Développer compétences techniques
+- Se préparer aux certifications RNCP
 
-ARCHITECTURE DU PROJET
------------------------
+**Pour les Professionnels** :
+- Outils de conversion et calcul rapides
+- Références techniques (BIOS, hardware)
+- Guides de diagnostic et procédures
+
+### Titres Professionnels Visés
+- **IDI** - Installateur Dépanneur en Informatique (RNCP34147)
+- **ADRN** - Agent De Reconditionnement en appareil Numérique (RNCP38718)
+- **TIP** - Technicien Informatique de Proximité (RNCP40799)
+
+---
+
+## 🏗️ ARCHITECTURE TECHNIQUE
+
+### Structure du Projet
+```
 lib/
 ├── main.dart
 ├── models/
-│   ├── commercial_scenario.dart (140 lignes)
-│   ├── malfunction.dart (71 lignes) - ✅ MODIFIÉ: ajout clientAttitude
-│   ├── scenarios.dart (18 lignes)
-│   └── tool.dart (17 lignes)
+│   ├── commercial_scenario.dart
+│   ├── fault_scenario.dart
+│   └── tool.dart
 ├── data/
-│   ├── commercial_scenarios_data.dart (100 scénarios - COMPLET)
-│   ├── malfunctions_data.dart (14 pannes - 229 lignes) - ✅ MODIFIÉ: ajout clientAttitude
-│   ├── scenarios_data.dart (36 lignes)
+│   ├── commercial_scenarios_data.dart (100 scénarios)
+│   ├── fault_scenarios_data.dart (14 pannes)
 │   └── tool_data.dart
 ├── services/
-│   ├── commercial_scenario_service.dart (128 lignes)
-│   ├── malfunction_service.dart (19 lignes + méthodes stats)
-│   └── scenarios_service.dart (36 lignes)
+│   ├── commercial_scenario_service.dart
+│   └── fault_scenario_service.dart
 ├── screens/
 │   ├── introduction_screen.dart
 │   ├── dashboard_screen.dart
-│   ├── commercial_scenario_screen.dart (1922 lignes)
-│   ├── malfunction_home_screen.dart (page d'accueil) - ✅ MODIFIÉ
-│   ├── malfunction_creator_screen.dart (Mode Créateur) - ✅ MODIFIÉ
-│   └── malfunction_technician_screen.dart (Mode Dépanneur) - ✨ NOUVEAU
-├── widgets/
-│   ├── app_footer.dart (64 lignes)
-│   ├── animated_start_button.dart
-│   └── tool_tile.dart (64 lignes)
+│   ├── commercial_scenario_screen.dart
+│   ├── fault_creator_screen.dart
+│   └── scenarios_picker_screen.dart
+└── widgets/
+    ├── app_footer.dart
+    ├── animated_start_button.dart
+    └── tool_tile.dart
+```
 
-FONCTIONNALITÉS IMPLÉMENTÉES
------------------------------
-
-1. Écran d'Introduction
-   - Fond dégradé bleu (Color(0xFF1A237E) → Color(0xFF00B0FF))
-   - Animation de particules étoilées scintillantes
-   - Bouton "Power On" animé avec feedback haptique
-   - Footer avec signature XR & Claude
-
-2. Dashboard
-   - Grille adaptive (2-3 colonnes selon taille écran)
-   - 10 outils listés (3 fonctionnels, 7 en développement)
-   - Design compact avec ToolTile personnalisé
-
-3. Scénarios Commerciaux (✅ COMPLET v1.3) - OUTIL PÉDAGOGIQUE
-   
-   Base de données : 100 scénarios répartis en 3 niveaux
-   - Facile : 33 scénarios (⭐)
-   - Moyen : 45 scénarios (⭐⭐)
-   - Difficile : 22 scénarios (⭐⭐⭐)
-
-   PÉRIMÈTRE :
-   - Conseil et vente en magasin informatique
-   - Matériel informatique fixe/mobile et périphériques
-   - Formation aux compétences relationnelles et commerciales
-   - Conforme aux référentiels RNCP (IDI, ADRN, TIP)
-
-   Modes de jeu :
-   - Mode Classique : Tirage aléatoire tous niveaux
-   - Mode Défi : Chifoumi détermine la difficulté
-
-   Fonctionnalités :
-   - Timer 30 minutes (démarrage/pause/reprise)
-   - Sélection par numéro (1-100)
-   - Sélection par difficulté (3 boutons)
-   - Affichage scénario avec profil client, budget, consignes
-   - Numérotation "#X" dans "DEMANDE CLIENT"
-   - Correction détaillée (questions clés, solutions, pièges, compétences RNCP)
-   - Liens directs vers produits
-   - Auto-évaluation (Réussi/À revoir)
-   - Statistiques persistantes (SharedPreferences)
-   - Bouton de signalement d'anomalie
-
-4. Pannes Informatiques - OUTIL PÉDAGOGIQUE
-   
-   Base de données : 14 pannes réparties en 3 niveaux
-   - Facile : 4 pannes
-   - Moyen : 6 pannes
-   - Difficile : 4 pannes
-   
-   6 catégories :
-   - Matériel (hardware)
-   - Logiciel (software)
-   - BIOS/UEFI (setup)
-   - Réseau/Internet (network)
-   - Impression (printer)
-   - Périphérique (peripheral)
-
-   A. Page d'accueil (malfunction_home_screen.dart) - ✅ MODIFIÉ
-   - Introduction "Diagnostic & Dépannage"
-   - Choix entre Mode Dépanneur et Mode Créateur
-   - Statistiques des pannes disponibles (14 pannes)
-   - Pas de statistiques personnelles (déplacées dans les sous-modes)
-
-   B. Mode Créateur (✅ COMPLET v0.1) - ✅ MODIFIÉ
-   - Tirage aléatoire de pannes
-   - Sélection par numéro
-   - Sélection par difficulté
-   - Instructions détaillées de création
-   - Procédure étape par étape
-   - Conseils de simulation
-   - Numérotation "#X - Nom de la panne"
-   - Badges IDI/ADRN/TIP dans section "Compétences"
-   - Statistiques décentralisées :
-     * Format "X / Y" (tirées / disponibles)
-     * Total pannes disponibles
-     * Statistiques par difficulté
-     * Persistance SharedPreferences
-     * Affichage en bas de l'écran
-
-   C. Mode Dépanneur (✅ COMPLET v0.1) - ✨ NOUVEAU
-   - Tirage aléatoire de pannes
-   - Mode Défi Chifoumi (comme scénarios commerciaux)
-   - Sélection par numéro (1-14)
-   - Sélection par difficulté (3 boutons)
-   - Timer 30 minutes avec :
-     * Sablier animé (tourne uniquement quand timer actif)
-     * Bouton avec barre de progression horizontale
-     * Progression visible même en pause
-     * Hauteur fixe du bouton
-   - Fiche panne client :
-     * Titre "Panne à Diagnostiquer"
-     * Badge catégorie (sous le titre, style accueil)
-     * Badges IDI/ADRN/TIP + Badge difficulté (même ligne)
-     * Description client avec symptômes
-     * Catégorie de panne (orange)
-     * Consignes (jaune/ambre comme scénarios)
-     * Autres informations (violet) - affiche clientAttitude
-   - Solution détaillée avec :
-     * Nom technique de la panne
-     * Procédure de résolution
-     * Badges compétences IDI/ADRN/TIP
-     * Auto-évaluation (Réussi/À revoir)
-   - Statistiques propres au Mode Dépanneur :
-     * Format "X / Y" (réussis / tentatives)
-     * Statistiques Chifoumi (Victoires/Égalités/Défaites)
-     * Affichées uniquement dans interface Chifoumi
-     * Persistance SharedPreferences
-     * Affichage en bas de l'écran d'accueil
-
-THÈME & DESIGN
---------------
-Couleur principale : Bleu (#00B0FF)
-Couleur Mode Créateur : Orange (#FF6B35)
-Palette complète : 10 nuances de bleu (50 à 900)
-
-Particularités :
-- Architecture statistiques décentralisée
-- SharedPreferences pour persistance des statistiques
-- Design compact et responsive
-- Footer présent sur tous les écrans
-- Animations fluides (sablier, progression)
-
-LOGIQUE BADGES COMPÉTENCES
----------------------------
-Règle automatique :
-- Si panne valable pour IDI → affiche badges "IDI" + "ADRN"
-- Si panne valable pour TIP → affiche badge "TIP"
-- Une panne peut avoir IDI+ADRN+TIP
-
-Couleurs badges :
-- IDI : Bleu (Colors.blue.shade700)
-- ADRN : Vert (Colors.green.shade700)
-- TIP : Orange (Colors.orange.shade700)
-
-STRUCTURE MODÈLE MALFUNCTION
------------------------------
-Champs ajoutés/modifiés :
-- clientAttitude : String (✨ NOUVEAU) - attitude du client pour Mode Dépanneur
-- Affiché dans section "AUTRES INFORMATIONS" (violet)
-
-OUTILS À DÉVELOPPER (7 restants)
----------------------------------
-
-OUTILS PROFESSIONNELS (Usage quotidien techniciens) :
-3. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
-4. Calculateur Espace Disque - Conversions Mo/Go/To
-5. Touches BIOS et BOOT - Référence fabricants
-6. Fiches Hardware - Spécifications techniques
-7. Liens Utiles - Ressources externes
-
-OUTILS PÉDAGOGIQUES (Formation IDI, ADRN, TIP) :
-1. ✅ Scénarios Commerciaux - COMPLET v1.3
-2. ✅ Pannes Informatiques - Mode Créateur COMPLET v0.1
-3. ✅ Pannes Informatiques - Mode Dépanneur COMPLET v0.1
-8. Procédures Techniques - Guides pas-à-pas
-9. QCM - Tests de connaissances par module
-10. (À définir)
-
-Note : Certains outils (3-7) servent DOUBLE USAGE :
-- Formation des apprenants aux trois titres RNCP
-- Utilisation professionnelle quotidienne des techniciens
-
-DÉPENDANCES IMPORTANTES
-------------------------
+### Dépendances Clés
+```yaml
 dependencies:
   flutter:
     sdk: flutter
   url_launcher: ^6.x.x
   shared_preferences: ^2.x.x
+```
 
-CONTRAINTES TECHNIQUES
-----------------------
-✗ Pas de localStorage/sessionStorage dans les artifacts
-✓ SharedPreferences pour la persistance des données
-✓ État géré en mémoire (setState, variables)
-✓ Architecture statistiques décentralisée
-✓ Compatible Web, Mobile, Desktop
-✓ Design responsive
-✓ Animations avec AnimationController
-✓ Timer avec Duration et Timer.periodic
+### Gestion d'État
+- **Architecture** : Décentralisée
+- **Principe** : Chaque écran gère ses propres statistiques
+- **Persistance** : SharedPreferences (pas de state management global)
+- **Avantage** : Autonomie et maintenabilité de chaque fonctionnalité
 
-HISTORIQUE DES VERSIONS
-------------------------
+---
 
-v1.4.011025 (01 Octobre 2025) - ✨ EN COURS
-✨ Nouvelles fonctionnalités :
-- Mode Dépanneur complet avec interface de diagnostic
-- Timer 30 minutes avec sablier animé et barre de progression
-- Mode Défi Chifoumi pour le Mode Dépanneur
-- Champ clientAttitude ajouté au modèle Malfunction
-- Badges compétences IDI/ADRN/TIP dans fiches pannes
-- Badge catégorie de panne (style accueil)
-- Section "Autres informations" (violet) affichant clientAttitude
+## ⚠️ CONTRAINTES TECHNIQUES IMPORTANTES
 
-🎨 Améliorations UX/UI :
-- Page d'accueil Pannes : statistiques retirées (dans sous-modes)
-- Mode Créateur : statistiques format "X / Y" (tirées / disponibles)
-- Mode Dépanneur : fiche client avec consignes jaune (comme scénarios)
-- Timer avec animation sablier conditionnelle
-- Bouton timer avec barre de progression horizontale
-- Layout optimisé : badges compétences + difficulté sur même ligne
-- Badges catégorie sous le titre sans ligne de séparation
+### Environnement Web/Artifacts
+```
+❌ PAS de localStorage/sessionStorage
+❌ PAS de window.localStorage
+✅ SharedPreferences pour persistance
+✅ État géré en mémoire (setState, variables)
+```
 
-🛠 Architecture :
-- Architecture décentralisée maintenue
-- Statistiques Chifoumi uniquement dans interface Chifoumi
-- Navigation correcte vers Mode Dépanneur depuis page d'accueil
+### Format Footer
+```
+Format accepté : MAJEURE.MINEURE ou MAJEURE.MINEURE.JJMMAA
+Exemples : v1.2.0 ou v1.3.300925
+```
 
-v1.3.300925 (30 Septembre 2025)
-✨ Nouvelles fonctionnalités :
-- Scénarios Commerciaux : Sélection par numéro et difficulté
-- Scénarios Commerciaux : Numérotation "#X" dans demande client
-- Pannes Informatiques : Statistiques décentralisées Mode Créateur
-- ✅ Architecture statistiques décentralisée implémentée
+### Timer
+```
+⚠️ Le timer (30 min) reste EN MÉMOIRE uniquement
+❌ Pas de persistance entre sessions
+```
 
-🎨 Améliorations UX/UI :
-- Interface de sélection optimisée (format compact)
-- Taille police augmentée pour titres principaux
+---
 
-🛠 Corrections :
-- Bug statistiques Chifoumi (incrémentation au bon moment)
-- Duplication statistiques Mode Créateur supprimée
+## 📝 GUIDELINES DE CONTENU
 
-v1.2.0 (Janvier 2025)
-✨ Nouvelles fonctionnalités :
-- 100 scénarios commerciaux complets (50 nouveaux ajoutés)
-- ✅ Fonctionnalité "Scénarios Commercial" terminée
-- Pannes Informatiques : Nouvelle fonctionnalité (v0.1)
-  * Mode Créateur complet avec 14 pannes
-  * 6 catégories, 3 niveaux de difficulté
+### Scénarios Commerciaux (100 scénarios)
 
-🎨 Améliorations UX/UI :
-- Page d'accueil scénarios aérée
-- Page Chifoumi réorganisée
-- Meilleure hiérarchie visuelle
+**PÉRIMÈTRE STRICT** :
+- ✅ Conseil et vente en magasin informatique
+- ✅ Matériel grand public (PC, tablettes, smartphones, périphériques)
+- ✅ Budgets réalistes : 50€ à 1500€ généralement
+- ✅ Situations magasin/comptoir
+- ✅ Clients : particuliers ou petites entreprises
+- ❌ PAS de dépannage technique
+- ❌ PAS de matériel professionnel haut de gamme
 
-v1.1.0 (Janvier 2025)
-✨ Nouvelles fonctionnalités :
-- Persistance des statistiques avec SharedPreferences
-- Conservation réussites et essais par difficulté
+**Compétences visées** :
+- Écoute active et reformulation
+- Identification des besoins
+- Conseil adapté au profil client
+- Argumentation commerciale
+- Gestion du budget
+- Transversales aux 3 titres RNCP (IDI, ADRN, TIP)
 
-🎨 Améliorations UX/UI :
-- Affichage "X / Y" (réussites / essais)
-- Code couleur par niveau
+**Structure d'un scénario** :
+```dart
+{
+  id: int,                    // 1-100
+  clientProfile: String,      // Type de client
+  clientRequest: String,      // Demande formulée
+  budgetInfo: String,         // Contrainte budgétaire
+  clientAttitude: String,     // Comportement/état d'esprit
+  difficulty: String,         // easy/medium/hard
+  keyQuestions: List<String>, // Questions à poser
+  solutions: List<Solution>,  // Produits recommandés (prix, avantages, URL)
+  commonTraps: List<String>,  // Pièges à éviter
+  skillsWorked: List<String>  // Compétences RNCP mobilisées
+}
+```
 
-v1.0.0 (Septembre 2025)
-🎉 Version initiale :
-- Application Flutter fonctionnelle
-- 50 scénarios commerciaux de base
-- Mode tirage classique et mode défi
-- Timer 30 minutes
-- Correction détaillée
+**Exemples de scénarios types** :
+- Étudiant cherche PC portable pour la fac
+- Parent veut tablette pour enfant 8 ans
+- Auto-entrepreneur équipe son bureau
+- Gamer cherche écran 144Hz
+- Senior veut ordinateur simple d'utilisation
+- Famille avec budget limité (300€ max)
 
-NOTES DE DÉVELOPPEMENT
------------------------
+**URLs produits** :
+- Utiliser des liens réels vers fabricants/revendeurs
+- Vérifier la validité des URLs régulièrement
+- Préférer les grandes enseignes (Logitech, Dell, HP, etc.)
 
-Points d'attention :
-- Les scénarios utilisent des URLs réelles (Logitech, Dell, HP, etc.)
-- Le timer ne persiste pas entre sessions (en mémoire)
-- Les statistiques PERSISTENT via SharedPreferences
-- Footer version suit format : MAJEURE.MINEURE.JJMMAA
-- Architecture statistiques décentralisée depuis v1.3
-- Badges compétences : logique IDI → ADRN automatique
-- clientAttitude affiché dans section violet "Autres informations"
+### Mode Créateur de Pannes (14 pannes)
 
-Scénarios - Bonnes pratiques :
-- Conseil commercial UNIQUEMENT (pas de dépannage)
-- Matériel grand public (PC, tablettes, smartphones, périphériques)
-- Budgets réalistes (50€ à 1500€ généralement)
-- Situations de magasin/comptoir
-- Client = particulier ou petite entreprise
-- Compétences transversales IDI/ADRN/TIP
+**Catégories** :
+- Matériel
+- Logiciel
+- BIOS/UEFI
+- Réseau
+- Impression
+- Périphérique
 
-Pannes - Bonnes pratiques :
-- Pannes inspirées des examens de certification
-- Catégorisation claire (6 catégories)
-- Procédures détaillées de création (Mode Créateur)
-- Procédures détaillées de résolution (Mode Dépanneur)
-- Conseils de simulation réalistes
-- clientAttitude pour immersion scénario
-- Conformité référentiels RNCP
+**Niveaux** :
+- Facile : 4 pannes
+- Moyen : 6 pannes
+- Difficile : 4 pannes
 
-Architecture statistiques :
-- Décentralisée : chaque écran gère ses stats
-- SharedPreferences pour persistance
-- Pas de state management global
-- Autonomie et maintenabilité
-- Peut évoluer vers Provider/Riverpod si besoin
+**Objectif pédagogique** :
+- Apprentissage du diagnostic méthodique
+- Création de pannes pour ateliers pratiques
+- Instructions détaillées étape par étape
+- Conseils de simulation réaliste
 
-Timer Mode Dépanneur :
-- Animation sablier avec AnimationController
-- Rotation uniquement quand timer actif
-- Barre de progression horizontale dans bouton
-- Progression visible en pause
-- Hauteur fixe du bouton (42px)
+---
 
-Outils futurs - Double usage :
-- Convertisseurs : formation + usage professionnel
-- Références techniques : apprentissage + consultation rapide
-- Procédures : entraînement + guide terrain
-- QCM : évaluation formation par titre RNCP
+## 🎨 DESIGN & THÈME
 
-Améliorations futures suggérées :
-- Enrichir base de pannes (30-40 pannes) - PRIORITÉ 1
-- Développement des 7 outils restants - PRIORITÉ 2
-- Historique des scénarios/pannes tirés
-- Mode révision des scénarios/pannes échoués
+### Palette de Couleurs
+```
+Couleur principale : Bleu #00B0FF
+Palette complète : 10 nuances (50 à 900)
+```
+
+### Spécifications d'Affichage
+```
+Portrait : 480 × 1080 pixels
+Paysage : 1080 × 480 pixels
+Device pixel ratio : 3.0
+User agent : Mobile (Android)
+```
+
+### Principes UX
+- Design compact et responsive
+- Footer présent sur tous les écrans
+- Grille adaptative (2-3 colonnes selon taille)
+- Animations fluides et feedback haptique
+- Mode immersif (barre de statut visible)
+
+---
+
+## 🔄 WORKFLOW AVEC CLAUDE (IA)
+
+### Comment utiliser ce document
+
+**Pour développer un nouvel outil** :
+```
+"Voici PROJECT_REFERENCE.txt du dépôt GitHub.
+Je veux développer l'outil [NOM] pour usage [pédagogique/professionnel/double].
+Titre(s) RNCP concerné(s) : [IDI/ADRN/TIP]."
+```
+
+**Pour ajouter des scénarios** :
+```
+"Voici PROJECT_REFERENCE.txt du dépôt GitHub.
+Je veux ajouter [N] scénarios commerciaux niveau [facile/moyen/difficile]
+axés sur les compétences [IDI/ADRN/TIP]."
+```
+
+**Pour modifier l'UI** :
+```
+"Voici PROJECT_REFERENCE.txt et le fichier [nom_fichier.dart].
+Je veux modifier [description de la modification UX]."
+```
+
+**Pour corriger un bug** :
+```
+"Voici PROJECT_REFERENCE.txt.
+Bug observé : [description]
+Fichier(s) concerné(s) : [liste]"
+```
+
+---
+
+## 🚀 AMÉLIORATIONS FUTURES SUGGÉRÉES
+
+### Fonctionnalités
+- Développement des 8 outils restants
+- Historique des scénarios tirés
+- Mode révision des scénarios échoués
 - Filtres par type de client ou matériel
 - Filtres par titre RNCP concerné
 - Export/import des statistiques
-- Thème sombre
 - Badges de progression
 
-PROCHAINES SESSIONS DE DÉVELOPPEMENT
--------------------------------------
+### UX/UI
+- Thème sombre
+- Personnalisation des couleurs
+- Animations avancées
+- Mode hors ligne complet
 
-PRIORITÉ 1 : Enrichissement base de pannes
-- [ ] Ajouter 20-30 pannes supplémentaires
-- [ ] Équilibrer les catégories (2-5 pannes par catégorie)
-- [ ] S'inspirer des documents d'examen fournis
-- [ ] Couvrir plus de situations RNCP
-- [ ] Ajouter clientAttitude variés et réalistes
+### Technique
+- Tests unitaires et d'intégration
+- CI/CD automatisé
+- Documentation API
+- Optimisation des performances
 
-PRIORITÉ 2 : Nouveaux outils
-- [ ] Conversion Unités XR
-- [ ] Calculateur Espace Disque
-- [ ] Touches BIOS/BOOT
+---
 
-PRIORITÉ 3 : Améliorations UX
-- [ ] Historique des pannes résolues
-- [ ] Filtres avancés
-- [ ] Export statistiques
+## 📞 CONTACT & SUPPORT
 
-STRUCTURE DES SCÉNARIOS
-------------------------
-Chaque scénario contient :
-- id : numéro unique (1-100)
-- clientProfile : type de client
-- clientRequest : demande formulée
-- budgetInfo : contrainte budgétaire
-- clientAttitude : comportement/état d'esprit
-- difficulty : easy/medium/hard
-- keyQuestions : questions à poser au client
-- solutions : produits/services à proposer (avec prix, avantages, inconvénients, URL)
-- commonTraps : pièges à éviter
-- skillsWorked : compétences RNCP travaillées (IDI/ADRN/TIP)
+- **Email** : WolwX@hotmail.com
+- **GitHub** : https://github.com/WolwX/xr-tech-tools
+- **Issues** : https://github.com/WolwX/xr-tech-tools/issues
 
-STRUCTURE DES PANNES
----------------------
-Chaque panne contient :
-- id : numéro unique
-- name : nom de la panne
-- description : description détaillée
-- symptoms : symptômes observables (liste)
-- clientAttitude : attitude/comportement du client (✨ NOUVEAU)
-- category : hardware/software/setup/network/printer/peripheral
-- difficulty : easy/medium/hard
-- estimatedTime : temps estimé de création/résolution
-- creationSteps : procédure de création (liste) - pour Mode Créateur
-- creationTips : conseils de simulation (liste) - pour Mode Créateur
-- diagnosisSteps : étapes de diagnostic (liste) - pour Mode Dépanneur
-- solutionSteps : étapes de résolution (liste) - pour Mode Dépanneur
-- skillsWorked : compétences RNCP mobilisées (IDI/ADRN/TIP)
+---
 
-CONTACT & SUPPORT
------------------
-Email : WolwX@hotmail.com
-GitHub : https://github.com/WolwX/xr-tech-tools
+## 📋 OUTILS - STATUT DÉTAILLÉ
 
-==============================================
-COMMENT UTILISER CE DOCUMENT
-==============================================
+### ✅ Fonctionnels (2/10)
+1. **Scénarios Commerciaux** - Complet
+   - 100 scénarios (33 faciles, 45 moyens, 22 difficiles)
+   - Mode Classique + Mode Défi (Chifoumi)
+   - Sélection avancée (par numéro, par difficulté)
+   - Timer 30 min, correction détaillée, stats persistantes
+   
+2. **Mode Créateur de Pannes** - Complet
+   - 14 pannes (4 faciles, 6 moyennes, 4 difficiles)
+   - 6 catégories techniques
+   - Instructions de création détaillées
+   - Statistiques décentralisées
 
-Pour reprendre le projet avec Claude :
+### 🚧 En Développement (8/10)
 
-1. Partager ce fichier texte en début de conversation
-2. Ajouter les fichiers de code concernés si modification spécifique
-3. Préciser la fonctionnalité à développer/corriger
-4. Mentionner le(s) titre(s) RNCP concerné(s) si pertinent
+**Outils à double usage (pédago + pro)** :
+3. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
+4. Calculateur Espace Disque - Conversions Mo/Go/To
+5. Touches BIOS/BOOT - Référence par fabricant
+6. Fiches Hardware XR - Spécifications techniques
+7. Liens Utiles - Ressources externes
 
-Exemple de prompt :
-"Bonjour Claude, voici le document de référence du projet XR Tech Tools.
-Je souhaiterais [développer l'outil X / corriger le bug Y / ajouter la fonctionnalité Z]."
+**Outils principalement pédagogiques** :
+8. Procédures Techniques - Guides pas-à-pas illustrés
+9. QCM - Tests de connaissances par module
+10. Diagnostic Pannes - Guide interactif de résolution
 
-Pour enrichir la base de pannes :
-"Voici le PROJECT_REFERENCE.txt. Je voudrais ajouter 20 nouvelles pannes 
-réparties équitablement sur les 6 catégories, niveaux moyen et difficile, 
-avec clientAttitude variés, axées sur les compétences ADRN et TIP."
+---
 
-Pour développer un nouvel outil :
-"Voici le PROJECT_REFERENCE.txt. Je veux développer l'outil Conversion Unités XR
-pour usage double : formation (IDI/TIP) et professionnel."
-
-Pour modifier l'UI :
-"Voici le PROJECT_REFERENCE.txt et le fichier [nom_fichier.dart].
-Je voudrais modifier [description de la modification UX]."
-
-==============================================
-FIN DU DOCUMENT - Version 1.3.011025
-==============================================
+*Document maintenu par : XR (Xavier Redondo) avec l'assistance de Claude (Anthropic)*  
+*Dernière mise à jour : 01/10/2025*
