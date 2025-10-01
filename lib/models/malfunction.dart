@@ -1,11 +1,12 @@
 // Fichier: lib/models/malfunction.dart
 
 enum MalfunctionCategory {
-  hardware,
-  software,
-  network,
-  peripheral,
-  startup,
+  hardware,      // Pannes matériel (RAM, disque, connecteurs)
+  software,      // Pannes logicielles (extensions, lecteurs multimédia)
+  setup,         // Pannes BIOS/UEFI (boot order, ports désactivés)
+  network,       // Pannes réseau/internet (DHCP, WiFi, carte réseau)
+  printer,       // Pannes d'impression
+  peripheral,    // Autres périphériques (clavier, souris, écran)
 }
 
 enum MalfunctionDifficulty {
@@ -20,12 +21,12 @@ class Malfunction {
   final String description;
   final MalfunctionCategory category;
   final MalfunctionDifficulty difficulty;
-  final List<String> symptoms;
-  final List<String> creationSteps;
-  final List<String> creationTips;
-  final List<String> diagnosisSteps;
-  final List<String> solutionSteps;
-  final List<String> skillsWorked;
+  final List<String> symptoms;           // Ce que l'utilisateur VOIT
+  final List<String> creationSteps;      // Comment CRÉER la panne
+  final List<String> creationTips;       // Conseils pour bien simuler
+  final List<String> diagnosisSteps;     // Comment DIAGNOSTIQUER
+  final List<String> solutionSteps;      // Comment RÉSOUDRE
+  final List<String> skillsWorked;       // Compétences RNCP
   final String estimatedTime;
   
   const Malfunction({
@@ -49,12 +50,14 @@ class Malfunction {
         return 'Matériel';
       case MalfunctionCategory.software:
         return 'Logiciel';
+      case MalfunctionCategory.setup:
+        return 'BIOS/UEFI';
       case MalfunctionCategory.network:
-        return 'Réseau';
+        return 'Réseau/Internet';
+      case MalfunctionCategory.printer:
+        return 'Impression';
       case MalfunctionCategory.peripheral:
         return 'Périphérique';
-      case MalfunctionCategory.startup:
-        return 'Démarrage';
     }
   }
   

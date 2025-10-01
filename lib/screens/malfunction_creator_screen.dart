@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // ← AJOUTÉ
 import '../models/malfunction.dart';
 import '../services/malfunction_service.dart';
 import '../widgets/app_footer.dart';
 import '../main.dart'; 
 
 class MalfunctionCreatorScreen extends StatefulWidget {
-  const MalfunctionCreatorScreen({Key? key}) : super(key: key);
+  const MalfunctionCreatorScreen({super.key});
 
   @override
   State<MalfunctionCreatorScreen> createState() => _MalfunctionCreatorScreenState();
@@ -13,11 +14,69 @@ class MalfunctionCreatorScreen extends StatefulWidget {
 
 class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
   Malfunction? _currentMalfunction;
+  final TextEditingController _numberController = TextEditingController();
 
+  // ← NOUVELLES VARIABLES POUR LES STATISTIQUES
+  int _totalMalfunctionsDrawn = 0;
+  int _easyDrawn = 0;
+  int _mediumDrawn = 0;
+  int _hardDrawn = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatistics(); // ← AJOUTÉ
+  }
+
+  @override
+  void dispose() {
+    _numberController.dispose();
+    super.dispose();
+  }
+
+  // ← NOUVELLES MÉTHODES POUR GÉRER LES STATISTIQUES
+  Future<void> _loadStatistics() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _totalMalfunctionsDrawn = prefs.getInt('creator_total_drawn') ?? 0;
+      _easyDrawn = prefs.getInt('creator_easy_drawn') ?? 0;
+      _mediumDrawn = prefs.getInt('creator_medium_drawn') ?? 0;
+      _hardDrawn = prefs.getInt('creator_hard_drawn') ?? 0;
+    });
+  }
+
+  Future<void> _saveStatistics() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('creator_total_drawn', _totalMalfunctionsDrawn);
+    await prefs.setInt('creator_easy_drawn', _easyDrawn);
+    await prefs.setInt('creator_medium_drawn', _mediumDrawn);
+    await prefs.setInt('creator_hard_drawn', _hardDrawn);
+  }
+
+  void _incrementStats(MalfunctionDifficulty difficulty) {
+    setState(() {
+      _totalMalfunctionsDrawn++;
+      switch (difficulty) {
+        case MalfunctionDifficulty.easy:
+          _easyDrawn++;
+          break;
+        case MalfunctionDifficulty.medium:
+          _mediumDrawn++;
+          break;
+        case MalfunctionDifficulty.hard:
+          _hardDrawn++;
+          break;
+      }
+    });
+    _saveStatistics();
+  }
+
+  // MÉTHODES DE TIRAGE MODIFIÉES
   void _drawRandomMalfunction() {
     setState(() {
       _currentMalfunction = MalfunctionService.drawRandomMalfunction();
     });
+    _incrementStats(_currentMalfunction!.difficulty); // ← AJOUTÉ
   }
 
   Color _getDifficultyColor(MalfunctionDifficulty difficulty) {
@@ -29,6 +88,64 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
       case MalfunctionDifficulty.hard:
         return Colors.red;
     }
+  }
+
+  void _selectMalfunctionById(String idString) {
+    final id = int.tryParse(idString);
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez entrer un numéro valide'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
+    final allMalfunctions = MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.easy) +
+                           MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.medium) +
+                           MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.hard);
+    
+    final malfunction = allMalfunctions.firstWhere(
+      (m) => m.id == id,
+      orElse: () => allMalfunctions[0],
+    );
+    
+    if (malfunction.id != id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Panne #$id introuvable'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
+    setState(() {
+      _currentMalfunction = malfunction;
+    });
+    _incrementStats(malfunction.difficulty); // ← AJOUTÉ
+  }
+  
+  void _selectMalfunctionByDifficulty(MalfunctionDifficulty difficulty) {
+    final malfunctions = MalfunctionService.getMalfunctionsByDifficulty(difficulty);
+    
+    if (malfunctions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aucune panne disponible pour ce niveau'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    final random = (malfunctions.toList()..shuffle()).first;
+    
+    setState(() {
+      _currentMalfunction = random;
+    });
+    _incrementStats(random.difficulty); // ← AJOUTÉ
   }
 
   @override
@@ -48,7 +165,15 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                if (_currentMalfunction != null) {
+                  setState(() {
+                    _currentMalfunction = null;
+                  });
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
               tooltip: 'Retour',
             ),
           ],
@@ -192,6 +317,8 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
           ),
         ),
         const SizedBox(height: 40),
+        
+        // TIRAGE ALÉATOIRE
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -254,7 +381,280 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
             ],
           ),
         ),
+        
+        const SizedBox(height: 24),
+        
+        // SÉLECTION PAR NUMÉRO
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade300),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.tag, color: Colors.blue.shade700, size: 24),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Sélectionner par numéro',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _numberController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'Entrez le numéro (1-${MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.easy).length + MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.medium).length + MalfunctionService.getMalfunctionsByDifficulty(MalfunctionDifficulty.hard).length})',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      ),
+                      onSubmitted: (value) => _selectMalfunctionById(value),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      _selectMalfunctionById(_numberController.text);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Icon(Icons.search),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 24),
+        
+        // SÉLECTION PAR DIFFICULTÉ
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade300),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.filter_list, color: Colors.purple.shade700, size: 24),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Sélectionner par difficulté',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDifficultyButton(
+                      'Facile',
+                      MalfunctionDifficulty.easy,
+                      Colors.green,
+                      Icons.star,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDifficultyButton(
+                      'Moyen',
+                      MalfunctionDifficulty.medium,
+                      Colors.orange,
+                      Icons.star_half,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDifficultyButton(
+                      'Difficile',
+                      MalfunctionDifficulty.hard,
+                      Colors.red,
+                      Icons.star_border,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 24),
+        
+        // ← NOUVELLE SECTION STATISTIQUES
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFF6B35).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFFF6B35).withOpacity(0.3),
+              width: 2,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.bar_chart, color: Color(0xFFFF6B35), size: 24),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Vos statistiques',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '$_totalMalfunctionsDrawn',
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFF6B35),
+                      ),
+                    ),
+                    const Text(
+                      'pannes tirées au total',
+                      style: TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildStatRow('Faciles', _easyDrawn, Colors.green),
+              const SizedBox(height: 8),
+              _buildStatRow('Moyens', _mediumDrawn, Colors.orange),
+              const SizedBox(height: 8),
+              _buildStatRow('Difficiles', _hardDrawn, Colors.red),
+            ],
+          ),
+        ),
       ],
+    );
+  }
+  
+  Widget _buildDifficultyButton(String label, MalfunctionDifficulty difficulty, Color color, IconData icon) {
+    final count = MalfunctionService.getMalfunctionsByDifficulty(difficulty).length;
+    return ElevatedButton(
+      onPressed: () => _selectMalfunctionByDifficulty(difficulty),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$count panne${count > 1 ? 's' : ''}',
+            style: const TextStyle(
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ← NOUVELLE MÉTHODE POUR AFFICHER LES STATS
+  Widget _buildStatRow(String label, int count, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.star, color: color, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ),
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -264,7 +664,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Card principale avec bordure colorée selon difficulté (comme scénarios commerciaux)
+        // Card principale avec bordure colorée - ENGLOBE TOUT
         Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -379,7 +779,7 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              _currentMalfunction!.name,
+                              '#${_currentMalfunction!.id} - ${_currentMalfunction!.name}',
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -455,34 +855,35 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
                       ),
                     ],
                   ),
+                  
+                  const SizedBox(height: 16),
+
+                  // Procédure de création
+                  _buildInstructionSection(
+                    'Procédure de création',
+                    Icons.build,
+                    _currentMalfunction!.creationSteps,
+                    primaryOrange,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Conseils
+                  _buildInstructionSection(
+                    'Conseils de simulation',
+                    Icons.lightbulb,
+                    _currentMalfunction!.creationTips,
+                    Colors.amber,
+                  ),
                 ],
               ),
             ),
           ),
         ),
 
-        const SizedBox(height: 16),
-
-        _buildInstructionCard(
-          'Procédure de création',
-          Icons.build,
-          _currentMalfunction!.creationSteps,
-          primaryOrange, // ✅ MaterialColor!
-        ),
-
-        const SizedBox(height: 16),
-
-        // Conseils
-        _buildInstructionCard(
-          'Conseils de simulation',
-          Icons.lightbulb,
-          _currentMalfunction!.creationTips,
-          Colors.amber,
-        ),
-
         const SizedBox(height: 24),
 
-        // Bouton nouvelle panne (sans bouton retour redondant)
+        // Bouton nouvelle panne
         Center(
           child: ElevatedButton.icon(
             onPressed: _drawRandomMalfunction,
@@ -504,68 +905,70 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     );
   }
 
-  Widget _buildInstructionCard(String title, IconData icon, List<String> items, MaterialColor color) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
+  // Widget pour les sections d'instructions
+  Widget _buildInstructionSection(String title, IconData icon, List<String> items, MaterialColor color) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: color.shade50,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.shade200, width: 2),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color.shade700, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color.shade700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...items.asMap().entries.map((entry) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: color, size: 24),
+                Container(
+                  margin: const EdgeInsets.only(top: 2),
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: color.withOpacity(0.4), width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${entry.key + 1}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: color.shade700,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    entry.value,
+                    style: const TextStyle(fontSize: 15, height: 1.4),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            ...items.asMap().entries.map((entry) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: color.withOpacity(0.4), width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${entry.key + 1}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: color.shade700,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      entry.value,
-                      style: const TextStyle(fontSize: 15, height: 1.4),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-          ],
-        ),
+          )),
+        ],
       ),
     );
   }

@@ -36,7 +36,7 @@ const Tool(
   description: 'Générateur de scénarios avec chifoumi et timer',
   icon: Icons.business_center,
   destination: CommercialScenarioScreen(),
-  version: 'v1.2',  // NOUVEAU
+  version: 'v1.3',  // NOUVEAU
 ),
   
   // L'ancien Scénarios Commerciaux (index 2) est supprimé.

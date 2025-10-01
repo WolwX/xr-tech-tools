@@ -1,4 +1,5 @@
 // Fichier: lib/screens/commercial_scenario_screen.dart
+// PARTIE 1/4 : Imports, classe, variables d'état et méthodes principales
 
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -6,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/commercial_scenario.dart';
 import '../services/commercial_scenario_service.dart';
+import '../data/commercial_scenarios_data.dart';
 import '../widgets/app_footer.dart';
 
 class CommercialScenarioScreen extends StatefulWidget {
@@ -16,55 +18,6 @@ class CommercialScenarioScreen extends StatefulWidget {
 }
 
 class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
-
-@override
-void initState() {
-  super.initState();
-  _loadStatistics();  // NOUVEAU : Charger les stats au démarrage
-}
-
-// NOUVELLE MÉTHODE : Charger les statistiques sauvegardées
-Future<void> _loadStatistics() async {
-  final prefs = await SharedPreferences.getInstance();
-  
-  setState(() {
-    // Charger les compteurs chifoumi
-    _chifousiWins = prefs.getInt('chifousi_wins') ?? 0;
-    _chifousiDraws = prefs.getInt('chifousi_draws') ?? 0;
-    _chifousiLosses = prefs.getInt('chifousi_losses') ?? 0;
-    
-    // Charger les réussites par difficulté
-    _successByDifficulty[DifficultyLevel.easy] = prefs.getInt('success_easy') ?? 0;
-    _successByDifficulty[DifficultyLevel.medium] = prefs.getInt('success_medium') ?? 0;
-    _successByDifficulty[DifficultyLevel.hard] = prefs.getInt('success_hard') ?? 0;
-    
-    // Charger les essais par difficulté
-    _attemptsByDifficulty[DifficultyLevel.easy] = prefs.getInt('attempts_easy') ?? 0;
-    _attemptsByDifficulty[DifficultyLevel.medium] = prefs.getInt('attempts_medium') ?? 0;
-    _attemptsByDifficulty[DifficultyLevel.hard] = prefs.getInt('attempts_hard') ?? 0;
-  });
-}
-
-// NOUVELLE MÉTHODE : Sauvegarder les statistiques
-Future<void> _saveStatistics() async {
-  final prefs = await SharedPreferences.getInstance();
-  
-  // Sauvegarder les compteurs chifoumi
-  await prefs.setInt('chifousi_wins', _chifousiWins);
-  await prefs.setInt('chifousi_draws', _chifousiDraws);
-  await prefs.setInt('chifousi_losses', _chifousiLosses);
-  
-  // Sauvegarder les réussites par difficulté
-  await prefs.setInt('success_easy', _successByDifficulty[DifficultyLevel.easy] ?? 0);
-  await prefs.setInt('success_medium', _successByDifficulty[DifficultyLevel.medium] ?? 0);
-  await prefs.setInt('success_hard', _successByDifficulty[DifficultyLevel.hard] ?? 0);
-  
-  // Sauvegarder les essais par difficulté
-  await prefs.setInt('attempts_easy', _attemptsByDifficulty[DifficultyLevel.easy] ?? 0);
-  await prefs.setInt('attempts_medium', _attemptsByDifficulty[DifficultyLevel.medium] ?? 0);
-  await prefs.setInt('attempts_hard', _attemptsByDifficulty[DifficultyLevel.hard] ?? 0);
-}
-
   CommercialScenario? _currentScenario;
   TimerState _timerState = const TimerState(
     totalDuration: Duration(minutes: 30),
@@ -82,51 +35,90 @@ Future<void> _saveStatistics() async {
   int _chifousiDraws = 0;
   int _chifousiLosses = 0;
 
-  // Compteurs de réussites par difficulté
   final Map<DifficultyLevel, int> _successByDifficulty = {
     DifficultyLevel.easy: 0,
     DifficultyLevel.medium: 0,
     DifficultyLevel.hard: 0,
   };
 
-  // NOUVEAU : Compteurs d'essais par difficulté
   final Map<DifficultyLevel, int> _attemptsByDifficulty = {
     DifficultyLevel.easy: 0,
     DifficultyLevel.medium: 0,
     DifficultyLevel.hard: 0,
   };
 
+  final TextEditingController _scenarioNumberController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatistics();
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
+    _scenarioNumberController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadStatistics() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    setState(() {
+      _chifousiWins = prefs.getInt('chifousi_wins') ?? 0;
+      _chifousiDraws = prefs.getInt('chifousi_draws') ?? 0;
+      _chifousiLosses = prefs.getInt('chifousi_losses') ?? 0;
+      
+      _successByDifficulty[DifficultyLevel.easy] = prefs.getInt('success_easy') ?? 0;
+      _successByDifficulty[DifficultyLevel.medium] = prefs.getInt('success_medium') ?? 0;
+      _successByDifficulty[DifficultyLevel.hard] = prefs.getInt('success_hard') ?? 0;
+      
+      _attemptsByDifficulty[DifficultyLevel.easy] = prefs.getInt('attempts_easy') ?? 0;
+      _attemptsByDifficulty[DifficultyLevel.medium] = prefs.getInt('attempts_medium') ?? 0;
+      _attemptsByDifficulty[DifficultyLevel.hard] = prefs.getInt('attempts_hard') ?? 0;
+    });
+  }
+
+  Future<void> _saveStatistics() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    await prefs.setInt('chifousi_wins', _chifousiWins);
+    await prefs.setInt('chifousi_draws', _chifousiDraws);
+    await prefs.setInt('chifousi_losses', _chifousiLosses);
+    
+    await prefs.setInt('success_easy', _successByDifficulty[DifficultyLevel.easy] ?? 0);
+    await prefs.setInt('success_medium', _successByDifficulty[DifficultyLevel.medium] ?? 0);
+    await prefs.setInt('success_hard', _successByDifficulty[DifficultyLevel.hard] ?? 0);
+    
+    await prefs.setInt('attempts_easy', _attemptsByDifficulty[DifficultyLevel.easy] ?? 0);
+    await prefs.setInt('attempts_medium', _attemptsByDifficulty[DifficultyLevel.medium] ?? 0);
+    await prefs.setInt('attempts_hard', _attemptsByDifficulty[DifficultyLevel.hard] ?? 0);
   }
 
   int _getSuccessByDifficulty(DifficultyLevel difficulty) {
     return _successByDifficulty[difficulty] ?? 0;
   }
 
-// NOUVELLE MÉTHODE À AJOUTER ICI
-int _getAttemptsByDifficulty(DifficultyLevel difficulty) {
-  return _attemptsByDifficulty[difficulty] ?? 0;
-}
-
-Color _getDifficultyColor(DifficultyLevel difficulty) {
-  switch (difficulty) {
-    case DifficultyLevel.easy:
-      return Colors.green;
-    case DifficultyLevel.medium:
-      return Colors.orange;
-    case DifficultyLevel.hard:
-      return Colors.red;
+  int _getAttemptsByDifficulty(DifficultyLevel difficulty) {
+    return _attemptsByDifficulty[difficulty] ?? 0;
   }
-}
+
+  Color _getDifficultyColor(DifficultyLevel difficulty) {
+    switch (difficulty) {
+      case DifficultyLevel.easy:
+        return Colors.green;
+      case DifficultyLevel.medium:
+        return Colors.orange;
+      case DifficultyLevel.hard:
+        return Colors.red;
+    }
+  }
 
   void _startRandomScenario() {
-    final scenario = CommercialScenarioService.drawRandomScenario();  // Tirer D'ABORD
+    final scenario = CommercialScenarioService.drawRandomScenario();
     setState(() {
       _currentScenario = scenario;
-      // PUIS incrémenter
       _attemptsByDifficulty[scenario.difficulty] = 
         (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
       _showCorrection = false;
@@ -150,8 +142,22 @@ Color _getDifficultyColor(DifficultyLevel difficulty) {
     final game = CommercialScenarioService.playChifoumi(playerChoice);
     setState(() {
       _chifousiGame = game;
+      // ✅ CORRECTION : Ne PAS incrémenter les stats ici
+    });
+  }
+
+  void _launchScenarioFromChifoumi() {
+    if (_chifousiGame == null) return;
+    
+    final scenario = CommercialScenarioService.drawChallengeScenario(_chifousiGame!.result);
+    setState(() {
+      _currentScenario = scenario;
       
-      switch (game.result) {
+      _attemptsByDifficulty[scenario.difficulty] = 
+        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
+      
+      // ✅ CORRECTION : Incrémenter les stats chifoumi ICI
+      switch (_chifousiGame!.result) {
         case ChifousiResult.win:
           _chifousiWins++;
           break;
@@ -162,25 +168,83 @@ Color _getDifficultyColor(DifficultyLevel difficulty) {
           _chifousiLosses++;
           break;
       }
-  });
-  _saveStatistics();  // NOUVEAU : Sauvegarder après chaque chifoumi
-}
-
-  void _launchScenarioFromChifoumi() {
-    if (_chifousiGame == null) return;
-    
-    final scenario = CommercialScenarioService.drawChallengeScenario(_chifousiGame!.result);
-    setState(() {
-      _currentScenario = scenario;
-      // Incrémenter les essais
-      _attemptsByDifficulty[scenario.difficulty] = 
-        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
+      
       _showChifoumi = false;
       _showCorrection = false;
       _chifousiGame = null;
     });
+    
+    _saveStatistics();
     _resetTimer();
   }
+
+  void _selectScenarioById(String idString) {
+    final id = int.tryParse(idString);
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez entrer un numéro valide'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
+    final allScenarios = CommercialScenariosDatabase.getAllScenarios();
+    final scenario = allScenarios.firstWhere(
+      (s) => s.id == id,
+      orElse: () => allScenarios[0],
+    );
+    
+    if (scenario.id != id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Scénario #$id introuvable'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    
+    setState(() {
+      _currentScenario = scenario;
+      _attemptsByDifficulty[scenario.difficulty] = 
+        (_attemptsByDifficulty[scenario.difficulty] ?? 0) + 1;
+      _showCorrection = false;
+      _showChifoumi = false;
+      _chifousiGame = null;
+    });
+    _resetTimer();
+    _scenarioNumberController.clear();
+  }
+
+  void _selectScenarioByDifficulty(DifficultyLevel difficulty) {
+    final scenarios = CommercialScenariosDatabase.getScenariosByDifficulty(difficulty);
+    
+    if (scenarios.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aucun scénario disponible pour ce niveau'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    final random = (scenarios.toList()..shuffle()).first;
+    
+    setState(() {
+      _currentScenario = random;
+      _attemptsByDifficulty[random.difficulty] = 
+        (_attemptsByDifficulty[random.difficulty] ?? 0) + 1;
+      _showCorrection = false;
+      _showChifoumi = false;
+      _chifousiGame = null;
+    });
+    _resetTimer();
+  }
+
+// PARTIE 2/4 : Méthodes de gestion du timer et dialogues
 
   void _startTimer() {
     _resetTimer();
@@ -445,76 +509,76 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
     }
   }
 
+// PARTIE 3/4 : Build principal et widgets de sélection
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-appBar: AppBar(
-  leading: Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      IconButton(
-        icon: const Icon(Icons.home),
-        onPressed: () {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        },
-        tooltip: 'Dashboard',
-      ),
-      IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          // Si on est sur un scénario ou le chifoumi, revenir à l'accueil
-          if (_currentScenario != null || _showChifoumi) {
-            setState(() {
-              _currentScenario = null;
-              _showChifoumi = false;
-              _showCorrection = false;
-              _chifousiGame = null;
-            });
-            _resetTimer();
-          } else {
-            // Sinon, quitter vers le dashboard
-            Navigator.of(context).pop();
-          }
-        },
-        tooltip: 'Retour',
-      ),
-    ],
-  ),
-  leadingWidth: 100,
-  title: const Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(Icons.business_center),
-      SizedBox(width: 8),
-      Text('Scénarios Commerciaux'),
-    ],
-  ),
-  actions: [
-    Center(
-      child: Padding(
-        padding: const EdgeInsets.only(right: 16.0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0x33FFFFFF),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0x4DFFFFFF),
+      appBar: AppBar(
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.home),
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              tooltip: 'Dashboard',
             ),
-          ),
-          child: const Text(
-            'v1.2',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                if (_currentScenario != null || _showChifoumi) {
+                  setState(() {
+                    _currentScenario = null;
+                    _showChifoumi = false;
+                    _showCorrection = false;
+                    _chifousiGame = null;
+                  });
+                  _resetTimer();
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
+              tooltip: 'Retour',
             ),
-          ),
+          ],
         ),
+        leadingWidth: 100,
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.business_center),
+            SizedBox(width: 8),
+            Text('Scénarios Commerciaux'),
+          ],
+        ),
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0x33FFFFFF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0x4DFFFFFF),
+                  ),
+                ),
+                child: const Text(
+                  'v1.3',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
-    ),
-  ],
-),
       body: Column(
         children: [
           Expanded(
@@ -562,11 +626,32 @@ appBar: AppBar(
     );
   }
 
+  Widget _buildInfoChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+// REMPLACER la méthode _buildModeSelection() dans la partie 3/4 par celle-ci :
+
 Widget _buildModeSelection() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      // ✅ NOUVELLE SECTION : Introduction encadrée en bleu
+      // Introduction (inchangée)
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -640,23 +725,23 @@ Widget _buildModeSelection() {
       
       const SizedBox(height: 40),
       
-      // ✅ SECTION EXISTANTE : Choix du mode (dans une Card séparée)
+      // FORMAT COMPACT : Choix du mode dans une seule Card
       Card(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              // SOUS-TITRE
               Text(
                 'Choisissez votre mode de tirage',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
+                  fontSize: 20,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               
-              // BOUTON TIRAGE CLASSIQUE
+              // Tirage Classique
               ElevatedButton.icon(
                 icon: const Icon(Icons.casino, size: 24),
                 label: const Text(
@@ -671,7 +756,7 @@ Widget _buildModeSelection() {
               
               const SizedBox(height: 16),
               
-              // BOUTON MODE DÉFI
+              // Mode Défi
               ElevatedButton.icon(
                 icon: const Icon(Icons.fitness_center, size: 24),
                 label: const Text(
@@ -689,154 +774,305 @@ Widget _buildModeSelection() {
           ),
         ),
       ),
+      
+      const SizedBox(height: 24),
+      
+      // Sélection par numéro
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade300),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.tag, color: Colors.blue.shade700, size: 24),
+                const SizedBox(width: 12),
+                const Text(
+                  'Sélectionner par numéro',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _scenarioNumberController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Entrez le numéro (1-100)',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                    onSubmitted: (value) => _selectScenarioById(value),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    _selectScenarioById(_scenarioNumberController.text);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Icon(Icons.search),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      
+      const SizedBox(height: 24),
+      
+      // Sélection par difficulté (format original avec gros boutons)
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade300),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.filter_list, color: Colors.purple.shade700, size: 24),
+                const SizedBox(width: 12),
+                const Text(
+                  'Sélectionner par difficulté',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildDifficultySelectionButton(
+                    'Facile',
+                    DifficultyLevel.easy,
+                    Colors.green,
+                    Icons.star,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildDifficultySelectionButton(
+                    'Moyen',
+                    DifficultyLevel.medium,
+                    Colors.orange,
+                    Icons.star_half,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildDifficultySelectionButton(
+                    'Difficile',
+                    DifficultyLevel.hard,
+                    Colors.red,
+                    Icons.star_border,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     ],
   );
 }
-
-// ✅ NOUVELLE MÉTHODE : Widget pour les badges IDI/ADRN/TIP
-Widget _buildInfoChip(String label, Color color) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.1),
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: color.withOpacity(0.3)),
-    ),
-    child: Text(
-      label,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        color: color,
+  Widget _buildDifficultySelectionButton(String label, DifficultyLevel difficulty, Color color, IconData icon) {
+    final count = CommercialScenariosDatabase.getCountByDifficulty(difficulty);
+    return ElevatedButton(
+      onPressed: () => _selectScenarioByDifficulty(difficulty),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
-    ),
-  );
-}
-
-Widget _buildChifousiInterface() {
-  return Card(
-    child: Padding(
-      padding: const EdgeInsets.all(20.0),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // TITRE AVEC "CHIFOUMI"
-          Text(
-            '"Chifoumi"',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
-              fontStyle: FontStyle.italic,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Icon(icon, size: 28),
           const SizedBox(height: 8),
           Text(
-            'Pierre - Feuille - Ciseaux',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
-            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
-          
-          // COMPTEURS DE SCORE
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildCounterBadge('Victoires', _chifousiWins, Colors.green),
-                _buildCounterBadge('Égalités', _chifousiDraws, Colors.orange),
-                _buildCounterBadge('Défaites', _chifousiLosses, Colors.red),
-              ],
+          const SizedBox(height: 4),
+          Text(
+            '$count scénario${count > 1 ? 's' : ''}',
+            style: const TextStyle(
+              fontSize: 11,
             ),
           ),
-          
-          const SizedBox(height: 24),
-          
-          // CHOIX PIERRE FEUILLE CISEAUX
-          if (_chifousiGame == null) ...[
-            const Text(
-              'Faites votre choix :',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ],
+      ),
+    );
+  }
+
+// PARTIE 4/4 : Widgets Chifoumi, Timer, Scénario, Correction et Welcome
+
+  Widget _buildChifousiInterface() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text(
+              '"Chifoumi"',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade600,
+                fontStyle: FontStyle.italic,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pierre - Feuille - Ciseaux',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildChifousiButton(
-                  choice: ChifousiChoice.rock,
-                  icon: '🪨',
-                  label: 'Pierre',
-                ),
-                _buildChifousiButton(
-                  choice: ChifousiChoice.paper,
-                  icon: '📄',
-                  label: 'Feuille',
-                ),
-                _buildChifousiButton(
-                  choice: ChifousiChoice.scissors,
-                  icon: '✂️',
-                  label: 'Ciseaux',
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildCounterBadge('Victoires', _chifousiWins, Colors.green),
+                  _buildCounterBadge('Égalités', _chifousiDraws, Colors.orange),
+                  _buildCounterBadge('Défaites', _chifousiLosses, Colors.red),
+                ],
+              ),
             ),
             
             const SizedBox(height: 24),
             
-            // ENCADRÉ EXPLICATIF EN BAS (après les boutons de choix)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.shade200, width: 2),
+            if (_chifousiGame == null) ...[
+              const Text(
+                'Faites votre choix :',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-              child: Row(
+              const SizedBox(height: 20),
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Icon(Icons.info_outline, color: Colors.orange.shade700, size: 24),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Mode Défi : Pierre-Feuille-Ciseaux',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange.shade800,
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Victoire = Facile  •  Égalité = Moyen  •  Défaite = Difficile',
-                          style: TextStyle(
-                            color: Colors.orange.shade700,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                  _buildChifousiButton(
+                    choice: ChifousiChoice.rock,
+                    icon: '🪨',
+                    label: 'Pierre',
+                  ),
+                  _buildChifousiButton(
+                    choice: ChifousiChoice.paper,
+                    icon: '📄',
+                    label: 'Feuille',
+                  ),
+                  _buildChifousiButton(
+                    choice: ChifousiChoice.scissors,
+                    icon: '✂️',
+                    label: 'Ciseaux',
                   ),
                 ],
               ),
-            ),
-          ] else ...[
-            // RÉSULTAT DU JEU
-            _buildChifousiResult(),
+              
+              const SizedBox(height: 24),
+              
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.shade200, width: 2),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.orange.shade700, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mode Défi : Pierre-Feuille-Ciseaux',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange.shade800,
+                              fontSize: 15,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Victoire = Facile  •  Égalité = Moyen  •  Défaite = Difficile',
+                            style: TextStyle(
+                              color: Colors.orange.shade700,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else ...[
+              _buildChifousiResult(),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildCounterBadge(String label, int count, Color color) {
     return Column(
@@ -994,67 +1230,52 @@ Widget _buildChifousiInterface() {
     }
   }
 
-Widget _buildTimerWidget() {
-  final minutes = _timerState.remainingTime.inMinutes;
-  final seconds = _timerState.remainingTime.inSeconds % 60;
-  final isLowTime = _timerState.remainingTime.inMinutes < 5;
-  
-  return Container(
-    width: double.infinity,
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: isLowTime 
-          ? [Colors.red.shade700, Colors.red.shade500]
-          : [const Color(0xFF1A237E), const Color(0xFF00B0FF)],
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.2),
-          blurRadius: 8,
-          offset: const Offset(0, -2),
+  Widget _buildTimerWidget() {
+    final minutes = _timerState.remainingTime.inMinutes;
+    final seconds = _timerState.remainingTime.inSeconds % 60;
+    final isLowTime = _timerState.remainingTime.inMinutes < 5;
+    
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isLowTime 
+            ? [Colors.red.shade700, Colors.red.shade500]
+            : [const Color(0xFF1A237E), const Color(0xFF00B0FF)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
         ),
-      ],
-    ),
-    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-    child: Row(
-      children: [
-        // Icône horloge
-        const Icon(Icons.timer, size: 24, color: Colors.white),
-        const SizedBox(width: 12),
-        
-        // Temps restant
-        Text(
-          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
           ),
-        ),
-        
-        const SizedBox(width: 16),
-        
-        // Bouton Démarrer/Reprendre/Pause
-        Expanded(
-          child: !_timerState.isRunning && !_timerState.isFinished
-            ? ElevatedButton.icon(
-                onPressed: _timerState.isPaused ? _resumeTimer : _startTimer,
-                icon: const Icon(Icons.play_arrow, size: 18),
-                label: Text(_timerState.isPaused ? 'Reprendre' : 'Démarrer'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF00B0FF),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              )
-            : _timerState.isRunning
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Row(
+        children: [
+          const Icon(Icons.timer, size: 24, color: Colors.white),
+          const SizedBox(width: 12),
+          
+          Text(
+            '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          
+          const SizedBox(width: 16),
+          
+          Expanded(
+            child: !_timerState.isRunning && !_timerState.isFinished
               ? ElevatedButton.icon(
-                  onPressed: _pauseTimer,
-                  icon: const Icon(Icons.pause, size: 18),
-                  label: const Text('Pause'),
+                  onPressed: _timerState.isPaused ? _resumeTimer : _startTimer,
+                  icon: const Icon(Icons.play_arrow, size: 18),
+                  label: Text(_timerState.isPaused ? 'Reprendre' : 'Démarrer'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF00B0FF),
@@ -1062,298 +1283,269 @@ Widget _buildTimerWidget() {
                     textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 )
-              : const SizedBox.shrink(),
-        ),
-        
-        const SizedBox(width: 12),
-        
-        // Icône correction
-        IconButton(
-          onPressed: _showCorrectionManually,
-          icon: const Icon(Icons.help_outline, size: 24),
-          tooltip: 'Voir la correction',
-          color: Colors.white,
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildScenarioDisplay() {
-  if (_currentScenario == null) return const SizedBox();
-  
-  return Card(
-    elevation: 0,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-      side: BorderSide(
-        color: _getDifficultyColor(_currentScenario!.difficulty),
-        width: 4,
-      ),
-    ),
-    child: Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: _getDifficultyColor(_currentScenario!.difficulty).withOpacity(0.3),
-            blurRadius: 12,
-            spreadRadius: 2,
-            offset: const Offset(0, 4),
+              : _timerState.isRunning
+                ? ElevatedButton.icon(
+                    onPressed: _pauseTimer,
+                    icon: const Icon(Icons.pause, size: 18),
+                    label: const Text('Pause'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF00B0FF),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+          
+          const SizedBox(width: 12),
+          
+          IconButton(
+            onPressed: _showCorrectionManually,
+            icon: const Icon(Icons.help_outline, size: 24),
+            tooltip: 'Voir la correction',
+            color: Colors.white,
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Scénario Commercial',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-Container(
-  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  decoration: BoxDecoration(
-    color: _currentScenario!.difficulty == DifficultyLevel.easy 
-        ? Colors.green 
-        : _currentScenario!.difficulty == DifficultyLevel.medium 
-            ? Colors.orange 
-            : Colors.red,
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(3, (index) {
-          int filledStars = _currentScenario!.difficulty == DifficultyLevel.easy ? 1 
-              : _currentScenario!.difficulty == DifficultyLevel.medium ? 2 
-              : 3;
-          return Icon(
-            index < filledStars ? Icons.star : Icons.star_border,
-            color: Colors.white,
-            size: 16,
-          );
-        }),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        _currentScenario!.difficultyLabel,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 11,
+    );
+  }
+
+  Widget _buildScenarioDisplay() {
+    if (_currentScenario == null) return const SizedBox();
+    
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: _getDifficultyColor(_currentScenario!.difficulty),
+          width: 4,
         ),
       ),
-    ],
-  ),
-),
-              ],
-            ),
-            const Divider(height: 30, thickness: 2),
-            
-            Stack(
-              children: [
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Icon(
-                    Icons.chat_bubble_outline,
-                    size: 60,
-                    color: Colors.blue.shade100.withOpacity(0.3),
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue.shade200, width: 2),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.person, size: 24, color: Colors.blue.shade700),
-                          const SizedBox(width: 8),
-                          Text(
-                            'DEMANDE CLIENT',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        '${_currentScenario!.clientProfile} qui ${_currentScenario!.clientRequest}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            Stack(
-              children: [
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Icon(
-                    Icons.euro,
-                    size: 60,
-                    color: Colors.green.shade100.withOpacity(0.3),
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.green.shade200, width: 2),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.account_balance_wallet, size: 24, color: Colors.green.shade700),
-                          const SizedBox(width: 8),
-                          Text(
-                            'BUDGET',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _currentScenario!.budgetInfo,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            Stack(
-              children: [
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Icon(
-                    Icons.lightbulb_outline,
-                    size: 60,
-                    color: Colors.amber.shade100.withOpacity(0.3),
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.amber.shade300, width: 2),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.lightbulb, size: 24, color: Colors.amber.shade700),
-                          const SizedBox(width: 8),
-                          Text(
-                            'CONSIGNES',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Analysez la demande, posez les bonnes questions et proposez une solution adaptée. '
-                        'Vous pouvez faire des recherches en ligne.',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.info_outline, size: 20, color: Colors.grey.shade700),
-                      const SizedBox(width: 8),
-                      Text(
-                        'DÉTAILS IMPORTANTS',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '• Attitude client : ${_currentScenario!.clientAttitude.isEmpty ? "Non renseigné" : _currentScenario!.clientAttitude}\n'
-                    '• Mots-clés : "${_currentScenario!.clientProfile}", "${_currentScenario!.clientRequest.split(' ').take(3).join(' ')}..."\n'
-                    '• Compétences : ${_currentScenario!.skillsWorked.first}',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
-                  ),
-                ],
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: _getDifficultyColor(_currentScenario!.difficulty).withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Scénario Commercial',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: _getDifficultyColor(_currentScenario!.difficulty),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(3, (index) {
+                            int filledStars = _currentScenario!.difficulty == DifficultyLevel.easy ? 1 
+                                : _currentScenario!.difficulty == DifficultyLevel.medium ? 2 
+                                : 3;
+                            return Icon(
+                              index < filledStars ? Icons.star : Icons.star_border,
+                              color: Colors.white,
+                              size: 16,
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _currentScenario!.difficultyLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 30, thickness: 2),
+              
+              Stack(
+                children: [
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Icon(
+                      Icons.chat_bubble_outline,
+                      size: 60,
+                      color: Colors.blue.shade100.withOpacity(0.3),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.shade200, width: 2),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.person, size: 24, color: Colors.blue.shade700),
+                            const SizedBox(width: 8),
+                            Text(
+                              'DEMANDE CLIENT #${_currentScenario!.id}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '${_currentScenario!.clientProfile} qui ${_currentScenario!.clientRequest}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 16),
+              
+              Stack(
+                children: [
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Icon(
+                      Icons.euro,
+                      size: 60,
+                      color: Colors.green.shade100.withOpacity(0.3),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green.shade200, width: 2),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.account_balance_wallet, size: 24, color: Colors.green.shade700),
+                            const SizedBox(width: 8),
+                            Text(
+                              'BUDGET',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _currentScenario!.budgetInfo,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 16),
+              
+              Stack(
+                children: [
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Icon(
+                      Icons.lightbulb_outline,
+                      size: 60,
+                      color: Colors.amber.shade100.withOpacity(0.3),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.amber.shade300, width: 2),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.lightbulb, size: 24, color: Colors.amber.shade700),
+                            const SizedBox(width: 8),
+                            Text(
+                              'CONSIGNES',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Analysez la demande, posez les bonnes questions et proposez une solution adaptée. '
+                          'Vous pouvez faire des recherches en ligne.',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+// PARTIE 4BIS/4 : Méthodes _buildCorrectionSheet et _buildWelcomeMessage
 
   Widget _buildCorrectionSheet() {
     if (_currentScenario == null) return const SizedBox();
@@ -1477,9 +1669,9 @@ Container(
                               _successByDifficulty[_currentScenario!.difficulty] = 
                                 (_successByDifficulty[_currentScenario!.difficulty] ?? 0) + 1;
                             }
-                        });
-                        _saveStatistics();  // NOUVEAU : Sauvegarder après validation
-                        ScaffoldMessenger.of(context).showSnackBar(
+                          });
+                          _saveStatistics();
+                          ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('✓ Scénario validé comme réussi !'),
                               backgroundColor: Colors.green,
@@ -1497,8 +1689,6 @@ Container(
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
-                          setState(() {
-                          });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('✗ Scénario marqué comme à retravailler'),
@@ -1707,216 +1897,215 @@ Container(
     );
   }
 
-Widget _buildWelcomeMessage() {
-  final stats = CommercialScenarioService.getScenarioStats();
+  Widget _buildWelcomeMessage() {
+    final stats = CommercialScenarioService.getScenarioStats();
+    
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.only(top: 20),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue.shade200, width: 2),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '${stats['total']} scénarios disponibles', 
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    color: Colors.blue.shade700,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          '${stats['facile']}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.green, size: 14),
+                            Icon(Icons.star_border, color: Colors.green, size: 14),
+                            Icon(Icons.star_border, color: Colors.green, size: 14),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Text('Faciles', style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          '${stats['moyen']}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.orange, size: 14),
+                            Icon(Icons.star, color: Colors.orange, size: 14),
+                            Icon(Icons.star_border, color: Colors.orange, size: 14),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Text('Moyens', style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          '${stats['difficile']}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.red, size: 14),
+                            Icon(Icons.star, color: Colors.red, size: 14),
+                            Icon(Icons.star, color: Colors.red, size: 14),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        const Text('Difficiles', style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                  ],
+                ),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(thickness: 2, color: Colors.blue.shade200),
+                ),
+                
+                Text(
+                  'Statistiques de réussite',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          '${_getSuccessByDifficulty(DifficultyLevel.easy)} / ${_getAttemptsByDifficulty(DifficultyLevel.easy)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.green, size: 14),
+                            Icon(Icons.star_border, color: Colors.green, size: 14),
+                            Icon(Icons.star_border, color: Colors.green, size: 14),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Faciles',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          '${_getSuccessByDifficulty(DifficultyLevel.medium)} / ${_getAttemptsByDifficulty(DifficultyLevel.medium)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.orange, size: 14),
+                            Icon(Icons.star, color: Colors.orange, size: 14),
+                            Icon(Icons.star_border, color: Colors.orange, size: 14),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Moyens',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          '${_getSuccessByDifficulty(DifficultyLevel.hard)} / ${_getAttemptsByDifficulty(DifficultyLevel.hard)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star, color: Colors.red, size: 14),
+                            Icon(Icons.star, color: Colors.red, size: 14),
+                            Icon(Icons.star, color: Colors.red, size: 14),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Difficiles',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   
-  return Container(
-    alignment: Alignment.center,
-    padding: const EdgeInsets.only(top: 20),
-    child: Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.shade200, width: 2),
-          ),
-          child: Column(
-            children: [
-              Text(
-                '${stats['total']} scénarios disponibles', 
-                style: TextStyle(
-                  fontWeight: FontWeight.bold, 
-                  color: Colors.blue.shade700,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 12),
-              
-Row(
-  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  children: [
-    Column(
-      children: [
-        Text(
-          '${stats['facile']}',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.green,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.star, color: Colors.green, size: 14),
-            Icon(Icons.star_border, color: Colors.green, size: 14),
-            Icon(Icons.star_border, color: Colors.green, size: 14),
-          ],
-        ),
-        const SizedBox(height: 4),
-        const Text('Faciles', style: TextStyle(fontSize: 12)),
-      ],
-    ),
-    Column(
-      children: [
-        Text(
-          '${stats['moyen']}',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.orange,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.star, color: Colors.orange, size: 14),
-            Icon(Icons.star, color: Colors.orange, size: 14),
-            Icon(Icons.star_border, color: Colors.orange, size: 14),
-          ],
-        ),
-        const SizedBox(height: 4),
-        const Text('Moyens', style: TextStyle(fontSize: 12)),
-      ],
-    ),
-    Column(
-      children: [
-        Text(
-          '${stats['difficile']}',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.star, color: Colors.red, size: 14),
-            Icon(Icons.star, color: Colors.red, size: 14),
-            Icon(Icons.star, color: Colors.red, size: 14),
-          ],
-        ),
-        const SizedBox(height: 4),
-        const Text('Difficiles', style: TextStyle(fontSize: 12)),
-      ],
-    ),
-  ],
-),
-              
-              // NOUVEAU : Ligne de séparation
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Divider(thickness: 2, color: Colors.blue.shade200),
-              ),
-              
-              // NOUVEAU : Statistiques de réussite
-              Text(
-                'Statistiques de réussite',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade700,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 12),
-              
-Row(
-  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  children: [
-    Column(
-      children: [
-        Text(
-          '${_getSuccessByDifficulty(DifficultyLevel.easy)} / ${_getAttemptsByDifficulty(DifficultyLevel.easy)}',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.green,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.star, color: Colors.green, size: 14),
-            Icon(Icons.star_border, color: Colors.green, size: 14),
-            Icon(Icons.star_border, color: Colors.green, size: 14),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Faciles',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
-        ),
-      ],
-    ),
-    Column(
-      children: [
-        Text(
-          '${_getSuccessByDifficulty(DifficultyLevel.medium)} / ${_getAttemptsByDifficulty(DifficultyLevel.medium)}',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.orange,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.star, color: Colors.orange, size: 14),
-            Icon(Icons.star, color: Colors.orange, size: 14),
-            Icon(Icons.star_border, color: Colors.orange, size: 14),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Moyens',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
-        ),
-      ],
-    ),
-    Column(
-      children: [
-        Text(
-          '${_getSuccessByDifficulty(DifficultyLevel.hard)} / ${_getAttemptsByDifficulty(DifficultyLevel.hard)}',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.star, color: Colors.red, size: 14),
-            Icon(Icons.star, color: Colors.red, size: 14),
-            Icon(Icons.star, color: Colors.red, size: 14),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Difficiles',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
-        ),
-      ],
-    ),
-  ],
-),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-}
+} // FIN DE LA CLASSE _CommercialScenarioScreenState
