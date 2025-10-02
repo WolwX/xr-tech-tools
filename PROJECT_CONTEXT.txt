@@ -11,7 +11,7 @@
 
 - **Nom** : XR Tech Tools
 - **Tech** : Flutter / Dart
-- **Version** : Voir GitHub (dernière : v1.3.300925)
+- **Version actuelle** : v1.3.011025 (01/10/2025)
 - **Objectif** : Boîte à outils pro + pédagogique techniciens IT
 - **Titres visés** : IDI, ADRN, TIP (RNCP34147, RNCP38718, RNCP40799)
 - **Contact** : WolwX@hotmail.com
@@ -22,42 +22,107 @@
 ## 📋 ÉTAT ACTUEL (Résumé)
 
 **Outils fonctionnels** :
-- ✅ Scénarios Commerciaux (100 scénarios - 3 niveaux)
-- ✅ Mode Créateur de Pannes (14 pannes - 6 catégories)
+- ✅ Scénarios Commerciaux (100 scénarios - 3 niveaux) [v1.2.0]
+- ✅ Mode Créateur de Pannes (14 pannes - 6 catégories) [v1.3.300925]
+- ✅ Mode Dépanneur (14 pannes - diagnostic technicien) [v1.3.300925]
+- ✅ Organigrammes Interactifs (1/14+ disponible) [v1.3.011025] ⭐ NOUVEAU
 
-**En développement** : 8 outils restants
+**Organigramme disponible** :
+- "L'ordinateur ne s'allume pas" (Hardware - 5 étapes guidées)
+
+**En développement** : 
+- 13+ organigrammes restants (Hardware, Software, BIOS/UEFI, Network, Printer, Peripheral)
+- 6 outils de la Boîte à Outils
+
+---
+
+## 🆕 DERNIERS CHANGEMENTS (v1.3.011025 - 01/10/2025)
+
+### Nouveautés majeures :
+1. **Système d'organigrammes interactifs** complet
+   - Navigation guidée étape par étape
+   - Détection automatique de l'organigramme pertinent
+   - Barre de progression et historique
+   - Retour arrière possible
+   - Résultats contextuels (Succès/Échec/Info) avec codes couleur
+   - Options visuellement distinctes (✓ vert / ✗ rouge)
+
+2. **Architecture technique organigrammes** :
+   - Nouveaux modèles : FlowchartInfo, FlowchartStep, FlowchartOption
+   - Service centralisé : FlowchartService
+   - Données structurées : FlowchartData
+   - Interface dédiée : InteractiveFlowchartScreen
+   - Détection intelligente par mots-clés
+
+3. **Intégration Mode Dépanneur** :
+   - Bouton "Organigramme HARDWARE" visible uniquement si disponible
+   - Suggestion automatique de l'organigramme le plus adapté
+   - Sélection manuelle si plusieurs disponibles
+
+### Fichiers ajoutés :
+- lib/models/flowchart_models.dart
+- lib/services/flowchart_service.dart
+- lib/services/flowchart_data.dart
+- lib/screens/interactive_flowchart_screen.dart
+
+### Fichiers modifiés :
+- lib/screens/malfunction_technician_screen.dart
 
 ---
 
 ## 📝 NOTES PERSONNELLES DE DÉVELOPPEMENT
 
-### Décisions en cours
-<!-- Ajoutez ici vos réflexions, décisions d'architecture, idées -->
+### Décisions architecture v1.3.011025
+- Architecture décentralisée maintenue pour les organigrammes
+- Détection automatique par mots-clés plutôt que mapping manuel
+- Service centralisé pour faciliter l'ajout de nouveaux organigrammes
+- Format FlowchartStep/FlowchartOption extensible et maintenable
 
 ### TODO prioritaires
-<!-- Vos prochaines étapes -->
+- [ ] Développer les 3 autres organigrammes Hardware :
+  * Démarre mais s'éteint/freeze (Violet)
+  * Pas d'affichage (Orange)
+  * Ne boot pas (Vert)
+- [ ] Créer organigrammes pour autres catégories (Software, Network, etc.)
+- [ ] Compléter les 6 outils de la Boîte à Outils
 
 ### Questions ouvertes
-<!-- Points à clarifier -->
+- Faut-il ajouter un mode "Historique des diagnostics" ?
+- Export/import des statistiques pour backup ?
+- Gamification avec badges de progression ?
 
-### Contexte local
-<!-- Infos spécifiques à votre environnement de dev -->
+### Contexte de développement
+- Architecture extensible : ajout d'organigrammes simple via flowchart_data.dart
+- Structure testée et validée avec premier organigramme
+- Prêt pour déploiement des 13+ organigrammes restants
 
 ---
 
 ## 🤖 INSTRUCTIONS POUR CLAUDE
 
 **Workflow systématique** :
-1. Lire ce PROJECT_CONTEXT.txt pour le contexte rapide
-2. Consulter le GitHub (web_fetch) pour l'état actuel détaillé
+1. Lire ce PROJECT_CONTEXT.txt pour le contexte rapide et derniers changements
+2. Consulter le GitHub (web_fetch) pour l'état actuel détaillé si besoin
 3. Vérifier PROJECT_REFERENCE.txt sur GitHub pour guidelines techniques
 4. Procéder à la tâche demandée
 
 **Lors de chaque demande** :
-- Toujours vérifier la version actuelle sur GitHub avant de répondre
-- Consulter le CHANGELOG.md pour l'historique récent
-- Référer au PROJECT_REFERENCE.txt pour les contraintes techniques
+- Version actuelle : v1.3.011025 (01/10/2025)
+- Système d'organigrammes interactifs opérationnel
+- Architecture extensible pour 13+ organigrammes futurs
 - Ne jamais supposer l'état du projet sans vérifier
+
+**Pour ajouter un organigramme** :
+1. Créer les étapes dans flowchart_data.dart (format Map<String, FlowchartStep>)
+2. Ajouter l'entrée FlowchartInfo dans allFlowcharts
+3. Définir : id, category, title, color, keywords, steps
+4. Tester la détection automatique avec mots-clés pertinents
+
+**Architecture organigrammes** :
+- FlowchartInfo : métadonnées et configuration
+- FlowchartStep : étapes avec question, description, icône, options
+- FlowchartOption : choix avec label, nextStepId (ou conclusion)
+- ResultType : success (vert), failure (rouge), info (bleu)
 
 ---
 
@@ -70,4 +135,16 @@
 
 ---
 
-*Dernière mise à jour : 01/10/2025*
+## 📊 STATISTIQUES PROJET
+
+- 100 scénarios commerciaux (3 niveaux)
+- 14 pannes (6 catégories)
+- 1 organigramme interactif (13+ prévus)
+- 4 modes de jeu/travail (Scénarios, Créateur, Dépanneur, Organigrammes)
+- Architecture décentralisée (SharedPreferences)
+- Multiplateforme (Android, iOS, Windows, macOS, Linux, Web)
+
+---
+
+*Dernière mise à jour : 01/10/2025 - v1.3.011025*
+*Prochaine étape suggérée : Développer les 3 autres organigrammes Hardware*
