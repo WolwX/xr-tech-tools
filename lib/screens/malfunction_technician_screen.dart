@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/malfunction.dart';
 import '../services/malfunction_service.dart';
+import '../services/flowchart_service.dart';  // ← AJOUTER
+import '../models/flowchart_models.dart';      // ← AJOUTER
+import '../screens/interactive_flowchart_screen.dart';  // ← AJOUTER
 import '../widgets/app_footer.dart';
 
 // Énumération pour le Chifoumi
@@ -48,7 +51,8 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   bool _hasEvaluated = false;
   ChifoumiGame? _chifoumiGame;
   bool _showChifoumi = false;
-    // Timer
+  
+  // Timer
   Timer? _timer;
   Duration _remainingTime = const Duration(minutes: 30);
   bool _isTimerRunning = false;
@@ -70,7 +74,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   int _chifoumiDraws = 0;
   int _chifoumiLosses = 0;
 
-@override
+  @override
   void initState() {
     super.initState();
     _loadStatistics();
@@ -80,13 +84,15 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     )..repeat();
   }
 
-@override
+  @override
   void dispose() {
     _numberController.dispose();
     _timer?.cancel();
     _sandglassController.dispose();
     super.dispose();
   }
+
+  // ========== PARTIE 2/5 : Méthodes de gestion des données et statistiques ==========
 
   Future<void> _loadStatistics() async {
     final prefs = await SharedPreferences.getInstance();
@@ -151,7 +157,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     }
   }
 
-IconData _getCategoryIcon(MalfunctionCategory category) {
+  IconData _getCategoryIcon(MalfunctionCategory category) {
     switch (category) {
       case MalfunctionCategory.hardware:
         return Icons.memory;
@@ -168,6 +174,27 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
     }
   }
 
+  Widget _buildSkillBadge(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+// ========== Méthodes de navigation et tirage des pannes ==========
+
   void _drawRandomMalfunction() {
     setState(() {
       _currentMalfunction = MalfunctionService.drawRandomMalfunction();
@@ -176,7 +203,7 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
       _showChifoumi = false;
       _chifoumiGame = null;
     });
-    _resetTimer(); // ← AJOUTE CETTE LIGNE
+    _resetTimer();
   }
 
   void _showChifoumiInterface() {
@@ -249,7 +276,6 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
     setState(() {
       _currentMalfunction = malfunction;
       
-      // Incrémenter les stats chifoumi
       switch (_chifoumiGame!.result) {
         case ChifoumiResult.win:
           _chifoumiWins++;
@@ -339,6 +365,8 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
     _resetTimer();
   }
 
+  // ========== PARTIE 3/5 : Méthodes Timer, Chifoumi et Organigrammes ==========
+
   String _getChifoumiIcon(ChifoumiChoice choice) {
     switch (choice) {
       case ChifoumiChoice.rock:
@@ -362,7 +390,8 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
     }
   }
 
-  // === NOUVELLES MÉTHODES TIMER ===
+// ========== Méthodes Timer ==========
+
   void _startTimer() {
     _resetTimer();
     setState(() {
@@ -426,7 +455,201 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
       _showSolution = true;
     });
   }
-  // === FIN MÉTHODES TIMER ===
+
+// ========== Méthodes Organigrammes ==========
+
+  void _showFlowchartHelp() {
+    if (!FlowchartService.hasCategoryFlowcharts(_currentMalfunction!.category)) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.orange.shade700),
+              const SizedBox(width: 8),
+              const Text('Organigramme non disponible'),
+            ],
+          ),
+          content: Text(
+            'Les organigrammes pour la catégorie "${_currentMalfunction!.categoryLabel}" '
+            'seront bientôt disponibles.\n\n'
+            'Utilisez les procédures de diagnostic classiques en attendant.'
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    
+    final suggestedFlowchart = FlowchartService.detectBestFlowchart(_currentMalfunction!);
+    final allFlowcharts = FlowchartService.getFlowchartsByCategory(_currentMalfunction!.category);
+    
+    if (suggestedFlowchart == null) {
+      _showFlowchartSelection(allFlowcharts, null);
+    } else if (allFlowcharts.length == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => InteractiveFlowchartScreen(
+            flowchartInfo: suggestedFlowchart,
+          ),
+        ),
+      );
+    } else {
+      _showFlowchartSuggestion(suggestedFlowchart, allFlowcharts);
+    }
+  }
+
+  void _showFlowchartSuggestion(FlowchartInfo suggested, List<FlowchartInfo> allFlowcharts) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.lightbulb_outline, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Organigramme suggéré'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Basé sur les symptômes de la panne, nous vous suggérons :',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: suggested.color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: suggested.color),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.account_tree, color: suggested.color, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          suggested.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: suggested.color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (allFlowcharts.length > 1) ...[
+              const SizedBox(height: 16),
+              Text(
+                '${allFlowcharts.length - 1} autre(s) organigramme(s) disponible(s)',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          if (allFlowcharts.length > 1)
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showFlowchartSelection(allFlowcharts, suggested);
+              },
+              child: const Text('Voir tous'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InteractiveFlowchartScreen(
+                    flowchartInfo: suggested,
+                  ),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: suggested.color,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Afficher'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFlowchartSelection(List<FlowchartInfo> flowcharts, FlowchartInfo? suggested) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choisir un organigramme'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: flowcharts.length,
+            itemBuilder: (context, index) {
+              final flowchart = flowcharts[index];
+              final isSuggested = flowchart == suggested;
+              
+              return Card(
+                color: isSuggested ? flowchart.color.withOpacity(0.1) : null,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: Icon(
+                    isSuggested ? Icons.star : Icons.account_tree,
+                    color: flowchart.color,
+                  ),
+                  title: Text(flowchart.title),
+                  subtitle: isSuggested ? const Text('Suggéré') : null,
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InteractiveFlowchartScreen(
+                          flowchartInfo: flowchart,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ========== PARTIE 4/5 : Build method et widgets principaux ==========
 
   @override
   Widget build(BuildContext context) {
@@ -547,8 +770,9 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
     );
   }
 
+// ========== Widgets de construction ==========
+
   Widget _buildWelcomeSection() {
-    // Calcul du total de pannes disponibles
     final stats = MalfunctionService.getCompleteStats();
     final totalPannes = stats['total'] as int;
     final byDifficulty = stats['byDifficulty'] as Map<String, dynamic>;
@@ -681,7 +905,6 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
               
               const SizedBox(height: 16),
               
-              // Bouton Mode Défi
               ElevatedButton.icon(
                 onPressed: _showChifoumiInterface,
                 icon: const Icon(Icons.fitness_center, size: 24),
@@ -780,6 +1003,11 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
         
         const SizedBox(height: 24),
         
+        // SÉLECTION PAR DIFFICULTÉ + STATISTIQUES
+        // (suite dans partie 5...)
+
+// ========== PARTIE 5/5 : Suite widgets et fin du fichier ==========
+
         // SÉLECTION PAR DIFFICULTÉ
         Container(
           padding: const EdgeInsets.all(20),
@@ -848,7 +1076,7 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
         
         const SizedBox(height: 24),
         
-        // STATISTIQUES (FORMAT IDENTIQUE AUX SCÉNARIOS COMMERCIAUX)
+        // STATISTIQUES
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -878,7 +1106,6 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
               ),
               const SizedBox(height: 20),
               
-              // Statistiques globales
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -910,7 +1137,6 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
               
               const SizedBox(height: 16),
               
-              // Statistiques de réussite
               Center(
                 child: Text(
                   'Statistiques de réussite',
@@ -1089,7 +1315,7 @@ IconData _getCategoryIcon(MalfunctionCategory category) {
     );
   }
 
-Widget _buildTimerWidget() {
+  Widget _buildTimerWidget() {
     final minutes = _remainingTime.inMinutes;
     final seconds = _remainingTime.inSeconds % 60;
     final isLowTime = _remainingTime.inMinutes < 5;
@@ -1114,8 +1340,7 @@ Widget _buildTimerWidget() {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
-      children: [
-          // Sablier animé (tourne seulement si timer actif)
+        children: [
           _isTimerRunning
             ? AnimatedBuilder(
                 animation: _sandglassController,
@@ -1148,90 +1373,117 @@ Widget _buildTimerWidget() {
           
           const SizedBox(width: 16),
           
-Expanded(
-  child: (_isTimerRunning || _isTimerPaused) && _remainingTime.inSeconds > 0
-    ? ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Stack(
-          children: [
-            // Fond du bouton
-            Container(
-              height: 42,
-              color: Colors.white,
-            ),
-            // Barre de progression (se remplit de gauche à droite)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              height: 42,
-              width: (MediaQuery.of(context).size.width - 32) * 
-                     (1 - _remainingTime.inSeconds / (30 * 60)),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: _remainingTime.inMinutes < 5
-                    ? [Colors.red.shade300, Colors.red.shade400]
-                    : [const Color(0xFF00B0FF).withOpacity(0.3), 
-                       const Color(0xFF00B0FF).withOpacity(0.5)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-            ),
-            // Bouton Pause/Reprendre par dessus
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _isTimerRunning ? _pauseTimer : _resumeTimer,
-                child: Container(
-                  height: 42,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          Expanded(
+            child: (_isTimerRunning || _isTimerPaused) && _remainingTime.inSeconds > 0
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Stack(
                     children: [
-                      Icon(
-                        _isTimerRunning ? Icons.pause : Icons.play_arrow,
-                        size: 18,
-                        color: const Color(0xFF00B0FF),
+                      Container(
+                        height: 42,
+                        color: Colors.white,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _isTimerRunning ? 'Pause' : 'Reprendre',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00B0FF),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        height: 42,
+                        width: (MediaQuery.of(context).size.width - 32) * 
+                               (1 - _remainingTime.inSeconds / (30 * 60)),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: _remainingTime.inMinutes < 5
+                              ? [Colors.red.shade300, Colors.red.shade400]
+                              : [const Color(0xFF00B0FF).withOpacity(0.3), 
+                                 const Color(0xFF00B0FF).withOpacity(0.5)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                        ),
+                      ),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _isTimerRunning ? _pauseTimer : _resumeTimer,
+                          child: Container(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  _isTimerRunning ? Icons.pause : Icons.play_arrow,
+                                  size: 18,
+                                  color: const Color(0xFF00B0FF),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _isTimerRunning ? 'Pause' : 'Reprendre',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF00B0FF),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      )
-    : _remainingTime.inSeconds > 0
-      ? SizedBox(
-          height: 42,
-          child: ElevatedButton.icon(
-            onPressed: _startTimer,
-            icon: const Icon(Icons.play_arrow, size: 18),
-            label: const Text('Démarrer'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF00B0FF),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
+                )
+              : _remainingTime.inSeconds > 0
+                ? SizedBox(
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      onPressed: _startTimer,
+                      icon: const Icon(Icons.play_arrow, size: 18),
+                      label: const Text('Démarrer'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF00B0FF),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
-        )
-      : const SizedBox.shrink(),
-),
         ],
       ),
     );
   }
 
-   Widget _buildChifoumiInterface() {
+  // Les widgets _buildChifoumiInterface, _buildMalfunctionSymptoms et _buildSolutionSheet 
+  // restent identiques à votre code actuel, sauf pour l'ajout du bouton organigramme
+  // dans _buildMalfunctionSymptoms() après la section CONSIGNES :
+  
+  // Ajouter dans _buildMalfunctionSymptoms(), après le Container des CONSIGNES :
+  /*
+  if (FlowchartService.hasCategoryFlowcharts(_currentMalfunction!.category))
+    Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Center(
+        child: ElevatedButton.icon(
+          onPressed: _showFlowchartHelp,
+          icon: const Icon(Icons.account_tree, size: 20),
+          label: Text('Organigramme ${_currentMalfunction!.categoryLabel}'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.purple.shade600,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+        ),
+      ),
+    ),
+  */
+
+// Note : Les méthodes _buildChifoumiInterface(), _buildMalfunctionSymptoms(), 
+// _buildSolutionSheet() et _buildSolutionSection() restent identiques à votre code existant
+// Il faut juste ajouter le bouton organigramme mentionné ci-dessus dans _buildMalfunctionSymptoms()
+
+// ========== PARTIE 1/2 : Widgets Chifoumi ==========
+
+  Widget _buildChifoumiInterface() {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -1468,6 +1720,73 @@ Expanded(
     );
   }
 
+  Widget _buildSolutionSection(String title, IconData icon, List<String> steps) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.green.shade700, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...steps.asMap().entries.map((entry) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 2),
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.green.withOpacity(0.4), width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${entry.key + 1}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    entry.value,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+// ========== PARTIE 2/2 : Widgets MalfunctionSymptoms et SolutionSheet ==========
+
   Widget _buildMalfunctionSymptoms() {
     if (_currentMalfunction == null) return const SizedBox();
     
@@ -1499,18 +1818,81 @@ Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // En-tête
+                  Text(
+                    '#${_currentMalfunction!.id} - Panne à Diagnostiquer',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Ligne de badges
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                          'Panne à Diagnostiquer',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00B0FF).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFF00B0FF).withOpacity(0.3),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _getCategoryIcon(_currentMalfunction!.category),
+                                    size: 16,
+                                    color: const Color(0xFF00B0FF),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _currentMalfunction!.categoryLabel,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF00B0FF),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            ...() {
+                              List<Widget> badges = [];
+                              
+                              bool hasIDI = _currentMalfunction!.skillsWorked.any(
+                                (s) => s.toUpperCase().contains('IDI')
+                              );
+                              bool hasTIP = _currentMalfunction!.skillsWorked.any(
+                                (s) => s.toUpperCase().contains('TIP')
+                              );
+                              
+                              if (hasIDI) {
+                                badges.add(_buildSkillBadge('IDI', Colors.blue.shade700));
+                                badges.add(_buildSkillBadge('ADRN', Colors.green.shade700));
+                              }
+                              
+                              if (hasTIP) {
+                                badges.add(_buildSkillBadge('TIP', Colors.orange.shade700));
+                              }
+                              
+                              return badges;
+                            }(),
+                          ],
                         ),
                       ),
+                      
+                      const SizedBox(width: 12),
+                      
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
@@ -1546,93 +1928,10 @@ Expanded(
                       ),
                     ],
                   ),
-const Divider(height: 30, thickness: 2),
                   
-                  // Badge famille de panne + badges compétences
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Badge famille de panne
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00B0FF).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFF00B0FF).withOpacity(0.3),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _getCategoryIcon(_currentMalfunction!.category),
-                              size: 16,
-                              color: const Color(0xFF00B0FF),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              _currentMalfunction!.categoryLabel,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00B0FF),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Badges compétences IDI/ADRN/TIP
-                      Row(
-                        children: () {
-                          List<Map<String, dynamic>> badges = [];
-                          
-                          bool hasIDI = _currentMalfunction!.skillsWorked.any(
-                            (s) => s.toUpperCase().contains('IDI')
-                          );
-                          bool hasTIP = _currentMalfunction!.skillsWorked.any(
-                            (s) => s.toUpperCase().contains('TIP')
-                          );
-                          
-                          if (hasIDI) {
-                            badges.add({'label': 'IDI', 'color': Colors.blue.shade700});
-                            badges.add({'label': 'ADRN', 'color': Colors.green.shade700});
-                          }
-                          
-                          if (hasTIP) {
-                            badges.add({'label': 'TIP', 'color': Colors.orange.shade700});
-                          }
-                          
-                          return badges.map((badge) {
-                            return Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: (badge['color'] as Color).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: (badge['color'] as Color).withOpacity(0.3)
-                                ),
-                              ),
-                              child: Text(
-                                badge['label'] as String,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: badge['color'] as Color,
-                                ),
-                              ),
-                            );
-                          }).toList();
-                        }(),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 20),
                   
-                  const SizedBox(height: 16),
-                  
-                  // Description client (symptômes)
+                  // Description client
                   Stack(
                     children: [
                       Positioned(
@@ -1660,7 +1959,7 @@ const Divider(height: 30, thickness: 2),
                                 Icon(Icons.person, size: 24, color: Colors.blue.shade700),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'DESCRIPTION CLIENT #${_currentMalfunction!.id}',
+                                  'DESCRIPTION CLIENT',
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -1710,60 +2009,7 @@ const Divider(height: 30, thickness: 2),
                   
                   const SizedBox(height: 16),
                   
-                  // Catégorie
-                  Stack(
-                    children: [
-                      Positioned(
-                        right: 10,
-                        top: 10,
-                        child: Icon(
-                          Icons.category,
-                          size: 60,
-                          color: Colors.orange.shade100.withOpacity(0.3),
-                        ),
-                      ),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.orange.shade200, width: 2),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.info_outline, size: 24, color: Colors.orange.shade700),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'CATÉGORIE DE PANNE',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              _currentMalfunction!.categoryLabel,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-const SizedBox(height: 16),
-                  
-                  // Consignes (jaune/ambre comme scénarios)
+                  // Consignes
                   Stack(
                     children: [
                       Positioned(
@@ -1812,9 +2058,27 @@ const SizedBox(height: 16),
                     ],
                   ),
                   
-const SizedBox(height: 16),
+                  // BOUTON ORGANIGRAMME
+                  if (FlowchartService.hasCategoryFlowcharts(_currentMalfunction!.category))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Center(
+                        child: ElevatedButton.icon(
+                          onPressed: _showFlowchartHelp,
+                          icon: const Icon(Icons.account_tree, size: 20),
+                          label: Text('Organigramme ${_currentMalfunction!.categoryLabel}'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.purple.shade600,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ),
                   
-                  // Autres informations (violet - attitude client)
+                  const SizedBox(height: 16),
+                  
+                  // Attitude client
                   if (_currentMalfunction!.clientAttitude.isNotEmpty)
                     Stack(
                       children: [
@@ -1861,7 +2125,8 @@ const SizedBox(height: 16),
                           ),
                         ),
                       ],
-                    ),                ],
+                    ),
+                ],
               ),
             ),
           ),
@@ -1869,7 +2134,6 @@ const SizedBox(height: 16),
 
         const SizedBox(height: 24),
 
-        // Bouton voir la solution
         Center(
           child: ElevatedButton.icon(
             onPressed: () {
@@ -1922,7 +2186,6 @@ const SizedBox(height: 16),
             ),
             const Divider(height: 30),
             
-            // Nom technique de la panne
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -1955,7 +2218,6 @@ const SizedBox(height: 16),
             
             const SizedBox(height: 16),
             
-            // Procédure de résolution
             _buildSolutionSection(
               'Procédure de résolution',
               Icons.build,
@@ -1964,7 +2226,6 @@ const SizedBox(height: 16),
             
             const SizedBox(height: 16),
             
-            // Compétences
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -1990,7 +2251,7 @@ const SizedBox(height: 16),
                       spacing: 8,
                       runSpacing: 8,
                       children: () {
-                        List<Map<String, dynamic>> badges = [];
+                        List<Widget> badges = [];
                         
                         bool hasIDI = _currentMalfunction!.skillsWorked.any(
                           (s) => s.toUpperCase().contains('IDI')
@@ -2000,34 +2261,15 @@ const SizedBox(height: 16),
                         );
                         
                         if (hasIDI) {
-                          badges.add({'label': 'IDI', 'color': Colors.blue.shade700});
-                          badges.add({'label': 'ADRN', 'color': Colors.green.shade700});
+                          badges.add(_buildSkillBadge('IDI', Colors.blue.shade700));
+                          badges.add(_buildSkillBadge('ADRN', Colors.green.shade700));
                         }
                         
                         if (hasTIP) {
-                          badges.add({'label': 'TIP', 'color': Colors.orange.shade700});
+                          badges.add(_buildSkillBadge('TIP', Colors.orange.shade700));
                         }
                         
-                        return badges.map((badge) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: (badge['color'] as Color).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: (badge['color'] as Color).withOpacity(0.3)
-                              ),
-                            ),
-                            child: Text(
-                              badge['label'] as String,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: badge['color'] as Color,
-                              ),
-                            ),
-                          );
-                        }).toList();
+                        return badges;
                       }(),
                     ),
                   ),
@@ -2037,7 +2279,6 @@ const SizedBox(height: 16),
             
             const SizedBox(height: 20),
             
-            // Auto-évaluation
             if (!_hasEvaluated)
               Container(
                 padding: const EdgeInsets.all(16),
@@ -2173,7 +2414,6 @@ const SizedBox(height: 16),
             
             const SizedBox(height: 20),
             
-            // Boutons navigation
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -2215,69 +2455,5 @@ const SizedBox(height: 16),
     );
   }
 
-Widget _buildSolutionSection(String title, IconData icon, List<String> steps) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.green.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: Colors.green.shade700, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green.shade800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ...steps.asMap().entries.map((entry) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 2),
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.green.withOpacity(0.4), width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${entry.key + 1}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green.shade700,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    entry.value,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-          )),
-        ],
-      ),
-    );
-  }
-}
+
+} // Fin de la classe _MalfunctionTechnicianScreenState

@@ -1,295 +1,373 @@
-# XR TECH TOOLS - GUIDE DÉVELOPPEUR
+XR TECH TOOLS - DOCUMENT DE RÉFÉRENCE PROJET
+==============================================
 
-> **Note** : Ce document complète le README.md avec des informations techniques détaillées pour les développeurs.  
-> Voir [README.md](README.md) pour la vue d'ensemble du projet.  
-> Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique des versions.
+INFORMATIONS GÉNÉRALES
+----------------------
+- Nom du projet : XR Tech Tools
+- Technologie : Flutter / Dart
+- Version actuelle : v1.3.011025
+- Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
+- Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
+- Contact : WolwX@hotmail.com
+- Dépôt GitHub : https://github.com/WolwX/xr-tech-tools
 
----
+DOUBLE OBJECTIF
+---------------
+Pour les Apprenants (IDI, ADRN, TIP) :
+- S'entraîner sur des cas pratiques réels
+- Développer leurs compétences techniques avec des organigrammes guidés
+- Se préparer aux certifications professionnelles
+- Réviser les concepts clés
 
-## 🎯 PÉRIMÈTRE & OBJECTIFS
+Pour les Professionnels :
+- Accéder rapidement à des outils de conversion et calcul
+- Consulter des références techniques (BIOS, hardware)
+- Utiliser des guides de diagnostic interactifs
+- Optimiser leurs interventions quotidiennes
 
-### Double Usage
-**Pour les Apprenants (IDI, ADRN, TIP)** :
-- S'entraîner sur cas pratiques réels
-- Développer compétences techniques
-- Se préparer aux certifications RNCP
+TITRES PROFESSIONNELS VISÉS
+----------------------------
+- IDI - Installateur Dépanneur en Informatique (RNCP34147)
+- ADRN - Agent De Reconditionnement en appareil Numérique (RNCP38718)
+- TIP - Technicien Informatique de Proximité (RNCP40799)
 
-**Pour les Professionnels** :
-- Outils de conversion et calcul rapides
-- Références techniques (BIOS, hardware)
-- Guides de diagnostic et procédures
-
-### Titres Professionnels Visés
-- **IDI** - Installateur Dépanneur en Informatique (RNCP34147)
-- **ADRN** - Agent De Reconditionnement en appareil Numérique (RNCP38718)
-- **TIP** - Technicien Informatique de Proximité (RNCP40799)
-
----
-
-## 🏗️ ARCHITECTURE TECHNIQUE
-
-### Structure du Projet
-```
+ARCHITECTURE DU PROJET
+-----------------------
 lib/
 ├── main.dart
 ├── models/
-│   ├── commercial_scenario.dart
-│   ├── fault_scenario.dart
-│   └── tool.dart
-├── data/
-│   ├── commercial_scenarios_data.dart (100 scénarios)
-│   ├── fault_scenarios_data.dart (14 pannes)
-│   └── tool_data.dart
+│   ├── malfunction.dart
+│   ├── scenario.dart
+│   └── flowchart_models.dart          [NOUVEAU v1.3.011025]
 ├── services/
-│   ├── commercial_scenario_service.dart
-│   └── fault_scenario_service.dart
+│   ├── malfunction_service.dart
+│   ├── scenario_service.dart
+│   ├── flowchart_service.dart         [NOUVEAU v1.3.011025]
+│   └── flowchart_data.dart            [NOUVEAU v1.3.011025]
 ├── screens/
-│   ├── introduction_screen.dart
 │   ├── dashboard_screen.dart
-│   ├── commercial_scenario_screen.dart
-│   ├── fault_creator_screen.dart
-│   └── scenarios_picker_screen.dart
+│   ├── scenario_screen.dart
+│   ├── malfunction_creator_screen.dart
+│   ├── malfunction_technician_screen.dart
+│   ├── interactive_flowchart_screen.dart  [NOUVEAU v1.3.011025]
+│   └── toolbox_screen.dart (en dev)
 └── widgets/
-    ├── app_footer.dart
-    ├── animated_start_button.dart
-    └── tool_tile.dart
-```
+    └── app_footer.dart
 
-### Dépendances Clés
-```yaml
+FONCTIONNALITÉS IMPLÉMENTÉES
+-----------------------------
+
+1. Scénarios Commerciaux (✅ COMPLET v1.2.0) - OUTIL PÉDAGOGIQUE
+   
+   Base de données : 100 scénarios répartis en 3 niveaux
+   - Facile : 33 scénarios (⭐)
+   - Moyen : 45 scénarios (⭐⭐)
+   - Difficile : 22 scénarios (⭐⭐⭐)
+
+   PÉRIMÈTRE :
+   - Conseil et vente en magasin informatique
+   - Matériel informatique fixe/mobile et périphériques
+   - Formation aux compétences relationnelles et commerciales
+   - Conforme aux référentiels RNCP (IDI, ADRN, TIP)
+
+   Modes de jeu :
+   - Mode Classique : Tirage aléatoire tous niveaux
+   - Mode Défi : Chifoumi détermine la difficulté
+
+   Fonctionnalités :
+   - Sélection avancée (par numéro 1-100 ou difficulté)
+   - Timer 30 minutes (démarrage/pause/reprise)
+   - Correction détaillée (questions clés, solutions, pièges, compétences RNCP)
+   - Liens directs vers produits
+   - Auto-évaluation (Réussi/À revoir)
+   - Statistiques persistantes (SharedPreferences)
+   - Signalement d'anomalie
+
+2. Mode Créateur de Pannes (✅ v1.3.300925)
+   
+   Base de données : 14 pannes réparties en 3 niveaux
+   - Facile : 4 pannes
+   - Moyen : 6 pannes
+   - Difficile : 4 pannes
+   
+   Catégories : Hardware, Software, BIOS/UEFI, Network, Printer, Peripheral
+   
+   Fonctionnalités :
+   - Tirage aléatoire ou sélection manuelle (par numéro/difficulté)
+   - Instructions détaillées de création de panne
+   - Procédures étape par étape
+   - Conseils de simulation
+   - Statistiques décentralisées (total + par difficulté)
+   - Persistance avec SharedPreferences
+
+3. Mode Dépanneur (✅ v1.3.300925)
+   
+   Fonctionnalités :
+   - Utilise les 14 pannes du Mode Créateur
+   - Affichage symptômes uniquement (vision technicien)
+   - Timer 30 minutes avec pause/reprise
+   - Sélection avancée (par numéro ou difficulté)
+   - Solution complète avec procédure de résolution
+   - Auto-évaluation (Réussi/À revoir)
+   - Statistiques persistantes par difficulté
+   - Mode Défi Chifoumi
+   - Accès aux organigrammes interactifs [NOUVEAU v1.3.011025]
+
+4. Organigrammes Interactifs [✅ NOUVEAU v1.3.011025]
+   
+   Système de diagnostic guidé étape par étape :
+   
+   Fonctionnalités :
+   - Navigation guidée avec choix multiples
+   - Détection automatique de l'organigramme pertinent par mots-clés
+   - Barre de progression et historique
+   - Retour arrière possible à tout moment
+   - Résultats contextuels avec codes couleur :
+     * Succès (vert) : Solution trouvée
+     * Échec (rouge) : Composant défectueux
+     * Info (bleu) : Prochaines étapes suggérées
+   - Options visuellement distinctes (✓ vert / ✗ rouge)
+   - Intégration dans Mode Dépanneur (bouton visible si disponible)
+   
+   Organigramme disponible :
+   - "L'ordinateur ne s'allume pas" (Hardware - Bleu #64B5F6)
+     * 5 étapes de diagnostic guidées
+     * Vérifications : électrique, carte mère, CMOS, périphériques, composants HS
+   
+   Architecture technique :
+   - Modèles : FlowchartInfo, FlowchartStep, FlowchartOption
+   - Énumérations : FlowchartCategory, ResultType
+   - Service centralisé : FlowchartService
+     * getAllFlowcharts()
+     * getFlowchartsByCategory()
+     * detectBestFlowchart()
+     * hasCategoryFlowcharts()
+   - Données structurées : FlowchartData (extensible)
+   - Interface : InteractiveFlowchartScreen
+   - Détection intelligente par mots-clés et catégorie
+   
+   Organigrammes prévus (13+ à développer) :
+   - Hardware : 
+     * Démarre mais s'éteint/freeze (Violet #9575CD)
+     * Pas d'affichage (Orange #FFB74D)
+     * Ne boot pas (Vert #81C784)
+   - Software (à définir)
+   - BIOS/UEFI (à définir)
+   - Network (à définir)
+   - Printer (à définir)
+   - Peripheral (à définir)
+
+THÈME & DESIGN
+--------------
+Couleur principale : Bleu (#00B0FF)
+
+Palette organigrammes par catégorie :
+- Bleu (#64B5F6) : Ne s'allume pas
+- Violet (#9575CD) : Freeze/Shutdown
+- Orange (#FFB74D) : Pas d'affichage
+- Vert (#81C784) : Ne boot pas
+
+Particularités :
+- Pas de localStorage/sessionStorage (restrictions environnement artifacts)
+- SharedPreferences pour persistance des statistiques
+- Architecture décentralisée (chaque écran gère ses stats)
+- Design compact et responsive
+- Footer présent sur tous les écrans
+
+OUTILS À DÉVELOPPER (6 restants)
+---------------------------------
+
+OUTILS À DOUBLE USAGE (Pédagogique + Professionnel) :
+2. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
+3. Calculateur Espace Disque - Conversions Mo/Go/To
+4. Touches BIOS et BOOT - Référence fabricants
+5. Fiches Hardware - Spécifications techniques
+6. Liens Utiles - Ressources externes
+
+OUTILS PRINCIPALEMENT PÉDAGOGIQUES :
+1. ✅ Scénarios Commerciaux - COMPLET (100 scénarios)
+7. ✅ Mode Créateur de Pannes - COMPLET (14 pannes)
+8. ✅ Mode Dépanneur - COMPLET
+9. ✅ Organigrammes Interactifs - EN COURS (1/14+ organigrammes)
+10. Procédures Techniques - Guides pas-à-pas (à développer)
+11. QCM - Tests de connaissances (à développer)
+
+Note : Les outils 2-6 servent à la fois pour formation et usage professionnel quotidien.
+
+DÉPENDANCES IMPORTANTES
+------------------------
 dependencies:
   flutter:
     sdk: flutter
   url_launcher: ^6.x.x
   shared_preferences: ^2.x.x
-```
 
-### Gestion d'État
-- **Architecture** : Décentralisée
-- **Principe** : Chaque écran gère ses propres statistiques
-- **Persistance** : SharedPreferences (pas de state management global)
-- **Avantage** : Autonomie et maintenabilité de chaque fonctionnalité
+CONTRAINTES TECHNIQUES
+----------------------
+✗ Pas de localStorage/sessionStorage dans les artifacts
+✓ SharedPreferences pour la persistance des données
+✓ État géré en mémoire (setState, variables)
+✓ Compatible Web, Mobile, Desktop
+✓ Design responsive
+✓ Architecture décentralisée pour les statistiques
 
----
+HISTORIQUE DES VERSIONS
+------------------------
 
-## ⚠️ CONTRAINTES TECHNIQUES IMPORTANTES
+v1.3.011025 (01 Octobre 2025) :
+✨ Nouveautés majeures :
+- 🗺️ SYSTÈME D'ORGANIGRAMMES INTERACTIFS
+  * Navigation guidée étape par étape
+  * Détection automatique de l'organigramme pertinent
+  * Interface interactive avec choix multiples
+  * Barre de progression et historique
+  * Retour arrière possible
+  * Résultats contextuels (Succès/Échec/Info)
 
-### Environnement Web/Artifacts
-```
-❌ PAS de localStorage/sessionStorage
-❌ PAS de window.localStorage
-✅ SharedPreferences pour persistance
-✅ État géré en mémoire (setState, variables)
-```
+- 📊 Premier organigramme : "L'ordinateur ne s'allume pas"
+  * 5 étapes de diagnostic guidées
+  * Catégorie Hardware
 
-### Format Footer
-```
-Format accepté : MAJEURE.MINEURE ou MAJEURE.MINEURE.JJMMAA
-Exemples : v1.2.0 ou v1.3.300925
-```
+🔧 Technique :
+- Nouveaux modèles : FlowchartInfo, FlowchartStep, FlowchartOption
+- Service centralisé : FlowchartService
+- Données structurées : FlowchartData
+- Interface dédiée : InteractiveFlowchartScreen
+- Architecture extensible pour 13+ organigrammes
 
-### Timer
-```
-⚠️ Le timer (30 min) reste EN MÉMOIRE uniquement
-❌ Pas de persistance entre sessions
-```
+🎨 Intégration :
+- Bouton "Organigramme HARDWARE" dans Mode Dépanneur
+- Visible uniquement si disponible pour la catégorie
+- Suggestion automatique ou sélection manuelle
 
----
+📁 Fichiers ajoutés :
+- lib/models/flowchart_models.dart
+- lib/services/flowchart_service.dart
+- lib/services/flowchart_data.dart
+- lib/screens/interactive_flowchart_screen.dart
 
-## 📝 GUIDELINES DE CONTENU
+v1.3.300925 (30 Septembre 2025) :
+✨ Améliorations Mode Créateur & Dépanneur :
+- Sélection avancée par numéro ou difficulté
+- Statistiques décentralisées avec persistance
+- Affichage permanent des compteurs
 
-### Scénarios Commerciaux (100 scénarios)
+✨ Améliorations Scénarios :
+- Sélection avancée améliorée
+- Validation avec messages d'erreur clairs
 
-**PÉRIMÈTRE STRICT** :
-- ✅ Conseil et vente en magasin informatique
-- ✅ Matériel grand public (PC, tablettes, smartphones, périphériques)
-- ✅ Budgets réalistes : 50€ à 1500€ généralement
-- ✅ Situations magasin/comptoir
-- ✅ Clients : particuliers ou petites entreprises
-- ❌ PAS de dépannage technique
-- ❌ PAS de matériel professionnel haut de gamme
+v1.2.0 (Janvier 2025) :
+✨ Nouvelles fonctionnalités :
+- 100 scénarios commerciaux complets
+- Conformité référentiels RNCP
 
-**Compétences visées** :
-- Écoute active et reformulation
-- Identification des besoins
-- Conseil adapté au profil client
-- Argumentation commerciale
-- Gestion du budget
-- Transversales aux 3 titres RNCP (IDI, ADRN, TIP)
+🎨 Améliorations UX/UI :
+- Page d'accueil aérée
+- Meilleure hiérarchie visuelle
 
-**Structure d'un scénario** :
-```dart
-{
-  id: int,                    // 1-100
-  clientProfile: String,      // Type de client
-  clientRequest: String,      // Demande formulée
-  budgetInfo: String,         // Contrainte budgétaire
-  clientAttitude: String,     // Comportement/état d'esprit
-  difficulty: String,         // easy/medium/hard
-  keyQuestions: List<String>, // Questions à poser
-  solutions: List<Solution>,  // Produits recommandés (prix, avantages, URL)
-  commonTraps: List<String>,  // Pièges à éviter
-  skillsWorked: List<String>  // Compétences RNCP mobilisées
-}
-```
+v1.1.0 (Janvier 2025) :
+✨ Persistance statistiques (SharedPreferences)
+🎨 Affichage "X / Y" par difficulté
 
-**Exemples de scénarios types** :
-- Étudiant cherche PC portable pour la fac
-- Parent veut tablette pour enfant 8 ans
-- Auto-entrepreneur équipe son bureau
-- Gamer cherche écran 144Hz
-- Senior veut ordinateur simple d'utilisation
-- Famille avec budget limité (300€ max)
+v1.0.0 (Septembre 2025) :
+🎉 Version initiale
 
-**URLs produits** :
-- Utiliser des liens réels vers fabricants/revendeurs
-- Vérifier la validité des URLs régulièrement
-- Préférer les grandes enseignes (Logitech, Dell, HP, etc.)
+NOTES DE DÉVELOPPEMENT
+-----------------------
 
-### Mode Créateur de Pannes (14 pannes)
+Organigrammes - Bonnes pratiques :
+- Un organigramme = un parcours de diagnostic complet
+- Étapes logiques et progressives
+- Options claires (✓ succès / ✗ problème)
+- Messages de résolution contextuels
+- Ajout facile dans flowchart_data.dart
 
-**Catégories** :
-- Matériel
-- Logiciel
-- BIOS/UEFI
-- Réseau
-- Impression
-- Périphérique
+Structure d'un organigramme :
+- id : identifiant unique (ex: 'hw_no_startup')
+- category : FlowchartCategory (hardware, software, etc.)
+- title : titre affiché
+- color : couleur distinctive
+- keywords : mots-clés pour détection automatique
+- steps : Map<String, FlowchartStep> avec étapes
 
-**Niveaux** :
-- Facile : 4 pannes
-- Moyen : 6 pannes
-- Difficile : 4 pannes
+Structure d'une étape :
+- id : identifiant unique de l'étape
+- question : question posée à l'utilisateur
+- description : informations complémentaires
+- icon : icône illustrative
+- options : List<FlowchartOption> choix possibles
 
-**Objectif pédagogique** :
-- Apprentissage du diagnostic méthodique
-- Création de pannes pour ateliers pratiques
-- Instructions détaillées étape par étape
-- Conseils de simulation réaliste
+Structure d'une option :
+- label : texte du choix (avec ✓ ou ✗)
+- nextStepId : id de l'étape suivante (null si conclusion)
+- resultMessage : message final si conclusion
+- resultType : success/failure/info
 
----
+Architecture décentralisée :
+- Chaque écran gère ses propres statistiques
+- SharedPreferences pour persistance
+- Pas de state management global
+- Autonomie et maintenabilité
 
-## 🎨 DESIGN & THÈME
-
-### Palette de Couleurs
-```
-Couleur principale : Bleu #00B0FF
-Palette complète : 10 nuances (50 à 900)
-```
-
-### Spécifications d'Affichage
-```
-Portrait : 480 × 1080 pixels
-Paysage : 1080 × 480 pixels
-Device pixel ratio : 3.0
-User agent : Mobile (Android)
-```
-
-### Principes UX
-- Design compact et responsive
-- Footer présent sur tous les écrans
-- Grille adaptative (2-3 colonnes selon taille)
-- Animations fluides et feedback haptique
-- Mode immersif (barre de statut visible)
-
----
-
-## 🔄 WORKFLOW AVEC CLAUDE (IA)
-
-### Comment utiliser ce document
-
-**Pour développer un nouvel outil** :
-```
-"Voici PROJECT_REFERENCE.txt du dépôt GitHub.
-Je veux développer l'outil [NOM] pour usage [pédagogique/professionnel/double].
-Titre(s) RNCP concerné(s) : [IDI/ADRN/TIP]."
-```
-
-**Pour ajouter des scénarios** :
-```
-"Voici PROJECT_REFERENCE.txt du dépôt GitHub.
-Je veux ajouter [N] scénarios commerciaux niveau [facile/moyen/difficile]
-axés sur les compétences [IDI/ADRN/TIP]."
-```
-
-**Pour modifier l'UI** :
-```
-"Voici PROJECT_REFERENCE.txt et le fichier [nom_fichier.dart].
-Je veux modifier [description de la modification UX]."
-```
-
-**Pour corriger un bug** :
-```
-"Voici PROJECT_REFERENCE.txt.
-Bug observé : [description]
-Fichier(s) concerné(s) : [liste]"
-```
-
----
-
-## 🚀 AMÉLIORATIONS FUTURES SUGGÉRÉES
-
-### Fonctionnalités
-- Développement des 8 outils restants
-- Historique des scénarios tirés
-- Mode révision des scénarios échoués
-- Filtres par type de client ou matériel
-- Filtres par titre RNCP concerné
-- Export/import des statistiques
+Améliorations futures suggérées :
+- Développer les 13+ organigrammes restants
+- Compléter la Boîte à Outils (6 outils)
+- Historique des diagnostics effectués
+- Export/import statistiques
+- Thème sombre
 - Badges de progression
 
-### UX/UI
-- Thème sombre
-- Personnalisation des couleurs
-- Animations avancées
-- Mode hors ligne complet
+STRUCTURE DES DONNÉES
+----------------------
 
-### Technique
-- Tests unitaires et d'intégration
-- CI/CD automatisé
-- Documentation API
-- Optimisation des performances
+Scénarios (scenario.dart) :
+- id, clientRequest, budgetInfo, difficulty
+- keyQuestions, solutions, traps, skillsWorked
 
----
+Pannes (malfunction.dart) :
+- id, name, description, symptoms, difficulty, category
+- creationSteps, clientAttitude, skillsWorked
 
-## 📞 CONTACT & SUPPORT
+Organigrammes (flowchart_models.dart) :
+- FlowchartInfo : informations générales
+- FlowchartStep : étape de diagnostic
+- FlowchartOption : choix de réponse
+- FlowchartCategory : enum catégories
+- ResultType : enum types de résultat
 
-- **Email** : WolwX@hotmail.com
-- **GitHub** : https://github.com/WolwX/xr-tech-tools
-- **Issues** : https://github.com/WolwX/xr-tech-tools/issues
+CONTACT & SUPPORT
+-----------------
+Email : WolwX@hotmail.com
+GitHub : https://github.com/WolwX/xr-tech-tools
 
----
+==============================================
+COMMENT UTILISER CE DOCUMENT
+==============================================
 
-## 📋 OUTILS - STATUT DÉTAILLÉ
+Pour reprendre le projet avec Claude :
 
-### ✅ Fonctionnels (2/10)
-1. **Scénarios Commerciaux** - Complet
-   - 100 scénarios (33 faciles, 45 moyens, 22 difficiles)
-   - Mode Classique + Mode Défi (Chifoumi)
-   - Sélection avancée (par numéro, par difficulté)
-   - Timer 30 min, correction détaillée, stats persistantes
-   
-2. **Mode Créateur de Pannes** - Complet
-   - 14 pannes (4 faciles, 6 moyennes, 4 difficiles)
-   - 6 catégories techniques
-   - Instructions de création détaillées
-   - Statistiques décentralisées
+1. Partager ce fichier en début de conversation
+2. Préciser la fonctionnalité à développer/corriger
+3. Mentionner le(s) titre(s) RNCP concerné(s) si pertinent
 
-### 🚧 En Développement (8/10)
+Exemples de prompts :
 
-**Outils à double usage (pédago + pro)** :
-3. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
-4. Calculateur Espace Disque - Conversions Mo/Go/To
-5. Touches BIOS/BOOT - Référence par fabricant
-6. Fiches Hardware XR - Spécifications techniques
-7. Liens Utiles - Ressources externes
+Pour ajouter un organigramme :
+"Voici le PROJECT_REFERENCE.txt. Je veux développer l'organigramme
+'Pas d'affichage' pour les pannes hardware. Il doit avoir 6 étapes."
 
-**Outils principalement pédagogiques** :
-8. Procédures Techniques - Guides pas-à-pas illustrés
-9. QCM - Tests de connaissances par module
-10. Diagnostic Pannes - Guide interactif de résolution
+Pour une nouvelle catégorie d'organigrammes :
+"Voici le PROJECT_REFERENCE.txt. Je veux créer des organigrammes
+pour la catégorie Software (pannes logicielles)."
 
----
+Pour développer un outil :
+"Voici le PROJECT_REFERENCE.txt. Je veux développer l'outil
+Conversion Unités XR pour usage double : formation et professionnel."
 
-*Document maintenu par : XR (Xavier Redondo) avec l'assistance de Claude (Anthropic)*  
-*Dernière mise à jour : 01/10/2025*
+Pour modifier l'UI :
+"Voici le PROJECT_REFERENCE.txt et le fichier [nom_fichier.dart].
+Je voudrais [description de la modification UX]."
+
+==============================================
+FIN DU DOCUMENT - Version 1.3.011025
+==============================================

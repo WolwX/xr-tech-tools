@@ -1,12 +1,12 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.300925-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.011025-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
 
-XR Tech Tools est une application mobile et desktop développée en Flutter, conçue pour accompagner aussi bien les **apprenants en formation** que les **techniciens en exercice** dans leurs activités quotidiennes. L'application propose des outils pratiques, des scénarios d'entraînement et des ressources techniques adaptées aux référentiels RNCP.
+XR Tech Tools est une application mobile et desktop développée en Flutter, conçue pour accompagner aussi bien les **apprenants en formation** que les **techniciens en exercice** dans leurs activités quotidiennes. L'application propose des outils pratiques, des scénarios d'entraînement, **des organigrammes de dépannage interactifs** et des ressources techniques adaptées aux référentiels RNCP.
 
 ---
 
@@ -14,14 +14,14 @@ XR Tech Tools est une application mobile et desktop développée en Flutter, con
 
 ### Pour les Apprenants
 - S'entraîner sur des cas pratiques réels
-- Développer leurs compétences techniques
+- **Développer leurs compétences techniques avec des organigrammes guidés**
 - Se préparer aux certifications professionnelles
 - Réviser les concepts clés
 
 ### Pour les Professionnels
 - Accéder rapidement à des outils de conversion et calcul
 - Consulter des références techniques (BIOS, hardware)
-- Utiliser des guides de diagnostic et procédures
+- **Utiliser des guides de diagnostic interactifs**
 - Optimiser leurs interventions quotidiennes
 
 ## 🎓 Titres Professionnels Visés
@@ -34,7 +34,7 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 
 ## ✨ Fonctionnalités Actuelles
 
-### ✅ Scénarios Commerciaux (Complet - v1.3)
+### ✅ Scénarios Commerciaux (Complet - v1.2.0)
 - **100 scénarios** répartis en 3 niveaux de difficulté
   - Facile : 33 scénarios
   - Moyen : 45 scénarios
@@ -56,43 +56,65 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
   - Chifoumi : Victoires/Égalités/Défaites
   - Scénarios : Réussis/Essais par difficulté
   - Format "X / Y" (réussis sur total d'essais)
-- **Numérotation** : Chaque scénario identifié par "#numéro" dans la demande client
 - Signalement d'anomalies par email
 
-### ✅ Pannes Informatiques (v0.1 - Mode Créateur fonctionnel)
+### ✅ Mode Créateur de Pannes (v1.3.300925)
 - **14 pannes** réparties sur 3 niveaux (4 faciles, 6 moyennes, 4 difficiles)
 - **6 catégories** : Matériel, Logiciel, BIOS/UEFI, Réseau, Impression, Périphérique
-
-#### Mode Créateur ✅
-- Tirage aléatoire de pannes
+- **Tirage aléatoire** de pannes
 - **Sélection avancée** :
   - Par numéro de panne
   - Par difficulté (3 boutons)
-- Instructions détaillées de création
-- Procédure de création étape par étape
-- Conseils de simulation
+- **Instructions détaillées** de création
+  - Procédure de création étape par étape
+  - Conseils de simulation
 - **Statistiques décentralisées** :
   - Total de pannes tirées
   - Compteur par difficulté
   - Persistance avec SharedPreferences
-  - Affichage en bas de l'écran
 
-#### Mode Dépanneur 🚧
-- En cours de développement
+### ✅ Mode Dépanneur (v1.3.300925)
+- Utilise les 14 pannes du Mode Créateur
+- Affichage des symptômes uniquement (vision technicien)
+- Timer 30 minutes avec pause/reprise
+- Sélection avancée (par numéro ou difficulté)
+- Solution complète avec procédure de résolution
+- Auto-évaluation (Réussi/À revoir)
+- Statistiques persistantes par difficulté
+- Mode Défi Chifoumi
+
+### 🗺️ Organigrammes Interactifs de Dépannage **[NOUVEAU v1.3.011025]**
+- **Navigation guidée étape par étape** pour diagnostiquer les pannes
+- **Détection automatique** de l'organigramme le plus pertinent
+- **Interface interactive** avec choix multiples
+- **Barre de progression** et historique de navigation
+- **Retour arrière** possible à tout moment
+- **Résultats contextuels** avec codes couleur :
+  - 🟢 Succès : Solution trouvée
+  - 🔴 Échec : Composant défectueux
+  - 🔵 Info : Prochaines étapes suggérées
+- **Options visuellement distinctes** (✓ vert / ✗ rouge)
+
+**Premier organigramme disponible** : "L'ordinateur ne s'allume pas" (Hardware)
+- 5 étapes de diagnostic guidées
+- Vérifications : électriques, carte mère, CMOS, périphériques
+- Diagnostic composants HS
+
+**Architecture extensible** : Prêt pour 13+ organigrammes supplémentaires couvrant toutes les catégories de pannes (Hardware, Software, BIOS/UEFI, Network, Printer, Peripheral).
 
 ## 🚧 Outils en Développement
 
 ### 🔧 Outils Professionnels (Utilisation quotidienne)
-3. **Conversion Unités XR** - Métriques spécifiques à la réalité étendue (FOV, PPD, etc.)
-4. **Calculateur Espace Disque** - Estimation et conversion (Mo, Go, To) pour stockage données XR
-5. **Touches BIOS/BOOT** - Référence rapide par fabricant
-6. **Fiches Hardware XR** - Spécifications techniques détaillées
-7. **Liens Utiles** - Ressources externes sélectionnées
+1. **Conversion Unités XR** - Métriques spécifiques à la réalité étendue (FOV, PPD, etc.)
+2. **Calculateur Espace Disque** - Estimation et conversion (Mo, Go, To) pour stockage données XR
+3. **Touches BIOS/BOOT** - Référence rapide par fabricant
+4. **Fiches Hardware XR** - Spécifications techniques détaillées
+5. **Liens Utiles** - Ressources externes sélectionnées
 
 ### 📚 Outils Pédagogiques (Formation & Entraînement)
-8. **Procédures Techniques** - Guides pas-à-pas illustrés
-9. **QCM** - Tests de connaissances par module
-10. **Outil à définir**
+6. **Procédures Techniques** - Guides pas-à-pas illustrés
+7. **QCM** - Tests de connaissances par module
+8. **Outil à définir**
 
 > **Note** : Certains outils servent à la fois pour la formation et l'usage professionnel (ex: calculateurs, convertisseurs, références techniques)
 
@@ -104,7 +126,9 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - **Architecture statistiques** : Décentralisée (chaque écran gère ses stats)
 - **Persistance** : SharedPreferences
 - **Navigation** : Navigator 2.0
-- **Packages** : url_launcher, shared_preferences
+- **Packages** : 
+  - `url_launcher` : Ouverture de liens externes
+  - `shared_preferences` : Sauvegarde des données locales
 
 ## 📱 Installation
 
@@ -118,7 +142,7 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 git clone https://github.com/WolwX/xr-tech-tools.git
 
 # Accéder au dossier
-cd XRTechTools
+cd xr-tech-tools
 
 # Installer les dépendances
 flutter pub get
@@ -127,25 +151,16 @@ flutter pub get
 flutter run
 ```
 
-## 📊 Architecture des Statistiques
+## 📊 Gestion des Statistiques
 
-L'application utilise une **architecture décentralisée** pour la gestion des statistiques :
+L'application utilise une architecture **décentralisée** pour la gestion des statistiques :
 - Chaque écran gère ses propres statistiques avec SharedPreferences
 - Pas de prop drilling ni state management global
 - Autonomie et maintenabilité de chaque fonctionnalité
 
-## 🐛 Configuration pour Debug
+## 📝 Versions
 
-### Chrome DevTools - Samsung Galaxy S23 Ultra
-```
-Dimensions : 480 × 1080 pixels (portrait)
-Device pixel ratio : 3.0
-User agent : Mobile (Android)
-Mode paysage : 1080 × 480 pixels
-```
-
-## 📝 Versions Récentes
-
+- **v1.3.011025** (01/10/2025) : Ajout des organigrammes interactifs de dépannage
 - **v1.3.300925** (30/09/2025) : Sélection avancée scénarios + statistiques décentralisées pannes
 - **v1.2.0** : Ajout Mode Créateur de pannes + 100 scénarios commerciaux
 - **v1.1.0** : Statistiques persistantes + Mode Défi Chifoumi
@@ -153,15 +168,18 @@ Mode paysage : 1080 × 480 pixels
 
 Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet.
 
-## 👥 Auteurs
+## 👨‍💻 Développement
 
-Développé par XR (Xavier Redondo) avec l'assistance de Claude (Anthropic)
+**Développé par** : XR (Xavier Redondo)  
+**Assistance IA** : Claude (Anthropic)
 
-## 📧 Contact
-
-Email : WolwX@hotmail.com  
-GitHub : https://github.com/WolwX/xr-tech-tools
+**Contact** : [WolwX@hotmail.com](mailto:WolwX@hotmail.com)  
+**GitHub** : [https://github.com/WolwX/xr-tech-tools](https://github.com/WolwX/xr-tech-tools)
 
 ## 📄 Licence
 
 [À définir]
+
+---
+
+**XR Tech Tools** - Votre compagnon de formation et d'intervention technique
