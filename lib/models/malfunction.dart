@@ -1,4 +1,5 @@
 // Fichier: lib/models/malfunction.dart
+import 'package:flutter/material.dart';
 
 enum MalfunctionCategory {
   hardware,      // Pannes matériel (RAM, disque, connecteurs)
@@ -46,6 +47,23 @@ class Malfunction {
     required this.estimatedTime,
   });
   
+  IconData get categoryIcon {
+    switch (category) {
+      case MalfunctionCategory.hardware:
+        return Icons.memory;
+      case MalfunctionCategory.software:
+        return Icons.laptop_windows;
+      case MalfunctionCategory.setup:
+        return Icons.settings;
+      case MalfunctionCategory.network:
+        return Icons.wifi;
+      case MalfunctionCategory.printer:
+        return Icons.print;
+      case MalfunctionCategory.peripheral:
+        return Icons.keyboard;
+    }
+  }
+
   String get categoryLabel {
     switch (category) {
       case MalfunctionCategory.hardware:

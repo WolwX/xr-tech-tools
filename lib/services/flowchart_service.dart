@@ -1,9 +1,5 @@
-import 'package:flutter/material.dart';
 import '../models/malfunction.dart';
 import '../models/flowchart_models.dart';
-import '../services/flowchart_service.dart';  // ← AJOUTER
-import '../models/flowchart_models.dart';      // ← AJOUTER
-import '../screens/interactive_flowchart_screen.dart';  // ← AJOUTER
 import 'flowchart_data.dart';
 
 class FlowchartService {

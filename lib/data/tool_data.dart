@@ -4,6 +4,13 @@ import '../models/tool.dart'; // Importe la classe Tool
 import '../screens/commercial_scenario_screen.dart'; 
 import '../screens/malfunction_home_screen.dart';
 
+// === VERSIONS CENTRALISÉES ===
+class ToolVersions {
+  static const String commercialScenarios = 'v1.3';
+  static const String malfunctionTools = 'v1.2';
+  // Ajoutez d'autres versions ici au besoin
+}
+
 // --- Fonction utilitaire pour créer une page temporaire (Bientôt disponible) ---
 Widget _comingSoonPage(String title) {
   return Scaffold(
@@ -36,7 +43,7 @@ const Tool(
   description: 'Générateur de scénarios avec chifoumi et timer',
   icon: Icons.business_center,
   destination: CommercialScenarioScreen(),
-  version: 'v1.3',  // NOUVEAU
+  version: ToolVersions.commercialScenarios,
 ),
   
   // L'ancien Scénarios Commerciaux (index 2) est supprimé.
@@ -63,7 +70,7 @@ const Tool(
     description: 'Générateur de pannes pour entrainement, ainsi qu\'outils de dépannage rapide.',
     icon: Icons.bug_report_outlined,
     destination: const MalfunctionHomeScreen(),
-    version: 'v0.1',
+    version: ToolVersions.malfunctionTools,
   ),
 
   // 5. Procédures (Ancien index 6)

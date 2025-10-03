@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.011025
+- Version actuelle : v1.3.031025
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -151,6 +151,37 @@ dependencies:
 
 HISTORIQUE DES VERSIONS
 ========================
+
+v1.3.031025 (03 Octobre 2025)
+------------------------------
+✨ Améliorations majeures :
+- ⏱️ SYSTÈME DE TIMER FLOTTANT AUTOMATIQUE
+  * Apparition automatique lors de la sélection de fiches de dépannage
+  * Texte dynamique intelligent : "Démarrer le dépannage X min" → Compte à rebours
+  * Interface épurée : Suppression des doublons de timer
+  * Temps configurable pour différentes durées d'épreuves futures
+  * Bouton reset : Réinitialise sans fermer le timer (icône 🔄)
+  * Intégration complète : Fonctionne dans tous les contextes
+
+🔧 Corrections techniques :
+- Suppression du timer local dans InteractiveFlowchartScreen
+- Élimination des widgets redondants (_buildCompactTimerWidget)
+- Optimisation de l'espace réservé aux timers (80px → 24px)
+- Correction des problèmes de lifecycle des listeners
+- Interface unifiée pour une expérience utilisateur cohérente
+
+🎯 Déclencheurs automatiques du timer :
+- Tirage aléatoire de fiche (_drawRandomMalfunction)
+- Sélection par ID (_selectMalfunctionById)
+- Sélection par difficulté (_selectMalfunctionByDifficulty)  
+- Sélection par catégorie (_selectMalfunctionByCategory)
+- Résultats de chifoumi (victoire/défaite/égalité)
+
+📱 Expérience utilisateur améliorée :
+- Plus de confusion avec les doubles timers
+- Navigation fluide entre fiches principales et organigrammes
+- Timer global persistant et cohérent
+- Performance optimisée (moins de widgets)
 
 v1.3.011025 (01 Octobre 2025)
 ------------------------------

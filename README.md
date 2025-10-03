@@ -1,7 +1,7 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.011025-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.031025-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
@@ -83,12 +83,13 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - Statistiques persistantes par difficulté
 - Mode Défi Chifoumi
 
-### 🗺️ Organigrammes Interactifs de Dépannage **[NOUVEAU v1.3.011025]**
+### 🗺️ Organigrammes Interactifs de Dépannage **[AMÉLIORÉ v1.3.031025]**
 - **Navigation guidée étape par étape** pour diagnostiquer les pannes
 - **Détection automatique** de l'organigramme le plus pertinent
 - **Interface interactive** avec choix multiples
 - **Barre de progression** et historique de navigation
 - **Retour arrière** possible à tout moment
+- **Timer flottant automatique** - Apparaît dès la sélection d'une fiche
 - **Résultats contextuels** avec codes couleur :
   - 🟢 Succès : Solution trouvée
   - 🔴 Échec : Composant défectueux
@@ -98,6 +99,14 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 **Premier organigramme disponible** : "L'ordinateur ne s'allume pas" (Hardware)
 - 5 étapes de diagnostic guidées
 - Vérifications : électriques, carte mère, CMOS, périphériques
+
+### ⏱️ Système de Timer Flottant **[NOUVEAU v1.3.031025]**
+- **Apparition automatique** lors de la sélection de fiches de dépannage
+- **Texte dynamique** : "Démarrer le dépannage X min" → Compte à rebours
+- **Interface épurée** : Un seul timer global cohérent
+- **Temps configurable** : Prêt pour différentes durées d'épreuves
+- **Bouton reset** : Réinitialise sans fermer le timer
+- **Intégration complète** : Fonctionne dans tous les contextes (fiches, organigrammes)
 - Diagnostic composants HS
 
 **Architecture extensible** : Prêt pour 13+ organigrammes supplémentaires couvrant toutes les catégories de pannes (Hardware, Software, BIOS/UEFI, Network, Printer, Peripheral).
@@ -160,6 +169,7 @@ L'application utilise une architecture **décentralisée** pour la gestion des s
 
 ## 📝 Versions
 
+- **v1.3.031025** (03/10/2025) : Timer flottant automatique + Interface épurée organigrammes
 - **v1.3.011025** (01/10/2025) : Ajout des organigrammes interactifs de dépannage
 - **v1.3.300925** (30/09/2025) : Sélection avancée scénarios + statistiques décentralisées pannes
 - **v1.2.0** : Ajout Mode Créateur de pannes + 100 scénarios commerciaux

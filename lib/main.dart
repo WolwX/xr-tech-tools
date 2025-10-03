@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'XR Tech Tools',
       debugShowCheckedModeBanner: false,
+      useInheritedMediaQuery: true,
       theme: ThemeData(
         // 1. Définition de la palette de couleurs
         primarySwatch: primaryBlue,

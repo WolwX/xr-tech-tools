@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/app_footer.dart';
+import '../widgets/custom_app_bar.dart';
+import '../data/tool_data.dart';
 import '../services/malfunction_service.dart';
 import 'malfunction_creator_screen.dart';
 import 'malfunction_technician_screen.dart';
@@ -57,65 +59,11 @@ class _MalfunctionHomeScreenState extends State<MalfunctionHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              tooltip: 'Dashboard',
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
-              tooltip: 'Retour',
-            ),
-          ],
-        ),
-        leadingWidth: 100,
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.bug_report, size: 24),
-            SizedBox(width: 12),
-            Text(
-              'Pannes Informatiques',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: const Text(
-                  'v0.1',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-        backgroundColor: const Color(0xFF00B0FF),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+      appBar: CustomAppBar(
+        title: 'Pannes Informatiques',
+        titleIcon: Icons.bug_report,
+        version: ToolVersions.malfunctionTools,
+        onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: Column(
         children: [
@@ -309,6 +257,7 @@ class _MalfunctionHomeScreenState extends State<MalfunctionHomeScreen> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
+          height: 200, // Augmentation de la hauteur pour éviter l'overflow
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -323,20 +272,21 @@ class _MalfunctionHomeScreenState extends State<MalfunctionHomeScreen> {
             ],
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14), // Réduction du padding
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
-                  size: 40,
+                  size: 36, // Réduction de la taille de l'icône
                   color: color,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12), // Réduction de l'espacement
               Text(
                 title,
                 textAlign: TextAlign.center,
@@ -346,7 +296,7 @@ class _MalfunctionHomeScreenState extends State<MalfunctionHomeScreen> {
                   color: color,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6), // Réduction de l'espacement
               Text(
                 description,
                 textAlign: TextAlign.center,

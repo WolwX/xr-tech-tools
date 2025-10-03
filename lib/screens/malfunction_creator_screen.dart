@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/malfunction.dart';
 import '../services/malfunction_service.dart';
 import '../widgets/app_footer.dart';
+import '../widgets/custom_app_bar.dart';
+import '../data/tool_data.dart';
 import '../main.dart'; 
 
 class MalfunctionCreatorScreen extends StatefulWidget {
@@ -146,79 +148,45 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
     _incrementStats(random.difficulty);
   }
 
+  void _selectMalfunctionByCategory(MalfunctionCategory category) {
+    final malfunctions = MalfunctionService.getMalfunctionsByCategory(category);
+    
+    if (malfunctions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aucune panne disponible pour cette catégorie'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    final random = (malfunctions.toList()..shuffle()).first;
+    
+    setState(() {
+      _currentMalfunction = random;
+    });
+    _incrementStats(random.difficulty);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              tooltip: 'Dashboard',
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                if (_currentMalfunction != null) {
-                  setState(() {
-                    _currentMalfunction = null;
-                  });
-                } else {
-                  Navigator.of(context).pop();
-                }
-              },
-              tooltip: 'Retour',
-            ),
-          ],
-        ),
-        leadingWidth: 100,
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.psychology_outlined, size: 24),
-            SizedBox(width: 12),
-            Text(
-              'Mode Créateur de Pannes',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0x33FFFFFF),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0x4DFFFFFF),
-                  ),
-                ),
-                child: const Text(
-                  'v0.1',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+      appBar: CustomAppBar(
+        title: 'Mode Créateur de Pannes',
+        titleIcon: Icons.psychology_outlined,
+        version: ToolVersions.malfunctionTools,
         backgroundColor: primaryOrange,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        onBackPressed: () {
+          if (_currentMalfunction != null) {
+            setState(() {
+              _currentMalfunction = null;
+            });
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
       ),
       body: Column(
         children: [
@@ -526,6 +494,59 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
         
         const SizedBox(height: 24),
         
+        // SÉLECTION PAR CATÉGORIE
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade300),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.category, color: Colors.teal.shade700, size: 24),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Sélectionner par catégorie',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    _buildCategoryButton('Matériel', MalfunctionCategory.hardware, Colors.blue, Icons.memory),
+                    _buildCategoryButton('Logiciel', MalfunctionCategory.software, Colors.green, Icons.apps),
+                    _buildCategoryButton('Configuration', MalfunctionCategory.setup, Colors.orange, Icons.settings),
+                    _buildCategoryButton('Réseau', MalfunctionCategory.network, Colors.purple, Icons.wifi),
+                    _buildCategoryButton('Imprimante', MalfunctionCategory.printer, Colors.red, Icons.print),
+                    _buildCategoryButton('Périphérique', MalfunctionCategory.peripheral, Colors.indigo, Icons.devices),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 24),
+        
         // STATISTIQUES (FORMAT IDENTIQUE AUX SCÉNARIOS COMMERCIAUX)
         Container(
           padding: const EdgeInsets.all(20),
@@ -662,6 +683,46 @@ class _MalfunctionCreatorScreenState extends State<MalfunctionCreatorScreen> {
             style: const TextStyle(
               fontSize: 11,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryButton(String label, MalfunctionCategory category, Color color, IconData icon) {
+    final count = MalfunctionService.getMalfunctionsByCategory(category).length;
+    return ElevatedButton(
+      onPressed: () => _selectMalfunctionByCategory(category),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 8),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '$count panne${count > 1 ? 's' : ''}',
+                style: const TextStyle(
+                  fontSize: 10,
+                ),
+              ),
+            ],
           ),
         ],
       ),

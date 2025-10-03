@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.011025
+- Version actuelle : v1.3.031025
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -156,6 +156,43 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    - Network (à définir)
    - Printer (à définir)
    - Peripheral (à définir)
+
+5. Système de Timer Flottant [✅ NOUVEAU v1.3.031025]
+   
+   Timer automatique et intelligent pour épreuves chronométrées :
+   
+   Fonctionnalités :
+   - Apparition automatique lors de sélection de fiches de dépannage
+   - Texte dynamique intelligent : "Démarrer le dépannage X min" → Compte à rebours
+   - Interface épurée : Un seul timer global cohérent
+   - Temps configurable pour différentes durées d'épreuves
+   - Bouton reset (🔄) : Réinitialise sans fermer le timer
+   - Intégration complète : Fonctionne dans tous les contextes
+   
+   Architecture technique :
+   - Service centralisé : GlobalTimerService
+     * startReadyTimer() : Mode "prêt à démarrer"
+     * resetTimer() : Réinitialisation sans fermeture
+     * Gestion d'overlay global pour persistance
+   - Widget principal : FloatingTimer
+     * Affichage conditionnel du texte selon l'état
+     * Gestion des états ready/active/paused
+     * Style adaptatif (couleur rouge < 5 min)
+   - Déclencheurs automatiques intégrés dans toutes les méthodes de sélection
+   
+   Déclencheurs automatiques :
+   - _drawRandomMalfunction() : Tirage aléatoire
+   - _selectMalfunctionById() : Sélection par numéro
+   - _selectMalfunctionByDifficulty() : Sélection par niveau
+   - _selectMalfunctionByCategory() : Sélection par catégorie
+   - Résultats chifoumi (victoire/défaite/égalité)
+   
+   Améliorations apportées :
+   - Suppression du timer local dans InteractiveFlowchartScreen
+   - Élimination des widgets redondants (_buildCompactTimerWidget)
+   - Correction des problèmes de lifecycle des listeners
+   - Optimisation de l'espace réservé (80px → 24px)
+   - Performance améliorée (moins de widgets duplicata)
 
 THÈME & DESIGN
 --------------

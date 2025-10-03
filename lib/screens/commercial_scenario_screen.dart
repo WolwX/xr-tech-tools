@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/commercial_scenario.dart';
 import '../services/commercial_scenario_service.dart';
+import '../services/global_timer_service.dart';
 import '../data/commercial_scenarios_data.dart';
 import '../widgets/app_footer.dart';
 
@@ -638,6 +639,9 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
 
                       if (_currentScenario != null)
                         _buildTimerWidget(),
+
+                      if (_currentScenario != null && !_showCorrection)
+                        _buildTimerButton(),
 
                       if (_currentScenario != null && !_showCorrection)
                         _buildScenarioDisplay(),
@@ -1348,6 +1352,114 @@ Widget _buildModeSelection() {
       ),
     );
   }
+
+Widget _buildTimerButton() {
+  return Container(
+    width: double.infinity,
+    margin: const EdgeInsets.only(bottom: 16, left: 8, right: 8),
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          const Color(0xFF1E3A8A).withOpacity(0.8),
+          const Color(0xFF3B82F6).withOpacity(0.9),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          spreadRadius: 2,
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.timer,
+            color: Colors.white,
+            size: 32,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Conseil temporisé',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Gérez ce scénario en moins de 30 minutes',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        ElevatedButton.icon(
+          onPressed: () {
+            GlobalTimerService().startFloatingTimer(
+              duration: const Duration(minutes: 30),
+              onFinish: () {
+                // Actions quand le timer se termine
+              },
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Row(
+                  children: [
+                    Icon(Icons.timer, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('Timer de conseil démarré !'),
+                  ],
+                ),
+                backgroundColor: Color(0xFF1A237E),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+          icon: const Icon(Icons.play_arrow, size: 20),
+          label: const Text(
+            'Démarrer',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF1E3A8A),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 2,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
 Widget _buildScenarioDisplay() {
   if (_currentScenario == null) return const SizedBox();

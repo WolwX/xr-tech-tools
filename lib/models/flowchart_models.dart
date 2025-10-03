@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/flowchart_service.dart';  // ← AJOUTER
-import '../models/flowchart_models.dart';      // ← AJOUTER
-import '../screens/interactive_flowchart_screen.dart';  // ← AJOUTER
 import '../models/malfunction.dart';
 
 // Catégories d'organigrammes (correspond aux catégories de pannes)

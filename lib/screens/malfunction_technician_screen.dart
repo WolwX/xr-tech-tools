@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/malfunction.dart';
 import '../services/malfunction_service.dart';
-import '../services/flowchart_service.dart';  // ← AJOUTER
-import '../models/flowchart_models.dart';      // ← AJOUTER
-import '../screens/interactive_flowchart_screen.dart';  // ← AJOUTER
+import '../services/flowchart_service.dart';
+import '../services/global_timer_service.dart';
+import '../models/flowchart_models.dart';
+import '../screens/interactive_flowchart_screen.dart';
 import '../widgets/app_footer.dart';
+import '../widgets/custom_app_bar.dart';
+import '../data/tool_data.dart';
 
 // Énumération pour le Chifoumi
 enum ChifoumiChoice { rock, paper, scissors }
@@ -82,13 +85,37 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat();
+    
+    // Initialiser le service de timer global
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GlobalTimerService().initialize(context);
+    });
+    
+    // Écouter les changements du timer global
+    GlobalTimerService().addListener(_onTimerStatusChanged);
+  }
+  
+  void _onTimerStatusChanged() {
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            // Forcer la reconstruction pour masquer/afficher le bouton
+          });
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    // Supprimer le listener en premier
+    GlobalTimerService().removeListener(_onTimerStatusChanged);
     _numberController.dispose();
     _timer?.cancel();
     _sandglassController.dispose();
+    // Arrêter le timer flottant si actif
+    GlobalTimerService().stopFloatingTimer();
     super.dispose();
   }
 
@@ -204,6 +231,17 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       _chifoumiGame = null;
     });
     _resetTimer();
+    // Lancer le timer flottant en mode "pas encore démarré"
+    _showReadyTimer();
+  }
+  
+  void _showReadyTimer({Duration duration = const Duration(minutes: 30)}) {
+    GlobalTimerService().startReadyTimer(
+      duration: duration,
+      onFinish: () {
+        _finishTimer();
+      },
+    );
   }
 
   void _showChifoumiInterface() {
@@ -296,6 +334,8 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     
     _saveStatistics();
     _resetTimer();
+    // Lancer le timer flottant en mode "pas encore démarré"
+    _showReadyTimer();
   }
 
   void _selectMalfunctionById(String idString) {
@@ -338,6 +378,8 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     });
     _numberController.clear();
     _resetTimer();
+    // Lancer le timer flottant en mode "pas encore démarré"
+    _showReadyTimer();
   }
   
   void _selectMalfunctionByDifficulty(MalfunctionDifficulty difficulty) {
@@ -362,7 +404,32 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       _showChifoumi = false;
       _chifoumiGame = null;
     });
-    _resetTimer();
+    _showReadyTimer();
+  }
+
+  void _selectMalfunctionByCategory(MalfunctionCategory category) {
+    final malfunctions = MalfunctionService.getMalfunctionsByCategory(category);
+    
+    if (malfunctions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aucune panne disponible pour cette catégorie'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    final random = (malfunctions.toList()..shuffle()).first;
+    
+    setState(() {
+      _currentMalfunction = random;
+      _showSolution = false;
+      _hasEvaluated = false;
+      _showChifoumi = false;
+      _chifoumiGame = null;
+    });
+    _showReadyTimer();
   }
 
   // ========== PARTIE 3/5 : Méthodes Timer, Chifoumi et Organigrammes ==========
@@ -393,21 +460,20 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
 // ========== Méthodes Timer ==========
 
   void _startTimer() {
-    _resetTimer();
+    // Utiliser le timer flottant global au lieu du timer intégré
+    GlobalTimerService().startFloatingTimer(
+      duration: const Duration(minutes: 30),
+      onFinish: () {
+        // Actions à effectuer quand le timer se termine
+        _finishTimer();
+      },
+    );
+    
+    // Mettre à jour l'état local pour cacher le timer intégré
     setState(() {
       _isTimerRunning = true;
       _isTimerPaused = false;
-    });
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingTime.inSeconds <= 0) {
-        _finishTimer();
-        return;
-      }
-
-      setState(() {
-        _remainingTime = Duration(seconds: _remainingTime.inSeconds - 1);
-      });
+      _remainingTime = const Duration(minutes: 30);
     });
   }
 
@@ -457,6 +523,17 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   }
 
 // ========== Méthodes Organigrammes ==========
+
+  void _showFlowchartInBottomSheet(FlowchartInfo flowchart) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => InteractiveFlowchartScreen(
+        flowchartInfo: flowchart,
+      ),
+    );
+  }
 
   void _showFlowchartHelp() {
     if (!FlowchartService.hasCategoryFlowcharts(_currentMalfunction!.category)) {
@@ -655,79 +732,23 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              tooltip: 'Dashboard',
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                if (_currentMalfunction != null || _showChifoumi) {
-                  setState(() {
-                    _currentMalfunction = null;
-                    _showSolution = false;
-                    _hasEvaluated = false;
-                    _showChifoumi = false;
-                    _chifoumiGame = null;
-                  });
-                } else {
-                  Navigator.of(context).pop();
-                }
-              },
-              tooltip: 'Retour',
-            ),
-          ],
-        ),
-        leadingWidth: 100,
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.handyman_outlined, size: 24),
-            SizedBox(width: 12),
-            Text(
-              'Mode Dépanneur',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0x33FFFFFF),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0x4DFFFFFF),
-                  ),
-                ),
-                child: const Text(
-                  'v0.1',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-        backgroundColor: const Color(0xFF00B0FF),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+      appBar: CustomAppBar(
+        title: 'Mode Dépanneur',
+        titleIcon: Icons.handyman_outlined,
+        version: ToolVersions.malfunctionTools,
+        onBackPressed: () {
+          if (_currentMalfunction != null || _showChifoumi) {
+            setState(() {
+              _currentMalfunction = null;
+              _showSolution = false;
+              _hasEvaluated = false;
+              _showChifoumi = false;
+              _chifoumiGame = null;
+            });
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
       ),
       body: Column(
         children: [
@@ -746,8 +767,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                       if (_showChifoumi)
                         _buildChifoumiInterface(),
 
-                      if (_currentMalfunction != null)
-                        _buildTimerWidget(),
+                      // Timer retiré d'ici car maintenant en position fixe
 
                       if (_currentMalfunction != null && !_showSolution)
                         _buildMalfunctionSymptoms(),
@@ -1076,6 +1096,59 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
         
         const SizedBox(height: 24),
         
+        // SÉLECTION PAR CATÉGORIE
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade300),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.category, color: Colors.teal.shade700, size: 24),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Sélectionner par catégorie',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    _buildCategoryButton('Matériel', MalfunctionCategory.hardware, Colors.blue, Icons.memory),
+                    _buildCategoryButton('Logiciel', MalfunctionCategory.software, Colors.green, Icons.apps),
+                    _buildCategoryButton('Configuration', MalfunctionCategory.setup, Colors.orange, Icons.settings),
+                    _buildCategoryButton('Réseau', MalfunctionCategory.network, Colors.purple, Icons.wifi),
+                    _buildCategoryButton('Imprimante', MalfunctionCategory.printer, Colors.red, Icons.print),
+                    _buildCategoryButton('Périphérique', MalfunctionCategory.peripheral, Colors.indigo, Icons.devices),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 24),
+        
         // STATISTIQUES
         Container(
           padding: const EdgeInsets.all(20),
@@ -1215,6 +1288,46 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     );
   }
 
+  Widget _buildCategoryButton(String label, MalfunctionCategory category, Color color, IconData icon) {
+    final count = MalfunctionService.getMalfunctionsByCategory(category).length;
+    return ElevatedButton(
+      onPressed: () => _selectMalfunctionByCategory(category),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 8),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '$count panne${count > 1 ? 's' : ''}',
+                style: const TextStyle(
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatColumn(int count, String label, Color color, int stars) {
     return Column(
       children: [
@@ -1315,143 +1428,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     );
   }
 
-  Widget _buildTimerWidget() {
-    final minutes = _remainingTime.inMinutes;
-    final seconds = _remainingTime.inSeconds % 60;
-    final isLowTime = _remainingTime.inMinutes < 5;
-    
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isLowTime 
-            ? [Colors.red.shade700, Colors.red.shade500]
-            : [const Color(0xFF1A237E), const Color(0xFF00B0FF)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
-        children: [
-          _isTimerRunning
-            ? AnimatedBuilder(
-                animation: _sandglassController,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: _sandglassController.value * 3.14159,
-                    child: const Icon(
-                      Icons.hourglass_empty,
-                      size: 24,
-                      color: Colors.white,
-                    ),
-                  );
-                },
-              )
-            : const Icon(
-                Icons.hourglass_empty,
-                size: 24,
-                color: Colors.white,
-              ),
-          const SizedBox(width: 12),
-          
-          Text(
-            '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          
-          const SizedBox(width: 16),
-          
-          Expanded(
-            child: (_isTimerRunning || _isTimerPaused) && _remainingTime.inSeconds > 0
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: 42,
-                        color: Colors.white,
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        height: 42,
-                        width: (MediaQuery.of(context).size.width - 32) * 
-                               (1 - _remainingTime.inSeconds / (30 * 60)),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: _remainingTime.inMinutes < 5
-                              ? [Colors.red.shade300, Colors.red.shade400]
-                              : [const Color(0xFF00B0FF).withOpacity(0.3), 
-                                 const Color(0xFF00B0FF).withOpacity(0.5)],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                        ),
-                      ),
-                      Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: _isTimerRunning ? _pauseTimer : _resumeTimer,
-                          child: Container(
-                            height: 42,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  _isTimerRunning ? Icons.pause : Icons.play_arrow,
-                                  size: 18,
-                                  color: const Color(0xFF00B0FF),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _isTimerRunning ? 'Pause' : 'Reprendre',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF00B0FF),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : _remainingTime.inSeconds > 0
-                ? SizedBox(
-                    height: 42,
-                    child: ElevatedButton.icon(
-                      onPressed: _startTimer,
-                      icon: const Icon(Icons.play_arrow, size: 18),
-                      label: const Text('Démarrer'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF00B0FF),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   // Les widgets _buildChifoumiInterface, _buildMalfunctionSymptoms et _buildSolutionSheet 
   // restent identiques à votre code actuel, sauf pour l'ajout du bouton organigramme
@@ -2001,6 +1978,41 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                                 ],
                               ),
                             )),
+                            // Nouvelle section d'organigrammes
+                            if (FlowchartService.hasCategoryFlowcharts(_currentMalfunction!.category)) ...[
+                              const SizedBox(height: 16),
+                              const Divider(height: 1, color: Colors.blue),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Icon(
+                                    _currentMalfunction!.categoryIcon,
+                                    size: 24,
+                                    color: Colors.blue.shade700,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: FlowchartService.getFlowchartsByCategory(_currentMalfunction!.category)
+                                          .map((flowchart) => Padding(
+                                            padding: const EdgeInsets.only(right: 8),
+                                            child: ActionChip(
+                                              avatar: const Icon(Icons.account_tree, size: 18),
+                                              label: Text(flowchart.title),
+                                              onPressed: () => _showFlowchartInBottomSheet(flowchart),
+                                              backgroundColor: flowchart.color.withOpacity(0.1),
+                                              side: BorderSide(color: flowchart.color),
+                                              labelStyle: TextStyle(color: flowchart.color),
+                                            ),
+                                          )).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -2057,24 +2069,6 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                       ),
                     ],
                   ),
-                  
-                  // BOUTON ORGANIGRAMME
-                  if (FlowchartService.hasCategoryFlowcharts(_currentMalfunction!.category))
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Center(
-                        child: ElevatedButton.icon(
-                          onPressed: _showFlowchartHelp,
-                          icon: const Icon(Icons.account_tree, size: 20),
-                          label: Text('Organigramme ${_currentMalfunction!.categoryLabel}'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple.shade600,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          ),
-                        ),
-                      ),
-                    ),
                   
                   const SizedBox(height: 16),
                   
