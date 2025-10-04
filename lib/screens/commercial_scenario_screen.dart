@@ -10,9 +10,13 @@ import '../services/commercial_scenario_service.dart';
 import '../services/global_timer_service.dart';
 import '../data/commercial_scenarios_data.dart';
 import '../widgets/app_footer.dart';
+import '../widgets/custom_app_bar.dart';
+import '../data/tool_data.dart';
 
 class CommercialScenarioScreen extends StatefulWidget {
-  const CommercialScenarioScreen({super.key});
+  final String? scenarioId;
+  
+  const CommercialScenarioScreen({super.key, this.scenarioId});
 
   @override
   State<CommercialScenarioScreen> createState() => _CommercialScenarioScreenState();
@@ -20,14 +24,6 @@ class CommercialScenarioScreen extends StatefulWidget {
 
 class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
   CommercialScenario? _currentScenario;
-  TimerState _timerState = const TimerState(
-    totalDuration: Duration(minutes: 30),
-    remainingTime: Duration(minutes: 30),
-    isRunning: false,
-    isPaused: false,
-    isFinished: false,
-  );
-  Timer? _timer;
   bool _showCorrection = false;
   ChifousiGame? _chifousiGame;
   bool _showChifoumi = false;
@@ -58,9 +54,24 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialiser le GlobalTimerService pour qu'il puisse afficher le timer
+    GlobalTimerService().initialize(context);
+    
+    // Charger automatiquement le scénario si un ID est fourni (navigation depuis le timer)
+    if (widget.scenarioId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _selectScenarioById(widget.scenarioId!, isFromTimerNavigation: true);
+      });
+    }
+  }
+
+  @override
   void dispose() {
-    _timer?.cancel();
     _scenarioNumberController.dispose();
+    // Notifier qu'on quitte la page
+    GlobalTimerService().setCurrentPageItem(null, null);
     super.dispose();
   }
 
@@ -117,7 +128,11 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     }
   }
 
-  void _startRandomScenario() {
+  Future<void> _startRandomScenario() async {
+    // Vérifier s'il faut arrêter le timer en cours
+    bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "tirage au sort aléatoire de scénario");
+    if (!canContinue || !mounted) return;
+    
     final scenario = CommercialScenarioService.drawRandomScenario();
     setState(() {
       _currentScenario = scenario;
@@ -126,17 +141,25 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _chifousiGame = null;
       _hasEvaluated = false;
     });
-    _resetTimer();
+    
+    // S'assurer que le service de timer est prêt pour un nouveau timer
+    GlobalTimerService().updateContext(context);
+    
+    _showReadyTimer();
   }
 
-  void _showChifousiInterface() {
+  Future<void> _showChifousiInterface() async {
+    // Vérifier s'il faut arrêter le timer en cours
+    bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "mode défi Chifoumi de scénario");
+    if (!canContinue || !mounted) return;
+    
     setState(() {
       _showChifoumi = true;
       _showCorrection = false;
       _currentScenario = null;
       _chifousiGame = null;
     });
-    _resetTimer();
+    // Pas de timer pour l'interface chifoumi
   }
 
   void _playChifoumi(ChifousiChoice playerChoice) {
@@ -173,18 +196,26 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     });
     
     _saveStatistics();
-    _resetTimer();
+    _showReadyTimer();
   }
 
-  void _selectScenarioById(String idString) {
+  Future<void> _selectScenarioById(String idString, {bool isFromTimerNavigation = false}) async {
+    // Vérifier s'il faut arrêter le timer en cours (SAUF si c'est une navigation depuis le timer)
+    if (!isFromTimerNavigation) {
+      bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "sélection de scénario par numéro");
+      if (!canContinue || !mounted) return;
+    }
+    
     final id = int.tryParse(idString);
     if (id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez entrer un numéro valide'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Veuillez entrer un numéro valide'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
     
@@ -195,12 +226,14 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     );
     
     if (scenario.id != id) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Scénario #$id introuvable'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Scénario #$id introuvable'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
     
@@ -211,20 +244,38 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _chifousiGame = null;
       _hasEvaluated = false;
     });
-    _resetTimer();
+    
+    // Si c'est une navigation depuis le timer, ne pas réinitialiser le timer
+    if (!isFromTimerNavigation) {
+      _showReadyTimer();
+    } else {
+      // Juste mettre à jour l'item courant pour le service de timer
+      GlobalTimerService().setCurrentPageItem(
+        _currentScenario?.id.toString(),
+        'scenario',
+      );
+    }
     _scenarioNumberController.clear();
   }
 
-  void _selectScenarioByDifficulty(DifficultyLevel difficulty) {
+  Future<void> _selectScenarioByDifficulty(DifficultyLevel difficulty) async {
+    // Vérifier s'il faut arrêter le timer en cours
+    String difficultyName = difficulty == DifficultyLevel.easy ? "facile" : 
+                           difficulty == DifficultyLevel.medium ? "moyen" : "difficile";
+    bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "tirage au sort de scénario $difficultyName");
+    if (!canContinue || !mounted) return;
+    
     final scenarios = CommercialScenariosDatabase.getScenariosByDifficulty(difficulty);
     
     if (scenarios.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aucun scénario disponible pour ce niveau'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aucun scénario disponible pour ce niveau'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
       return;
     }
     
@@ -237,69 +288,37 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _chifousiGame = null;
       _hasEvaluated = false;
     });
-    _resetTimer();
+    _showReadyTimer();
   }
 
-// PARTIE 2/4 : Méthodes de gestion du timer et dialogues
+// PARTIE 2/4 : Méthodes de gestion du timer flottant et dialogues
 
-  void _startTimer() {
-    _resetTimer();
-    setState(() {
-      _timerState = _timerState.copyWith(
-        remainingTime: _timerState.totalDuration,
-        isRunning: true,
-        isPaused: false,
-        isFinished: false,
-      );
-    });
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timerState.remainingTime.inSeconds <= 0) {
+  void _showReadyTimer({Duration duration = const Duration(minutes: 30)}) {
+    // Message pour confirmer la création d'un nouveau timer après arrêt
+    if (!GlobalTimerService().isTimerActive) {
+      print('Création d\'un nouveau timer pour le scénario #${_currentScenario?.id}');
+    }
+    
+    GlobalTimerService().startReadyTimer(
+      duration: duration,
+      onFinish: () {
         _finishTimer();
-        return;
-      }
-
-      setState(() {
-        _timerState = _timerState.copyWith(
-          remainingTime: Duration(
-            seconds: _timerState.remainingTime.inSeconds - 1,
-          ),
-        );
-      });
-    });
+      },
+      associatedItemId: _currentScenario?.id.toString(),
+      associatedItemType: 'scenario',
+      associatedScreenRoute: '/commercial-scenario',
+    );
+    
+    // Notifier le service du scénario actuellement affiché
+    GlobalTimerService().setCurrentPageItem(
+      _currentScenario?.id.toString(),
+      'scenario',
+    );
   }
 
-  void _pauseTimer() {
-    _timer?.cancel();
+  void _finishTimer() {
     setState(() {
-      _timerState = _timerState.copyWith(
-        isRunning: false,
-        isPaused: true,
-      );
-    });
-  }
-
-  void _resumeTimer() {
-    setState(() {
-      _timerState = _timerState.copyWith(
-        isRunning: true,
-        isPaused: false,
-      );
-    });
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timerState.remainingTime.inSeconds <= 0) {
-        _finishTimer();
-        return;
-      }
-
-      setState(() {
-        _timerState = _timerState.copyWith(
-          remainingTime: Duration(
-            seconds: _timerState.remainingTime.inSeconds - 1,
-          ),
-        );
-      });
+      _showCorrection = true;
     });
   }
 
@@ -343,69 +362,6 @@ Future<bool> _checkEvaluationBeforeLeaving() async {
 
   return shouldLeave ?? false;
 }
-
-  void _resetTimer() {
-    _timer?.cancel();
-    setState(() {
-      _timerState = _timerState.copyWith(
-        remainingTime: _timerState.totalDuration,
-        isRunning: false,
-        isPaused: false,
-        isFinished: false,
-      );
-    });
-  }
-
-  void _finishTimer() {
-    _timer?.cancel();
-    setState(() {
-      _timerState = _timerState.copyWith(
-        isRunning: false,
-        isPaused: false,
-        isFinished: true,
-        remainingTime: Duration.zero,
-      );
-      _showCorrection = true;
-    });
-  }
-
-  void _showCorrectionManually() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.warning_amber, color: Colors.orange, size: 28),
-              SizedBox(width: 12),
-              Text('Afficher la correction ?'),
-            ],
-          ),
-          content: const Text(
-            'Êtes-vous sûr de vouloir voir la correction maintenant ?\n\n'
-            'Le timer sera mis en pause et vous pourrez analyser les solutions proposées.',
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Annuler', style: TextStyle(fontSize: 16)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _showCorrection = true;
-                });
-                _pauseTimer();
-              },
-              child: const Text('Voir la correction', style: TextStyle(fontSize: 16)),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   void _showReclamationDialog() {
     final TextEditingController commentController = TextEditingController();
@@ -551,74 +507,30 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home),
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              tooltip: 'Dashboard',
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () async {  // ← AJOUTER async
-                if (_currentScenario != null || _showChifoumi) {
-                  final canLeave = await _checkEvaluationBeforeLeaving();  // ← AJOUTER
-                  if (canLeave) {  // ← AJOUTER
-                    setState(() {
-                      _currentScenario = null;
-                      _showChifoumi = false;
-                      _showCorrection = false;
-                      _chifousiGame = null;
-                      _hasEvaluated = false;  // ← AJOUTER
-                    });
-                    _resetTimer();
-                  }  // ← AJOUTER
-                } else {
-                  Navigator.of(context).pop();
-                }
-              },
-              tooltip: 'Retour',
-            ),
-          ],
-        ),
-        leadingWidth: 100,
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.business_center),
-            SizedBox(width: 8),
-            Text('Scénarios Commerciaux'),
-          ],
-        ),
-        actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0x33FFFFFF),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0x4DFFFFFF),
-                  ),
-                ),
-                child: const Text(
-                  'v1.3',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+      backgroundColor: Colors.grey[50],
+      appBar: CustomAppBar(
+        title: 'Scénarios Commerciaux',
+        titleIcon: Icons.business_center_outlined,
+        version: ToolVersions.commercialScenarios,
+        onBackPressed: () async {
+          if (_currentScenario != null || _showChifoumi) {
+            final canLeave = await _checkEvaluationBeforeLeaving();
+            if (canLeave) {
+              setState(() {
+                _currentScenario = null;
+                _showChifoumi = false;
+                _showCorrection = false;
+                _chifousiGame = null;
+                _hasEvaluated = false;
+              });
+              // Notifier qu'on n'a plus de scénario affiché
+              GlobalTimerService().setCurrentPageItem(null, null);
+              // Pas de timer à relancer, on revient à l'accueil
+            }
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
       ),
       body: Column(
         children: [
@@ -636,12 +548,6 @@ COMPÉTENCES : ${_currentScenario!.skillsWorked.join(', ')}
 
                       if (_showChifoumi)
                         _buildChifousiInterface(),
-
-                      if (_currentScenario != null)
-                        _buildTimerWidget(),
-
-                      if (_currentScenario != null && !_showCorrection)
-                        _buildTimerButton(),
 
                       if (_currentScenario != null && !_showCorrection)
                         _buildScenarioDisplay(),
@@ -790,7 +696,7 @@ Widget _buildModeSelection() {
                   'Tirage Classique',
                   style: TextStyle(fontSize: 18),
                 ),
-                onPressed: _startRandomScenario,
+                onPressed: () async => await _startRandomScenario(),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                 ),
@@ -805,7 +711,7 @@ Widget _buildModeSelection() {
                   'Mode Défi (Chifoumi)',
                   style: TextStyle(fontSize: 18),
                 ),
-                onPressed: _showChifousiInterface,
+                onPressed: () async => await _showChifousiInterface(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
@@ -864,13 +770,13 @@ Widget _buildModeSelection() {
                       ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
-                    onSubmitted: (value) => _selectScenarioById(value),
+                    onSubmitted: (value) async => await _selectScenarioById(value, isFromTimerNavigation: false),
                   ),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: () {
-                    _selectScenarioById(_scenarioNumberController.text);
+                  onPressed: () async {
+                    await _selectScenarioById(_scenarioNumberController.text, isFromTimerNavigation: false);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue.shade700,
@@ -961,7 +867,7 @@ Widget _buildModeSelection() {
   Widget _buildDifficultySelectionButton(String label, DifficultyLevel difficulty, Color color, IconData icon) {
     final count = CommercialScenariosDatabase.getCountByDifficulty(difficulty);
     return ElevatedButton(
-      onPressed: () => _selectScenarioByDifficulty(difficulty),
+      onPressed: () async => await _selectScenarioByDifficulty(difficulty),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
@@ -1271,195 +1177,6 @@ Widget _buildModeSelection() {
         return Colors.red;
     }
   }
-
-  Widget _buildTimerWidget() {
-    final minutes = _timerState.remainingTime.inMinutes;
-    final seconds = _timerState.remainingTime.inSeconds % 60;
-    final isLowTime = _timerState.remainingTime.inMinutes < 5;
-    
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isLowTime 
-            ? [Colors.red.shade700, Colors.red.shade500]
-            : [const Color(0xFF1A237E), const Color(0xFF00B0FF)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
-        children: [
-          const Icon(Icons.timer, size: 24, color: Colors.white),
-          const SizedBox(width: 12),
-          
-          Text(
-            '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          
-          const SizedBox(width: 16),
-          
-          Expanded(
-            child: !_timerState.isRunning && !_timerState.isFinished
-              ? ElevatedButton.icon(
-                  onPressed: _timerState.isPaused ? _resumeTimer : _startTimer,
-                  icon: const Icon(Icons.play_arrow, size: 18),
-                  label: Text(_timerState.isPaused ? 'Reprendre' : 'Démarrer'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF00B0FF),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                )
-              : _timerState.isRunning
-                ? ElevatedButton.icon(
-                    onPressed: _pauseTimer,
-                    icon: const Icon(Icons.pause, size: 18),
-                    label: const Text('Pause'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF00B0FF),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-          
-          const SizedBox(width: 12),
-          
-          IconButton(
-            onPressed: _showCorrectionManually,
-            icon: const Icon(Icons.help_outline, size: 24),
-            tooltip: 'Voir la correction',
-            color: Colors.white,
-          ),
-        ],
-      ),
-    );
-  }
-
-Widget _buildTimerButton() {
-  return Container(
-    width: double.infinity,
-    margin: const EdgeInsets.only(bottom: 16, left: 8, right: 8),
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [
-          const Color(0xFF1E3A8A).withOpacity(0.8),
-          const Color(0xFF3B82F6).withOpacity(0.9),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          spreadRadius: 2,
-          blurRadius: 8,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(
-            Icons.timer,
-            color: Colors.white,
-            size: 32,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Conseil temporisé',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Gérez ce scénario en moins de 30 minutes',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton.icon(
-          onPressed: () {
-            GlobalTimerService().startFloatingTimer(
-              duration: const Duration(minutes: 30),
-              onFinish: () {
-                // Actions quand le timer se termine
-              },
-            );
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Row(
-                  children: [
-                    Icon(Icons.timer, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Timer de conseil démarré !'),
-                  ],
-                ),
-                backgroundColor: Color(0xFF1A237E),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          },
-          icon: const Icon(Icons.play_arrow, size: 20),
-          label: const Text(
-            'Démarrer',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF1E3A8A),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            elevation: 2,
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
 Widget _buildScenarioDisplay() {
   if (_currentScenario == null) return const SizedBox();
@@ -1970,7 +1687,7 @@ Row(
             _showChifoumi = false;
             _hasEvaluated = false;  // ← AJOUTER
           });
-          _resetTimer();
+          // Pas de timer à relancer, on revient à l'accueil
         }  // ← AJOUTER
       },
     ),
@@ -1986,7 +1703,7 @@ Row(
             _showChifoumi = true;
             _hasEvaluated = false;  // ← AJOUTER
           });
-          _resetTimer();
+          // Pas de timer pour le mode défi
         }  // ← AJOUTER
       },
       style: ElevatedButton.styleFrom(

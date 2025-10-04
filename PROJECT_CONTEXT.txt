@@ -11,7 +11,7 @@
 
 - **Nom** : XR Tech Tools
 - **Tech** : Flutter / Dart
-- **Version actuelle** : v1.3.031025 (03/10/2025)
+- **Version actuelle** : v1.3.041025 (04/10/2025)
 - **Objectif** : Boîte à outils pro + pédagogique techniciens IT
 - **Titres visés** : IDI, ADRN, TIP (RNCP34147, RNCP38718, RNCP40799)
 - **Contact** : WolwX@hotmail.com
@@ -26,7 +26,7 @@
 - ✅ Mode Créateur de Pannes (14 pannes - 6 catégories) [v1.3.300925]
 - ✅ Mode Dépanneur (14 pannes - diagnostic technicien) [v1.3.300925]
 - ✅ Organigrammes Interactifs (1/14+ disponible) [v1.3.011025]
-- ✅ Timer Flottant Automatique (interface épurée) [v1.3.031025] ⭐ NOUVEAU
+- ✅ Timer Intelligent avec Confirmation (protection + navigation fluide) [v1.3.041025] ⭐ NOUVEAU
 
 **Organigramme disponible** :
 - "L'ordinateur ne s'allume pas" (Hardware - 5 étapes guidées)
@@ -37,16 +37,21 @@
 
 ---
 
-## 🆕 DERNIERS CHANGEMENTS (v1.3.031025 - 03/10/2025)
+## 🆕 DERNIERS CHANGEMENTS (v1.3.041025 - 04/10/2025)
 
 ### Améliorations majeures :
-1. **Système de timer flottant automatique**
-   - Apparition automatique lors de sélection de fiches de dépannage
-   - Texte dynamique : "Démarrer le dépannage X min" → Compte à rebours
-   - Interface épurée : Suppression des doublons de timer
-   - Temps configurable pour différentes durées d'épreuves
-   - Bouton reset : Réinitialise sans fermer le timer
-   - Intégration complète dans tous les contextes
+1. **Système de timer intelligent avec confirmation**
+   - Protection automatique contre les tirages accidentels via popup confirmation
+   - Navigation fluide depuis timer : Double-clic pour retour direct sans interruption
+   - Distinction intelligente : Confirmations pour nouveaux tirages, bypass pour navigation timer
+   - Interface contextuelle : Messages personnalisés selon le type d'action
+   - Workflow optimisé : Sécurité préservée + expérience utilisateur fluide
+
+2. **Corrections système organigrammes**
+   - Interface de sélection optimisée avec suggestions intelligentes
+   - Résolution bugs d'affichage dans barres de recherche
+   - Stabilisation intégration système de diagnostic
+   - Ergonomie améliorée pour les interfaces d'aide
 
 2. **Corrections techniques importantes** :
    - Suppression du timer local dans InteractiveFlowchartScreen

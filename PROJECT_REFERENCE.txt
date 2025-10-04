@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.031025
+- Version actuelle : v1.3.041025
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -113,21 +113,23 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    - Mode Défi Chifoumi
    - Accès aux organigrammes interactifs [NOUVEAU v1.3.011025]
 
-4. Organigrammes Interactifs [✅ NOUVEAU v1.3.011025]
+4. Organigrammes Interactifs [✅ STABILISÉ v1.3.041025]
    
    Système de diagnostic guidé étape par étape :
    
    Fonctionnalités :
    - Navigation guidée avec choix multiples
    - Détection automatique de l'organigramme pertinent par mots-clés
-   - Barre de progression et historique
+   - Barre de progression et historique (corrections bugs d'affichage v1.3.041025)
    - Retour arrière possible à tout moment
+   - Interface optimisée avec suggestions intelligentes améliorées
    - Résultats contextuels avec codes couleur :
      * Succès (vert) : Solution trouvée
      * Échec (rouge) : Composant défectueux
      * Info (bleu) : Prochaines étapes suggérées
    - Options visuellement distinctes (✓ vert / ✗ rouge)
    - Intégration dans Mode Dépanneur (bouton visible si disponible)
+   - Ergonomie améliorée pour interfaces d'aide
    
    Organigramme disponible :
    - "L'ordinateur ne s'allume pas" (Hardware - Bleu #64B5F6)
@@ -157,42 +159,56 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    - Printer (à définir)
    - Peripheral (à définir)
 
-5. Système de Timer Flottant [✅ NOUVEAU v1.3.031025]
+5. Système de Timer Intelligent [✅ PERFECTIONNÉ v1.3.041025]
    
-   Timer automatique et intelligent pour épreuves chronométrées :
+   Timer automatique avec système de confirmation anti-accident :
    
-   Fonctionnalités :
+   Fonctionnalités principales :
    - Apparition automatique lors de sélection de fiches de dépannage
+   - Système de confirmation pour nouveaux tirages (protection anti-accident)
+   - Navigation intelligente : Double-clic timer pour retour direct sans popup
    - Texte dynamique intelligent : "Démarrer le dépannage X min" → Compte à rebours
    - Interface épurée : Un seul timer global cohérent
    - Temps configurable pour différentes durées d'épreuves
    - Bouton reset (🔄) : Réinitialise sans fermer le timer
-   - Intégration complète : Fonctionne dans tous les contextes
+   - Intégration complète avec logique contextuelle
+   
+   Système de confirmation anti-accident [NOUVEAU v1.3.041025] :
+   - Popup automatique pour tous les nouveaux tirages
+   - Messages contextuels personnalisés selon l'action
+   - Interface orange distinctive avec choix "Continuer" / "Arrêter le timer"
+   - Protection workflow : Évite les interruptions accidentelles
+   - Bypass intelligent pour navigation depuis timer (double-clic)
    
    Architecture technique :
    - Service centralisé : GlobalTimerService
      * startReadyTimer() : Mode "prêt à démarrer"
      * resetTimer() : Réinitialisation sans fermeture
+     * showTimerStopConfirmation() : Dialog de confirmation stylé [NOUVEAU]
+     * handleNewDrawRequest() : Coordination intelligente [NOUVEAU]
      * Gestion d'overlay global pour persistance
+   - Paramètre discriminant : isFromTimerNavigation
+     * true : Navigation timer → Pas de confirmation
+     * false : Action utilisateur → Confirmation obligatoire
    - Widget principal : FloatingTimer
      * Affichage conditionnel du texte selon l'état
      * Gestion des états ready/active/paused
      * Style adaptatif (couleur rouge < 5 min)
-   - Déclencheurs automatiques intégrés dans toutes les méthodes de sélection
    
-   Déclencheurs automatiques :
+   Déclencheurs automatiques avec confirmation :
    - _drawRandomMalfunction() : Tirage aléatoire
-   - _selectMalfunctionById() : Sélection par numéro
+   - _selectMalfunctionById() : Sélection par numéro (sauf navigation timer)
    - _selectMalfunctionByDifficulty() : Sélection par niveau
    - _selectMalfunctionByCategory() : Sélection par catégorie
+   - _showChifoumiInterface() : Mode défi Chifoumi
    - Résultats chifoumi (victoire/défaite/égalité)
    
-   Améliorations apportées :
-   - Suppression du timer local dans InteractiveFlowchartScreen
-   - Élimination des widgets redondants (_buildCompactTimerWidget)
-   - Correction des problèmes de lifecycle des listeners
-   - Optimisation de l'espace réservé (80px → 24px)
-   - Performance améliorée (moins de widgets duplicata)
+   Corrections et optimisations v1.3.041025 :
+   - Résolution bug navigation timer : Élimination popups inappropriées
+   - Workflow optimisé : Confirmations uniquement pour vrais nouveaux tirages
+   - Experience utilisateur préservée : Navigation timer instantanée
+   - Protection intelligente maintenue contre arrêts accidentels
+   - Cohérence système : Même logique sur MalfunctionTechnicianScreen et CommercialScenarioScreen
 
 THÈME & DESIGN
 --------------

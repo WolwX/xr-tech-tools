@@ -4,6 +4,7 @@ import '../widgets/app_footer.dart';
 import '../widgets/custom_app_bar.dart';
 import '../data/tool_data.dart';
 import '../services/malfunction_service.dart';
+import '../services/global_timer_service.dart';
 import 'malfunction_creator_screen.dart';
 import 'malfunction_technician_screen.dart';
 
@@ -29,6 +30,15 @@ class _MalfunctionHomeScreenState extends State<MalfunctionHomeScreen> {
   void initState() {
     super.initState();
     _loadStatistics();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialiser le GlobalTimerService pour qu'il puisse afficher le timer
+    GlobalTimerService().initialize(context);
+    // Indiquer qu'on n'affiche aucun item spécifique (page d'accueil informatique)
+    GlobalTimerService().setCurrentPageItem(null, null);
   }
 
   Future<void> _loadStatistics() async {

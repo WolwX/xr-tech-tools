@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_footer.dart';
+import '../services/global_timer_service.dart';
 import 'dashboard_screen.dart';
 import 'dart:math' as math;
 
@@ -25,6 +26,15 @@ class _IntroductionScreenState extends State<IntroductionScreen>
     )..repeat(reverse: true); 
 
     _generateStars();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialiser le GlobalTimerService pour qu'il puisse afficher le timer
+    GlobalTimerService().initialize(context);
+    // Indiquer qu'on n'affiche aucun item spécifique (page d'introduction)
+    GlobalTimerService().setCurrentPageItem(null, null);
   }
 
   void _generateStars() {

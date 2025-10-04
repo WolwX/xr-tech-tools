@@ -1,7 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class AppFooter extends StatelessWidget {
+class AppFooter extends StatefulWidget {
   const AppFooter({super.key});
+
+  @override
+  State<AppFooter> createState() => _AppFooterState();
+}
+
+class _AppFooterState extends State<AppFooter> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _version = packageInfo.version;
+      });
+    } catch (e) {
+      // Fallback en cas d'erreur
+      setState(() {
+        _version = '1.3.041025';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +101,7 @@ class AppFooter extends StatelessWidget {
         
         // Numéro de version avec convention MAJEURE.MINEURE.DDMMAA
         Text(
-          " - Version v1.3.031025",
+          _version.isNotEmpty ? " - Version v$_version" : " - Chargement...",
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withOpacity(0.7),
           ),

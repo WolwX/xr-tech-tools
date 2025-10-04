@@ -49,12 +49,16 @@ void main() {
   runApp(const MyApp());
 }
 
+// Clé globale pour la navigation - utilisée par le service de timer
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // Ajout de la clé de navigation globale
       title: 'XR Tech Tools',
       debugShowCheckedModeBanner: false,
       useInheritedMediaQuery: true,

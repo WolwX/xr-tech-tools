@@ -2,9 +2,30 @@ import 'package:flutter/material.dart';
 import '../data/tool_data.dart';
 import '../models/tool.dart';
 import '../widgets/app_footer.dart';
+import '../services/global_timer_service.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // L'initialisation du GlobalTimerService se fera dans didChangeDependencies()
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialiser et mettre à jour le GlobalTimerService pour qu'il puisse afficher le timer
+    GlobalTimerService().updateContext(context);
+    // Indiquer qu'on n'affiche aucun item spécifique (page d'accueil)
+    GlobalTimerService().setCurrentPageItem(null, null);
+  }
 
   @override
   Widget build(BuildContext context) {

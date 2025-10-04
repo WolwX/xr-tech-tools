@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/flowchart_models.dart';
+import '../services/global_timer_service.dart';
 
 class InteractiveFlowchartScreen extends StatefulWidget {
   final FlowchartInfo flowchartInfo;
@@ -122,6 +123,13 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
         ],
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialiser le GlobalTimerService pour qu'il puisse afficher le timer
+    GlobalTimerService().initialize(context);
   }
 
   @override

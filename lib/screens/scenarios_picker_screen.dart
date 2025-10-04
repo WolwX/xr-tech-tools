@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/scenarios.dart'; 
 // Assurez-vous que le fichier est bien nommé 'scenarios_service.dart'
 import '../services/scenarios_service.dart'; 
+import '../services/global_timer_service.dart';
 // Import du pied de page
 import '../widgets/app_footer.dart'; 
 
@@ -33,6 +34,15 @@ class _ScenarioPickerScreenState extends State<ScenarioPickerScreen> {
         );
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialiser le GlobalTimerService pour qu'il puisse afficher le timer
+    GlobalTimerService().initialize(context);
+    // Indiquer qu'on n'affiche aucun item spécifique (page de sélection de scénarios)
+    GlobalTimerService().setCurrentPageItem(null, null);
   }
 
   @override

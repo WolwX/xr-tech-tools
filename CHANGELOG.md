@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.031025
+- Version actuelle : v1.3.041025
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -148,9 +148,72 @@ dependencies:
     sdk: flutter
   url_launcher: ^6.x.x
   shared_preferences: ^2.x.x
+  package_info_plus: ^8.x.x        [NOUVEAU v1.3.041025]
 
 HISTORIQUE DES VERSIONS
 ========================
+
+v1.3.041025 (04 Octobre 2025)
+------------------------------
+✨ Améliorations majeures - Système de Confirmation Timer :
+- 🛡️ PROTECTION CONTRE LES TIRAGES ACCIDENTELS
+  * Popup de confirmation automatique pour tous les nouveaux tirages
+  * Message contextuel : "Vous allez commencer un [type de tirage]"
+  * Arrêt automatique du timer en cours après confirmation utilisateur
+  * Choix "Continuer" ou "Arrêter le timer" avec interface orange distinctive
+  * Protection complète : tirage aléatoire, sélection numéro, difficulté, catégorie, mode Chifoumi
+
+- 🧠 NAVIGATION INTELLIGENTE DEPUIS LE TIMER
+  * Double-clic sur timer flottant pour retour direct à la fiche associée
+  * Distinction automatique : Navigation timer vs. Nouveau tirage
+  * Paramètre `isFromTimerNavigation` pour bypass intelligent des confirmations
+  * Navigation fluide sans interruption depuis le timer
+  * Préservation complète de l'expérience utilisateur
+
+🔧 Améliorations techniques :
+- Service GlobalTimerService enrichi :
+  * Nouvelle méthode `showTimerStopConfirmation()` : Dialog de confirmation stylé
+  * Nouvelle méthode `handleNewDrawRequest()` : Coordination intelligente des demandes
+  * Gestion contextuelle des confirmations avec messages personnalisés
+  * Protection robuste contre les interruptions accidentelles
+
+- Écrans MalfunctionTechnicianScreen et CommercialScenarioScreen :
+  * Signature modifiée `_selectMalfunctionById()` et `_selectScenarioById()`
+  * Paramètre `isFromTimerNavigation` pour discrimination source navigation
+  * Logique conditionnelle : Confirmation pour utilisateur, bypass pour timer
+  * Cohérence système sur tous les types d'écrans
+
+🎯 Résolution de bugs critiques :
+- Bug navigation timer : Élimination des popups inappropriées lors du double-clic timer
+- Workflow optimisé : Confirmations uniquement pour les vrais nouveaux tirages
+- Experience utilisateur : Navigation timer instantanée et fluide
+- Protection intelligente : Sécurité contre les arrêts accidentels préservée
+
+🗺️ Corrections système organigrammes :
+- Interface de sélection des organigrammes optimisée
+- Suggestions intelligentes basées sur les symptômes améliorées
+- Corrections de bugs d'affichage dans les barres de recherche
+- Stabilisation de l'intégration avec le système de diagnostic
+- Meilleure ergonomie des interfaces d'aide au diagnostic
+
+📱 Expérience utilisateur finale :
+- Double niveau de protection et fluidité
+- Confirmations pertinentes pour actions utilisateur
+- Navigation directe et instantanée depuis timer
+- Workflow préservé pour toutes les fonctionnalités
+- Système intelligent qui respecte l'intention utilisateur
+
+🔧 Améliorations techniques additionnelles :
+- Widget AppFooter automatisé : Version récupérée dynamiquement depuis pubspec.yaml
+- Ajout dépendance `package_info_plus: ^8.0.0` pour gestion automatique version
+- Élimination du hardcoding de version dans le footer
+- Système de fallback en cas d'erreur de lecture version
+
+✅ Validation complète :
+- Compilation : 0 erreur (135 warnings style uniquement)
+- Tests fonctionnels : Navigation et confirmations opérationnelles
+- Cohérence : Comportement uniforme sur tous les écrans
+- Performance : Système optimisé et réactif
 
 v1.3.031025 (03 Octobre 2025)
 ------------------------------

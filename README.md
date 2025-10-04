@@ -1,7 +1,7 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.031025-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.041025-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
@@ -83,31 +83,36 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - Statistiques persistantes par difficulté
 - Mode Défi Chifoumi
 
-### 🗺️ Organigrammes Interactifs de Dépannage **[AMÉLIORÉ v1.3.031025]**
+### 🗺️ Organigrammes Interactifs de Dépannage **[STABILISÉ v1.3.041025]**
 - **Navigation guidée étape par étape** pour diagnostiquer les pannes
 - **Détection automatique** de l'organigramme le plus pertinent
 - **Interface interactive** avec choix multiples
 - **Barre de progression** et historique de navigation
 - **Retour arrière** possible à tout moment
-- **Timer flottant automatique** - Apparaît dès la sélection d'une fiche
+- **Timer flottant automatique** avec système de confirmation intelligent
+- **Protection contre tirages accidentels** - Popup de confirmation pour nouveaux tirages
+- **Navigation fluide depuis timer** - Double-clic pour retour direct sans interruption
 - **Résultats contextuels** avec codes couleur :
   - 🟢 Succès : Solution trouvée
   - 🔴 Échec : Composant défectueux
   - 🔵 Info : Prochaines étapes suggérées
 - **Options visuellement distinctes** (✓ vert / ✗ rouge)
+- **Interface stabilisée** - Corrections bugs d'affichage et ergonomie optimisée
 
 **Premier organigramme disponible** : "L'ordinateur ne s'allume pas" (Hardware)
 - 5 étapes de diagnostic guidées
 - Vérifications : électriques, carte mère, CMOS, périphériques
 
-### ⏱️ Système de Timer Flottant **[NOUVEAU v1.3.031025]**
+### ⏱️ Système de Timer Intelligent **[PERFECTIONNÉ v1.3.041025]**
 - **Apparition automatique** lors de la sélection de fiches de dépannage
+- **Système de confirmation anti-accident** : Popup pour nouveaux tirages
+- **Navigation intelligente** : Double-clic timer pour retour direct sans confirmation
 - **Texte dynamique** : "Démarrer le dépannage X min" → Compte à rebours
 - **Interface épurée** : Un seul timer global cohérent
+- **Protection workflow** : Distinction automatique navigation vs. nouveau tirage
 - **Temps configurable** : Prêt pour différentes durées d'épreuves
 - **Bouton reset** : Réinitialise sans fermer le timer
-- **Intégration complète** : Fonctionne dans tous les contextes (fiches, organigrammes)
-- Diagnostic composants HS
+- **Intégration complète** : Fonctionne dans tous les contextes avec logique contextuelle
 
 **Architecture extensible** : Prêt pour 13+ organigrammes supplémentaires couvrant toutes les catégories de pannes (Hardware, Software, BIOS/UEFI, Network, Printer, Peripheral).
 
@@ -138,6 +143,7 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - **Packages** : 
   - `url_launcher` : Ouverture de liens externes
   - `shared_preferences` : Sauvegarde des données locales
+  - `package_info_plus` : Récupération automatique de la version
 
 ## 📱 Installation
 

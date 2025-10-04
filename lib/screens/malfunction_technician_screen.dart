@@ -41,13 +41,15 @@ class ChifoumiGame {
 }
 
 class MalfunctionTechnicianScreen extends StatefulWidget {
-  const MalfunctionTechnicianScreen({super.key});
+  final String? malfunctionId;
+  
+  const MalfunctionTechnicianScreen({super.key, this.malfunctionId});
 
   @override
   State<MalfunctionTechnicianScreen> createState() => _MalfunctionTechnicianScreenState();
 }
 
-class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScreen> with SingleTickerProviderStateMixin {
+class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScreen> with TickerProviderStateMixin {
   Malfunction? _currentMalfunction;
   final TextEditingController _numberController = TextEditingController();
   bool _showSolution = false;
@@ -58,8 +60,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   // Timer
   Timer? _timer;
   Duration _remainingTime = const Duration(minutes: 30);
-  bool _isTimerRunning = false;
-  bool _isTimerPaused = false;
+  Duration? _timeElapsed; // Temps écoulé depuis le début du timer
   
   // Animation sablier
   late AnimationController _sandglassController;
@@ -71,6 +72,11 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   int _mediumTotal = 0;
   int _hardSuccess = 0;
   int _hardTotal = 0;
+
+  // Statistiques d'abandon par difficulté
+  int _easyAbandoned = 0;
+  int _mediumAbandoned = 0;
+  int _hardAbandoned = 0;
 
   // Statistiques Chifoumi
   int _chifoumiWins = 0;
@@ -88,7 +94,12 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     
     // Initialiser le service de timer global
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      GlobalTimerService().initialize(context);
+      GlobalTimerService().updateContext(context);
+      
+      // Charger automatiquement la panne si un ID est fourni (navigation depuis le timer)
+      if (widget.malfunctionId != null) {
+        _selectMalfunctionById(widget.malfunctionId!, isFromTimerNavigation: true);
+      }
     });
     
     // Écouter les changements du timer global
@@ -102,6 +113,11 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
           setState(() {
             // Forcer la reconstruction pour masquer/afficher le bouton
           });
+          // Mettre à jour l'item courant pour le service de timer
+          GlobalTimerService().setCurrentPageItem(
+            _currentMalfunction?.id.toString(),
+            _currentMalfunction != null ? 'malfunction' : null,
+          );
         }
       });
     }
@@ -114,8 +130,10 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     _numberController.dispose();
     _timer?.cancel();
     _sandglassController.dispose();
-    // Arrêter le timer flottant si actif
-    GlobalTimerService().stopFloatingTimer();
+    // NE PAS arrêter le timer flottant - il doit persister !
+    // GlobalTimerService().stopFloatingTimer(); // Commenté pour préserver le timer
+    // Notifier qu'on quitte la page
+    GlobalTimerService().setCurrentPageItem(null, null);
     super.dispose();
   }
 
@@ -131,6 +149,10 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       _hardSuccess = prefs.getInt('malfunction_tech_hard_success') ?? 0;
       _hardTotal = prefs.getInt('malfunction_tech_hard_total') ?? 0;
       
+      _easyAbandoned = prefs.getInt('malfunction_tech_easy_abandoned') ?? 0;
+      _mediumAbandoned = prefs.getInt('malfunction_tech_medium_abandoned') ?? 0;
+      _hardAbandoned = prefs.getInt('malfunction_tech_hard_abandoned') ?? 0;
+      
       _chifoumiWins = prefs.getInt('malfunction_chifoumi_wins') ?? 0;
       _chifoumiDraws = prefs.getInt('malfunction_chifoumi_draws') ?? 0;
       _chifoumiLosses = prefs.getInt('malfunction_chifoumi_losses') ?? 0;
@@ -145,6 +167,10 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     await prefs.setInt('malfunction_tech_medium_total', _mediumTotal);
     await prefs.setInt('malfunction_tech_hard_success', _hardSuccess);
     await prefs.setInt('malfunction_tech_hard_total', _hardTotal);
+    
+    await prefs.setInt('malfunction_tech_easy_abandoned', _easyAbandoned);
+    await prefs.setInt('malfunction_tech_medium_abandoned', _mediumAbandoned);
+    await prefs.setInt('malfunction_tech_hard_abandoned', _hardAbandoned);
     
     await prefs.setInt('malfunction_chifoumi_wins', _chifoumiWins);
     await prefs.setInt('malfunction_chifoumi_draws', _chifoumiDraws);
@@ -222,29 +248,56 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
 
 // ========== Méthodes de navigation et tirage des pannes ==========
 
-  void _drawRandomMalfunction() {
+  Future<void> _drawRandomMalfunction() async {
+    // Vérifier s'il faut arrêter le timer en cours
+    bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "tirage au sort aléatoire");
+    if (!canContinue || !mounted) return;
+    
     setState(() {
       _currentMalfunction = MalfunctionService.drawRandomMalfunction();
       _showSolution = false;
       _hasEvaluated = false;
       _showChifoumi = false;
       _chifoumiGame = null;
+      _timeElapsed = null; // Réinitialiser le temps écoulé pour le nouveau défi
     });
     _resetTimer();
+    
+    // S'assurer que le service de timer est prêt pour un nouveau timer
+    GlobalTimerService().updateContext(context);
+    
     // Lancer le timer flottant en mode "pas encore démarré"
     _showReadyTimer();
   }
   
   void _showReadyTimer({Duration duration = const Duration(minutes: 30)}) {
+    // Message pour confirmer la création d'un nouveau timer après arrêt
+    if (!GlobalTimerService().isTimerActive) {
+      print('Création d\'un nouveau timer pour la panne #${_currentMalfunction?.id}');
+    }
+    
     GlobalTimerService().startReadyTimer(
       duration: duration,
       onFinish: () {
         _finishTimer();
       },
+      associatedItemId: _currentMalfunction?.id.toString(),
+      associatedItemType: 'malfunction',
+      associatedScreenRoute: '/malfunction-technician', // Route vers cet écran
+    );
+    
+    // Notifier le service de la panne actuellement affichée
+    GlobalTimerService().setCurrentPageItem(
+      _currentMalfunction?.id.toString(),
+      'malfunction',
     );
   }
 
-  void _showChifoumiInterface() {
+  Future<void> _showChifoumiInterface() async {
+    // Vérifier s'il faut arrêter le timer en cours
+    bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "mode défi Chifoumi");
+    if (!canContinue || !mounted) return;
+    
     setState(() {
       _showChifoumi = true;
       _showSolution = false;
@@ -330,23 +383,36 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       _showSolution = false;
       _chifoumiGame = null;
       _hasEvaluated = false;
+      _timeElapsed = null; // Réinitialiser le temps écoulé pour le nouveau défi
     });
     
     _saveStatistics();
     _resetTimer();
+    
+    // S'assurer que le service de timer est prêt pour un nouveau timer
+    GlobalTimerService().updateContext(context);
+    
     // Lancer le timer flottant en mode "pas encore démarré"
     _showReadyTimer();
   }
 
-  void _selectMalfunctionById(String idString) {
+  Future<void> _selectMalfunctionById(String idString, {bool isFromTimerNavigation = false}) async {
+    // Vérifier s'il faut arrêter le timer en cours (SAUF si c'est une navigation depuis le timer)
+    if (!isFromTimerNavigation) {
+      bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "sélection par numéro");
+      if (!canContinue || !mounted) return;
+    }
+    
     final id = int.tryParse(idString);
     if (id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez entrer un numéro valide'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Veuillez entrer un numéro valide'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
     
@@ -360,12 +426,14 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     );
     
     if (malfunction.id != id) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Panne #$id introuvable'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Panne #$id introuvable'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
     
@@ -375,23 +443,46 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       _hasEvaluated = false;
       _showChifoumi = false;
       _chifoumiGame = null;
+      _timeElapsed = null; // Réinitialiser le temps écoulé pour le nouveau défi
     });
     _numberController.clear();
-    _resetTimer();
-    // Lancer le timer flottant en mode "pas encore démarré"
-    _showReadyTimer();
+    
+    // Si c'est une navigation depuis le timer, ne pas réinitialiser le timer
+    if (!isFromTimerNavigation) {
+      _resetTimer();
+      
+      // S'assurer que le service de timer est prêt pour un nouveau timer
+      GlobalTimerService().updateContext(context);
+      
+      // Lancer le timer flottant en mode "pas encore démarré"
+      _showReadyTimer();
+    } else {
+      // Juste mettre à jour l'item courant pour le service de timer
+      GlobalTimerService().setCurrentPageItem(
+        _currentMalfunction?.id.toString(),
+        'malfunction',
+      );
+    }
   }
   
-  void _selectMalfunctionByDifficulty(MalfunctionDifficulty difficulty) {
+  Future<void> _selectMalfunctionByDifficulty(MalfunctionDifficulty difficulty) async {
+    // Vérifier s'il faut arrêter le timer en cours
+    String difficultyName = difficulty == MalfunctionDifficulty.easy ? "facile" : 
+                           difficulty == MalfunctionDifficulty.medium ? "moyen" : "difficile";
+    bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "tirage au sort $difficultyName");
+    if (!canContinue || !mounted) return;
+    
     final malfunctions = MalfunctionService.getMalfunctionsByDifficulty(difficulty);
     
     if (malfunctions.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aucune panne disponible pour ce niveau'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aucune panne disponible pour ce niveau'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
       return;
     }
     
@@ -403,20 +494,32 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       _hasEvaluated = false;
       _showChifoumi = false;
       _chifoumiGame = null;
+      _timeElapsed = null; // Réinitialiser le temps écoulé pour le nouveau défi
     });
+    
+    // S'assurer que le service de timer est prêt pour un nouveau timer
+    GlobalTimerService().updateContext(context);
+    
     _showReadyTimer();
   }
 
-  void _selectMalfunctionByCategory(MalfunctionCategory category) {
+  Future<void> _selectMalfunctionByCategory(MalfunctionCategory category) async {
+    // Vérifier s'il faut arrêter le timer en cours
+    String categoryName = category.toString().split('.').last;
+    bool canContinue = await GlobalTimerService().handleNewDrawRequest(context, "tirage au sort par catégorie $categoryName");
+    if (!canContinue || !mounted) return;
+    
     final malfunctions = MalfunctionService.getMalfunctionsByCategory(category);
     
     if (malfunctions.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aucune panne disponible pour cette catégorie'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aucune panne disponible pour cette catégorie'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
       return;
     }
     
@@ -428,7 +531,12 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
       _hasEvaluated = false;
       _showChifoumi = false;
       _chifoumiGame = null;
+      _timeElapsed = null; // Réinitialiser le temps écoulé pour le nouveau défi
     });
+    
+    // S'assurer que le service de timer est prêt pour un nouveau timer
+    GlobalTimerService().updateContext(context);
+    
     _showReadyTimer();
   }
 
@@ -459,67 +567,35 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
 
 // ========== Méthodes Timer ==========
 
-  void _startTimer() {
-    // Utiliser le timer flottant global au lieu du timer intégré
-    GlobalTimerService().startFloatingTimer(
-      duration: const Duration(minutes: 30),
-      onFinish: () {
-        // Actions à effectuer quand le timer se termine
-        _finishTimer();
-      },
-    );
-    
-    // Mettre à jour l'état local pour cacher le timer intégré
-    setState(() {
-      _isTimerRunning = true;
-      _isTimerPaused = false;
-      _remainingTime = const Duration(minutes: 30);
-    });
-  }
-
-  void _pauseTimer() {
-    _timer?.cancel();
-    setState(() {
-      _isTimerRunning = false;
-      _isTimerPaused = true;
-    });
-  }
-
-  void _resumeTimer() {
-    setState(() {
-      _isTimerRunning = true;
-      _isTimerPaused = false;
-    });
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingTime.inSeconds <= 0) {
-        _finishTimer();
-        return;
-      }
-
-      setState(() {
-        _remainingTime = Duration(seconds: _remainingTime.inSeconds - 1);
-      });
-    });
-  }
-
   void _resetTimer() {
     _timer?.cancel();
     setState(() {
       _remainingTime = const Duration(minutes: 30);
-      _isTimerRunning = false;
-      _isTimerPaused = false;
     });
   }
 
   void _finishTimer() {
     _timer?.cancel();
     setState(() {
-      _isTimerRunning = false;
-      _isTimerPaused = false;
       _remainingTime = Duration.zero;
       _showSolution = true;
     });
+  }
+
+  // Arrêter le timer et enregistrer le temps écoulé (pour correction/abandon)
+  void _stopTimerAndRecordTime() {
+    final timerService = GlobalTimerService();
+    if (timerService.isTimerActive) {
+      // Calculer le temps écoulé (temps initial - temps restant)
+      Duration initialDuration = const Duration(minutes: 30); // Durée initiale standard
+      Duration remaining = timerService.currentRemainingTime;
+      _timeElapsed = initialDuration - remaining;
+      
+      // Arrêter complètement le timer
+      timerService.stopAndResetTimer();
+      
+      print('Timer arrêté - Temps écoulé: ${_timeElapsed?.inMinutes ?? 0}:${((_timeElapsed?.inSeconds ?? 0) % 60).toString().padLeft(2, '0')}');
+    }
   }
 
 // ========== Méthodes Organigrammes ==========
@@ -745,7 +821,11 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
               _showChifoumi = false;
               _chifoumiGame = null;
             });
+            // Notifier qu'on n'a plus de panne affichée
+            GlobalTimerService().setCurrentPageItem(null, null);
           } else {
+            // Quand on retourne à l'accueil, ne pas arrêter le timer s'il est actif
+            // Le timer doit persister pour permettre le retour via double-clic
             Navigator.of(context).pop();
           }
         },
@@ -997,13 +1077,13 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       ),
-                      onSubmitted: (value) => _selectMalfunctionById(value),
+                      onSubmitted: (value) async => await _selectMalfunctionById(value, isFromTimerNavigation: false),
                     ),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
-                    onPressed: () {
-                      _selectMalfunctionById(_numberController.text);
+                    onPressed: () async {
+                      await _selectMalfunctionById(_numberController.text, isFromTimerNavigation: false);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade700,
@@ -1255,7 +1335,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   Widget _buildDifficultyButton(String label, MalfunctionDifficulty difficulty, Color color, IconData icon) {
     final count = MalfunctionService.getMalfunctionsByDifficulty(difficulty).length;
     return ElevatedButton(
-      onPressed: () => _selectMalfunctionByDifficulty(difficulty),
+      onPressed: () async => await _selectMalfunctionByDifficulty(difficulty),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
@@ -1291,7 +1371,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
   Widget _buildCategoryButton(String label, MalfunctionCategory category, Color color, IconData icon) {
     final count = MalfunctionService.getMalfunctionsByCategory(category).length;
     return ElevatedButton(
-      onPressed: () => _selectMalfunctionByCategory(category),
+      onPressed: () async => await _selectMalfunctionByCategory(category),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
@@ -1795,19 +1875,63 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '#${_currentMalfunction!.id} - Panne à Diagnostiquer',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  // Ligne titre + difficulté
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '#${_currentMalfunction!.id} - Panne à Diagnostiquer',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _getDifficultyColor(_currentMalfunction!.difficulty),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(3, (index) {
+                                int filledStars = _currentMalfunction!.difficulty == MalfunctionDifficulty.easy ? 1
+                                    : _currentMalfunction!.difficulty == MalfunctionDifficulty.medium ? 2 : 3;
+                                return Icon(
+                                  index < filledStars ? Icons.star : Icons.star_border,
+                                  color: Colors.white,
+                                  size: 16,
+                                );
+                              }),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _currentMalfunction!.difficultyLabel,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   
                   const SizedBox(height: 12),
                   
-                  // Ligne de badges
+                  // Ligne de badges + bouton diagonal
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Badges à gauche
                       Expanded(
                         child: Wrap(
                           spacing: 8,
@@ -1868,41 +1992,10 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                         ),
                       ),
                       
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
                       
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: _getDifficultyColor(_currentMalfunction!.difficulty),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: List.generate(3, (index) {
-                                int filledStars = _currentMalfunction!.difficulty == MalfunctionDifficulty.easy ? 1
-                                    : _currentMalfunction!.difficulty == MalfunctionDifficulty.medium ? 2 : 3;
-                                return Icon(
-                                  index < filledStars ? Icons.star : Icons.star_border,
-                                  color: Colors.white,
-                                  size: 16,
-                                );
-                              }),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _currentMalfunction!.difficultyLabel,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Bouton diagonal à droite
+                      _buildDiagonalSolutionButton(),
                     ],
                   ),
                   
@@ -2126,28 +2219,6 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
           ),
         ),
 
-        const SizedBox(height: 24),
-
-        Center(
-          child: ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                _showSolution = true;
-              });
-            },
-            icon: const Icon(Icons.help_outline, size: 20),
-            label: const Text(
-              'Voir la Solution',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00B0FF),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-            ),
-          ),
-        ),
-
         const SizedBox(height: 32),
       ],
     );
@@ -2157,12 +2228,32 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     if (_currentMalfunction == null) return const SizedBox();
     
     return Card(
-      color: Colors.green.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Colors.green,
+          width: 4,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.green.shade50,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Row(
               children: [
                 const Icon(Icons.check_circle, color: Colors.green, size: 32),
@@ -2176,11 +2267,39 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                     ),
                   ),
                 ),
+                // Affichage du temps écoulé si disponible
+                if (_timeElapsed != null) ...[
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue.shade300),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.timer, color: Colors.blue.shade700, size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${_timeElapsed!.inMinutes}:${(_timeElapsed!.inSeconds % 60).toString().padLeft(2, '0')}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade700,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
             const Divider(height: 30),
             
             Container(
+              width: double.infinity, // Prend toute la largeur
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -2204,6 +2323,34 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _getCategoryIcon(_currentMalfunction!.category),
+                          color: Colors.blue.shade700,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _currentMalfunction!.categoryLabel,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -2446,8 +2593,387 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
           ],
         ),
       ),
+    ));
+  }
+
+
+  Widget _buildDiagonalSolutionButton() {
+    return Container(
+      height: 36, // Hauteur alignée avec les badges
+      width: 140, // Largeur réduite
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          // Ombre principale pour l'effet 3D
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+          // Ombre secondaire pour plus de profondeur
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+          // Highlight subtil en haut
+          BoxShadow(
+            color: Colors.white.withOpacity(0.2),
+            blurRadius: 2,
+            offset: const Offset(0, -1),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            // Zone gauche - Correction (vert)
+            Expanded(
+              child: _buildButtonSide(
+                text: 'Correction',
+                color: Colors.green.shade600,
+                icon: Icons.lightbulb_outline,
+                isLeft: true,
+                onTap: () {
+                  setState(() {
+                    // Arrêter le timer et enregistrer le temps
+                    _stopTimerAndRecordTime();
+                    _showSolution = true;
+                  });
+                },
+              ),
+            ),
+            // Séparateur vertical avec effet 3D
+            Container(
+              width: 2,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.3),
+                    Colors.white.withOpacity(0.1),
+                    Colors.black.withOpacity(0.3),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+            // Zone droite - Abandon (rouge)
+            Expanded(
+              child: _buildButtonSide(
+                text: 'Abandon',
+                color: Colors.red.shade600,
+                icon: Icons.close,
+                isLeft: false,
+                onTap: () {
+                  // Arrêter le timer et enregistrer le temps avant abandon
+                  _stopTimerAndRecordTime();
+                  _showAbandonConfirmation();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
+  Widget _buildButtonSide({
+    required String text,
+    required Color color,
+    required IconData icon,
+    required bool isLeft,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.only(
+          topLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+          bottomLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+          topRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+          bottomRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+        ),
+        splashColor: Colors.white.withOpacity(0.4),
+        highlightColor: Colors.white.withOpacity(0.2),
+        onHover: (isHovering) {
+          // L'état hover sera géré par MouseRegion dans le widget ci-dessous
+        },
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Builder(
+            builder: (context) {
+              bool isHovering = false;
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return MouseRegion(
+                    onEnter: (_) => setState(() => isHovering = true),
+                    onExit: (_) => setState(() => isHovering = false),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            color.withOpacity(isHovering ? 0.7 : 0.9),
+                            color.withOpacity(isHovering ? 0.8 : 1.0),
+                            color.withOpacity(isHovering ? 0.6 : 0.8),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+                          bottomLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+                          topRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+                          bottomRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+                        ),
+                        border: Border(
+                          top: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+                          left: isLeft ? BorderSide(color: Colors.white.withOpacity(0.3), width: 1) : BorderSide.none,
+                          right: !isLeft ? BorderSide(color: Colors.white.withOpacity(0.3), width: 1) : BorderSide.none,
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Icône en arrière-plan - toujours visible mais plus ou moins opaque
+                          Positioned.fill(
+                            child: Center(
+                              child: Icon(
+                                icon,
+                                size: 28,
+                                color: Colors.white.withOpacity(isHovering ? 0.3 : 0.6),
+                              ),
+                            ),
+                          ),
+                          // Texte au premier plan - visible seulement au survol
+                          if (isHovering)
+                            Center(
+                              child: Text(
+                                text,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      offset: const Offset(0, 1),
+                                      blurRadius: 3,
+                                    ),
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 6,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAbandonConfirmation() {
+    if (_currentMalfunction == null) return;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orange.shade700,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Abandonner la panne',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity, // Prend toute la largeur
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _getCategoryIcon(_currentMalfunction!.category),
+                          color: Colors.red.shade800,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'Panne #${_currentMalfunction!.id} - ${_currentMalfunction!.categoryLabel}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red.shade800,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Difficulté : ${_currentMalfunction!.difficultyLabel}',
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Êtes-vous sûr de vouloir abandonner cette panne ?',
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '• Cette action sera comptabilisée dans vos statistiques\n'
+                '• Vous pourrez reprendre cette panne plus tard\n'
+                '• Le timer sera arrêté',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Continuer',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _abandonMalfunction();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade600,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+              child: const Text(
+                'Abandonner',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _abandonMalfunction() {
+    if (_currentMalfunction == null) return;
+
+    // Enregistrer l'abandon dans les statistiques
+    switch (_currentMalfunction!.difficulty) {
+      case MalfunctionDifficulty.easy:
+        _easyAbandoned++;
+        break;
+      case MalfunctionDifficulty.medium:
+        _mediumAbandoned++;
+        break;
+      case MalfunctionDifficulty.hard:
+        _hardAbandoned++;
+        break;
+    }
+
+    // Sauvegarder les statistiques
+    _saveStatistics();
+
+    // Arrêter le timer global
+    GlobalTimerService().stopFloatingTimer();
+
+    // Retour à l'écran d'accueil
+    setState(() {
+      _currentMalfunction = null;
+      _showSolution = false;
+      _hasEvaluated = false;
+      _showChifoumi = false;
+      _chifoumiGame = null;
+    });
+
+    // Notifier qu'on n'a plus de panne affichée
+    GlobalTimerService().setCurrentPageItem(null, null);
+
+    // Message de confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Panne abandonnée et enregistrée dans les statistiques',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.orange.shade600,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
 
 } // Fin de la classe _MalfunctionTechnicianScreenState
