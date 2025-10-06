@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     runs-on: windows-latest
@@ -27,7 +30,7 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.35.5'  # ← Change cette ligne (était 3.24.0)
+        flutter-version: '3.35.5'
         channel: 'stable'
     
     # 4. Installe les dépendances
@@ -41,11 +44,7 @@ jobs:
     # 6. Copie les DLL nécessaires dans le build
     - name: Copy required DLLs
       run: |
-        # Crée un dossier pour les DLLs si nécessaire
         New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release/dll"
-        
-        # Copie les DLLs depuis ton dossier dll/ (tu devras créer ce dossier)
-        # Ajuste le chemin selon où tu stockes tes DLLs
         if (Test-Path "dll/*.dll") {
           Copy-Item -Path "dll/*.dll" -Destination "build/windows/x64/runner/Release/" -Force
           echo "DLLs copiées avec succès"
