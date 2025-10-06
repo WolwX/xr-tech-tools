@@ -1,0 +1,109 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    
+    steps:
+    # 1. Récupère ton code
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # 2. Récupère le numéro de version depuis le tag
+    - name: Get version from tag
+      id: get_version
+      run: |
+        $VERSION = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
+        echo "Version détectée: $VERSION"
+      shell: pwsh
+    
+    # 3. Installe Flutter
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+    
+    # 4. Installe les dépendances
+    - name: Install dependencies
+      run: flutter pub get
+    
+    # 5. Build Windows
+    - name: Build Windows Release
+      run: flutter build windows --release
+    
+    # 6. Copie les DLL nécessaires dans le build
+    - name: Copy required DLLs
+      run: |
+        # Crée un dossier pour les DLLs si nécessaire
+        New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release/dll"
+        
+        # Copie les DLLs depuis ton dossier dll/ (tu devras créer ce dossier)
+        # Ajuste le chemin selon où tu stockes tes DLLs
+        if (Test-Path "dll/*.dll") {
+          Copy-Item -Path "dll/*.dll" -Destination "build/windows/x64/runner/Release/" -Force
+          echo "DLLs copiées avec succès"
+        } else {
+          echo "⚠️ Aucune DLL trouvée dans le dossier dll/"
+        }
+      shell: pwsh
+    
+    # 7. Compresse le build Windows avec version dans le nom
+    - name: Archive Windows Build
+      run: |
+        $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+        cd build/windows/x64/runner/Release
+        Compress-Archive -Path * -DestinationPath "../../../../../XRTechTools-Windows-v$VERSION.zip"
+        echo "Archive créée: XRTechTools-Windows-v$VERSION.zip"
+      shell: pwsh
+    
+    # 8. Build Android APK
+    - name: Build Android APK
+      run: flutter build apk --release
+    
+    # 9. Renomme l'APK avec la version
+    - name: Rename APK with version
+      run: |
+        $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+        Copy-Item build/app/outputs/flutter-apk/app-release.apk -Destination "XRTechTools-v$VERSION.apk"
+        echo "APK créé: XRTechTools-v$VERSION.apk"
+      shell: pwsh
+    
+    # 10. Crée la Release GitHub
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.zip
+          XRTechTools-v${{ steps.get_version.outputs.VERSION }}.apk
+        body: |
+          ## 📦 XR Tech Tools v${{ steps.get_version.outputs.VERSION }}
+          
+          ### 📥 Téléchargements
+          - **Windows** : `XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.zip`
+          - **Android** : `XRTechTools-v${{ steps.get_version.outputs.VERSION }}.apk`
+          
+          ### ⚙️ Installation Windows
+          1. Extraire le fichier ZIP
+          2. Lancer `xr_tech_tools.exe`
+          3. Les DLLs nécessaires sont incluses dans le package
+          
+          ### 📱 Installation Android
+          1. Activer "Sources inconnues" dans les paramètres
+          2. Installer l'APK
+          
+          ### 📝 Changements
+          Voir le [CHANGELOG.md](https://github.com/WolwX/xr-tech-tools/blob/main/CHANGELOG.md)
+          
+          ### 🔧 DLLs incluses
+          Toutes les dépendances nécessaires sont incluses dans le package Windows.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
