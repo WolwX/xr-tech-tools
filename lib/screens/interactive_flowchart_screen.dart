@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/flowchart_models.dart';
 import '../services/global_timer_service.dart';
+import '../widgets/app_footer.dart';
+import 'flowchart_image_viewer.dart';
 
 class InteractiveFlowchartScreen extends StatefulWidget {
   final FlowchartInfo flowchartInfo;
@@ -116,8 +118,10 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
             icon: const Icon(Icons.restart_alt),
             label: const Text('Recommencer'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: widget.flowchartInfo.color,
+              backgroundColor: Colors.orange.shade600,
               foregroundColor: Colors.white,
+              elevation: 4,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
         ],
@@ -138,38 +142,146 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.flowchartInfo.title),
+        titleSpacing: 0, // Espacement à 0 pour coller l'icône logigramme au bouton retour
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                Icons.memory,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 8), // Augmenté de 2 à 8 pour espacer l'icône du titre
+            Expanded(
+              child: Text(
+                widget.flowchartInfo.title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
         backgroundColor: widget.flowchartInfo.color,
         actions: [
           IconButton(
-            icon: const Icon(Icons.restart_alt),
+            iconSize: 36,
+            padding: EdgeInsets.zero, // Suppression complète du padding
+            icon: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade600,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.restart_alt,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
             tooltip: 'Recommencer',
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('Recommencer ?'),
-                  content: const Text('Voulez-vous recommencer l\'organigramme depuis le début ?'),
+                  content: const Text('Voulez-vous recommencer le logigramme depuis le début ?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text('Annuler'),
                     ),
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: () {
                         Navigator.pop(context);
                         _restart();
                       },
-                      child: const Text('Recommencer'),
+                      icon: const Icon(Icons.restart_alt),
+                      label: const Text('Recommencer'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange.shade600,
+                        foregroundColor: Colors.white,
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
                     ),
                   ],
                 ),
               );
             },
           ),
+          if (widget.flowchartInfo.imagePath != null)
+            IconButton(
+              iconSize: 36,
+              padding: EdgeInsets.zero, // Suppression complète du padding
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade400, // Changé vers un jaune encore plus clair
+                  borderRadius: BorderRadius.circular(5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.image,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+              tooltip: 'Voir le logigramme',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FlowchartImageViewer(
+                      title: widget.flowchartInfo.title,
+                      imagePath: widget.flowchartInfo.imagePath!,
+                    ),
+                  ),
+                );
+              },
+            ),
           IconButton(
-            icon: const Icon(Icons.close),
-            color: Colors.red.shade400,
+            iconSize: 36,
+            padding: EdgeInsets.zero, // Suppression complète du padding
+            icon: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.red.shade600,
+                borderRadius: BorderRadius.circular(5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
             tooltip: 'Fermer',
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -189,35 +301,11 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
               
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8), // Réduit le padding bottom de 16 à 8
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Badge étape actuelle
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: widget.flowchartInfo.color.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: widget.flowchartInfo.color.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Text(
-                            'Étape ${_history.length} / ${widget.flowchartInfo.steps.length}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: widget.flowchartInfo.color,
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 20),
-                      
-                      // Carte de l'étape actuelle
+                      // Carte de l'étape actuelle (espace supprimé complètement)
                       Card(
                         elevation: 4,
                         shape: RoundedRectangleBorder(
@@ -231,87 +319,193 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
                           padding: const EdgeInsets.all(24),
                           child: Column(
                             children: [
-                              if (_currentStep.icon != null)
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: widget.flowchartInfo.color.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    _currentStep.icon,
-                                    size: 48,
-                                    color: widget.flowchartInfo.color,
-                                  ),
-                                ),
-                              const SizedBox(height: 20),
-                              Text(
-                                _currentStep.question,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1A237E),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              if (_currentStep.description != null) ...[
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.blue.shade200),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.info_outline, 
-                                        size: 20, 
-                                        color: Colors.blue.shade700
+                              // Icône et titre côte à côte
+                              Row(
+                                children: [
+                                  if (_currentStep.icon != null)
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: widget.flowchartInfo.color.withOpacity(0.1),
+                                        shape: BoxShape.circle,
                                       ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          _currentStep.description!,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.blue.shade900,
-                                            height: 1.4,
-                                          ),
+                                      child: Icon(
+                                        _currentStep.icon,
+                                        size: 40, // Légèrement réduit de 48 à 40
+                                        color: widget.flowchartInfo.color,
+                                      ),
+                                    ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Text(
+                                      _currentStep.question,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1A237E),
+                                      ),
+                                      textAlign: TextAlign.left, // Aligné à gauche
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              
+                              // Encadré informatif simplifié
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: widget.flowchartInfo.color.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: widget.flowchartInfo.color.withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      color: widget.flowchartInfo.color,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        'Vous pouvez suivre les étapes tel le logigramme afin de sélectionner l\'élément qui correspond le plus à votre vérification.',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.grey.shade600,
+                                          height: 1.3,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ],
                           ),
                         ),
                       ),
                       
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
                       
-                      // Options de réponse
-                      Text(
-                        'Sélectionnez votre situation :',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade700,
+                      // Badge étape actuelle amélioré avec progression
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              widget.flowchartInfo.color.withOpacity(0.1),
+                              widget.flowchartInfo.color.withOpacity(0.05),
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: widget.flowchartInfo.color.withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: widget.flowchartInfo.color.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            // Titre et numéro d'étape
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: widget.flowchartInfo.color,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '${_history.length}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Étape ${_history.length} sur ${widget.flowchartInfo.steps.length}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: widget.flowchartInfo.color,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Progression du diagnostic',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  '${((_history.length / widget.flowchartInfo.steps.length) * 100).round()}%',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: widget.flowchartInfo.color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            // Barre de progression
+                            Container(
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: _history.length / widget.flowchartInfo.steps.length,
+                                  backgroundColor: Colors.transparent,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    widget.flowchartInfo.color,
+                                  ),
+                                  minHeight: 8,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       
                       ...List.generate(
                         _currentStep.options.length,
                         (index) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.only(bottom: 8), // Réduit de 12 à 8
                           child: _buildOptionButton(_currentStep.options[index]),
                         ),
                       ),
                       
-                      const SizedBox(height: 24), // Espace pour les organigrammes
+                      const SizedBox(height: 80), // Espace pour éviter le masquage par les boutons flottants
                     ],
                   ),
                 ),
@@ -320,7 +514,7 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
               // Barre d'actions en bas
               if (_history.length > 1)
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 20), // Augmenté le padding bottom pour l'espace timer
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
@@ -333,14 +527,20 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
                   ),
                   child: SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton.icon(
+                    child: ElevatedButton.icon( // Changé de OutlinedButton à ElevatedButton pour plus de visibilité
                       onPressed: _goBack,
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text('Étape précédente'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: BorderSide(color: widget.flowchartInfo.color),
+                      icon: const Icon(Icons.arrow_back, size: 20),
+                      label: const Text('Étape précédente', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: widget.flowchartInfo.color.withOpacity(0.1),
                         foregroundColor: widget.flowchartInfo.color,
+                        elevation: 2,
+                        shadowColor: widget.flowchartInfo.color.withOpacity(0.3),
+                        padding: const EdgeInsets.symmetric(vertical: 16), // Augmenté le padding vertical
+                        side: BorderSide(color: widget.flowchartInfo.color, width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12), // Coins arrondis
+                        ),
                       ),
                     ),
                   ),
@@ -349,6 +549,7 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
           ),
         ],
       ),
+      bottomNavigationBar: const AppFooter(),
     );
   }
   
@@ -356,53 +557,106 @@ class _InteractiveFlowchartScreenState extends State<InteractiveFlowchartScreen>
     final isCheckmark = option.label.startsWith('✓');
     final isCross = option.label.startsWith('✗');
     
-    Color bgColor, borderColor, textColor;
+    Color bgColor, borderColor, textColor, shadowColor;
     IconData? leadingIcon;
     
     if (isCheckmark) {
-      bgColor = Colors.green.shade50;
-      borderColor = Colors.green.shade300;
-      textColor = Colors.green.shade900;
-      leadingIcon = Icons.check_circle_outline;
+      bgColor = Colors.green.shade100;
+      borderColor = Colors.green.shade400;
+      textColor = Colors.green.shade800;
+      shadowColor = Colors.green.shade200;
+      leadingIcon = Icons.check_circle;
     } else if (isCross) {
-      bgColor = Colors.red.shade50;
-      borderColor = Colors.red.shade300;
-      textColor = Colors.red.shade900;
-      leadingIcon = Icons.cancel_outlined;
+      bgColor = Colors.red.shade100;
+      borderColor = Colors.red.shade400;
+      textColor = Colors.red.shade800;
+      shadowColor = Colors.red.shade200;
+      leadingIcon = Icons.cancel;
     } else {
-      bgColor = Colors.blue.shade50;
-      borderColor = Colors.blue.shade300;
-      textColor = Colors.blue.shade900;
-      leadingIcon = Icons.arrow_forward;
+      bgColor = Colors.blue.shade100;
+      borderColor = Colors.blue.shade400;
+      textColor = Colors.blue.shade800;
+      shadowColor = Colors.blue.shade200;
+      leadingIcon = Icons.arrow_forward_ios;
     }
     
-    return InkWell(
-      onTap: () => _selectOption(option),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor, width: 2),
-        ),
-        child: Row(
-          children: [
-            Icon(leadingIcon, color: textColor, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                option.label,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: textColor,
-                  height: 1.4,
-                ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        elevation: 4,
+        shadowColor: shadowColor,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: () => _selectOption(option),
+          borderRadius: BorderRadius.circular(16),
+          splashColor: borderColor.withOpacity(0.3),
+          highlightColor: borderColor.withOpacity(0.1),
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor, width: 2.5),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  bgColor,
+                  bgColor.withOpacity(0.8),
+                ],
               ),
             ),
-            Icon(Icons.chevron_right, color: textColor),
-          ],
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: borderColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(leadingIcon, color: textColor, size: 22),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        option.label,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                          height: 1.2,
+                        ),
+                      ),
+                      if (option.subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          option.subtitle!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: textColor.withOpacity(0.8),
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: textColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.chevron_right, color: textColor, size: 20),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

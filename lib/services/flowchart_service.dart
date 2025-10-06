@@ -3,12 +3,12 @@ import '../models/flowchart_models.dart';
 import 'flowchart_data.dart';
 
 class FlowchartService {
-  // Récupérer tous les organigrammes disponibles
+  // Récupérer tous les logigrammes disponibles
   static List<FlowchartInfo> getAllFlowcharts() {
     return FlowchartData.allFlowcharts;
   }
 
-  // Obtenir tous les organigrammes d'une catégorie
+  // Obtenir tous les logigrammes d'une catégorie
   static List<FlowchartInfo> getFlowchartsByCategory(MalfunctionCategory category) {
     final flowchartCategory = FlowchartInfo.fromMalfunctionCategory(category);
     return FlowchartData.allFlowcharts
@@ -16,7 +16,7 @@ class FlowchartService {
         .toList();
   }
 
-  // Détection automatique de l'organigramme le plus pertinent pour une panne
+  // Détection automatique du logigramme le plus pertinent pour une panne
   static FlowchartInfo? detectBestFlowchart(Malfunction malfunction) {
     final availableFlowcharts = getFlowchartsByCategory(malfunction.category);
     
@@ -49,12 +49,12 @@ class FlowchartService {
     return bestMatch ?? availableFlowcharts.first;
   }
 
-  // Vérifier si une catégorie a des organigrammes disponibles
+  // Vérifier si une catégorie a des logigrammes disponibles
   static bool hasCategoryFlowcharts(MalfunctionCategory category) {
     return getFlowchartsByCategory(category).isNotEmpty;
   }
 
-  // Obtenir un organigramme par son ID
+  // Obtenir un logigramme par son ID
   static FlowchartInfo? getFlowchartById(String id) {
     try {
       return FlowchartData.allFlowcharts.firstWhere((f) => f.id == id);
@@ -63,7 +63,7 @@ class FlowchartService {
     }
   }
 
-  // Obtenir les statistiques sur les organigrammes
+  // Obtenir les statistiques sur les logigrammes
   static Map<String, dynamic> getStats() {
     final total = FlowchartData.allFlowcharts.length;
     final byCategory = <String, int>{};

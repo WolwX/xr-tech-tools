@@ -1,12 +1,12 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.041025-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.061025-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
 
-XR Tech Tools est une application mobile et desktop développée en Flutter, conçue pour accompagner aussi bien les **apprenants en formation** que les **techniciens en exercice** dans leurs activités quotidiennes. L'application propose des outils pratiques, des scénarios d'entraînement, **des organigrammes de dépannage interactifs** et des ressources techniques adaptées aux référentiels RNCP.
+XR Tech Tools est une application mobile et desktop développée en Flutter, conçue pour accompagner aussi bien les **apprenants en formation** que les **techniciens en exercice** dans leurs activités quotidiennes. L'application propose des outils pratiques, des scénarios d'entraînement, **des logigrammes de dépannage interactifs** et des ressources techniques adaptées aux référentiels RNCP.
 
 ---
 
@@ -14,7 +14,7 @@ XR Tech Tools est une application mobile et desktop développée en Flutter, con
 
 ### Pour les Apprenants
 - S'entraîner sur des cas pratiques réels
-- **Développer leurs compétences techniques avec des organigrammes guidés**
+- **Développer leurs compétences techniques avec des logigrammes guidés**
 - Se préparer aux certifications professionnelles
 - Réviser les concepts clés
 
@@ -83,13 +83,13 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - Statistiques persistantes par difficulté
 - Mode Défi Chifoumi
 
-### 🗺️ Organigrammes Interactifs de Dépannage **[STABILISÉ v1.3.041025]**
+### 🗺️ Logigrammes Interactifs de Dépannage **[OPTIMISÉ v1.3.061025]**
 - **Navigation guidée étape par étape** pour diagnostiquer les pannes
-- **Détection automatique** de l'organigramme le plus pertinent
-- **Interface interactive** avec choix multiples
+- **4 logigrammes Hardware complets** disponibles
+- **Interface interactive** avec choix multiples et sous-titres explicatifs
 - **Barre de progression** et historique de navigation
-- **Retour arrière** possible à tout moment
-- **Timer flottant automatique** avec système de confirmation intelligent
+- **Retour arrière renforcé** - Bouton "Étape précédente" redesigné pour plus de visibilité
+- **Timer flottant optimisé** avec espacement de sécurité et système de confirmation intelligent
 - **Protection contre tirages accidentels** - Popup de confirmation pour nouveaux tirages
 - **Navigation fluide depuis timer** - Double-clic pour retour direct sans interruption
 - **Résultats contextuels** avec codes couleur :
@@ -97,11 +97,14 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
   - 🔴 Échec : Composant défectueux
   - 🔵 Info : Prochaines étapes suggérées
 - **Options visuellement distinctes** (✓ vert / ✗ rouge)
-- **Interface stabilisée** - Corrections bugs d'affichage et ergonomie optimisée
+- **Interface perfectionnée** avec icônes, mise en page Wrap pour affichage multi-ligne
+- **Système de visualisation d'images** intégré avec mode plein écran
 
-**Premier organigramme disponible** : "L'ordinateur ne s'allume pas" (Hardware)
-- 5 étapes de diagnostic guidées
-- Vérifications : électriques, carte mère, CMOS, périphériques
+**4 logigrammes Hardware disponibles** :
+1. **"L'ordinateur ne s'allume pas"** - Diagnostic complet alimentation/carte mère
+2. **"Pas d'affichage à l'écran"** - Résolution problèmes vidéo/écran
+3. **"L'ordinateur ne démarre pas"** - Diagnostic boot/démarrage système
+4. **"Arrêts/redémarrages inattendus"** - Analyse stabilité/température système
 
 ### ⏱️ Système de Timer Intelligent **[PERFECTIONNÉ v1.3.041025]**
 - **Apparition automatique** lors de la sélection de fiches de dépannage
@@ -114,7 +117,7 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - **Bouton reset** : Réinitialise sans fermer le timer
 - **Intégration complète** : Fonctionne dans tous les contextes avec logique contextuelle
 
-**Architecture extensible** : Prêt pour 13+ organigrammes supplémentaires couvrant toutes les catégories de pannes (Hardware, Software, BIOS/UEFI, Network, Printer, Peripheral).
+**Architecture extensible** : Prêt pour 10+ logigrammes supplémentaires couvrant toutes les catégories de pannes (Software, BIOS/UEFI, Network, Printer, Peripheral).
 
 ## 🚧 Outils en Développement
 
@@ -175,8 +178,8 @@ L'application utilise une architecture **décentralisée** pour la gestion des s
 
 ## 📝 Versions
 
-- **v1.3.031025** (03/10/2025) : Timer flottant automatique + Interface épurée organigrammes
-- **v1.3.011025** (01/10/2025) : Ajout des organigrammes interactifs de dépannage
+- **v1.3.031025** (03/10/2025) : Timer flottant automatique + Interface épurée logigrammes
+- **v1.3.011025** (01/10/2025) : Ajout des logigrammes interactifs de dépannage
 - **v1.3.300925** (30/09/2025) : Sélection avancée scénarios + statistiques décentralisées pannes
 - **v1.2.0** : Ajout Mode Créateur de pannes + 100 scénarios commerciaux
 - **v1.1.0** : Statistiques persistantes + Mode Défi Chifoumi

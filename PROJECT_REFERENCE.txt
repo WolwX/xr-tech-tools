@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.041025
+- Version actuelle : v1.3.061025
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -15,7 +15,7 @@ DOUBLE OBJECTIF
 ---------------
 Pour les Apprenants (IDI, ADRN, TIP) :
 - S'entraîner sur des cas pratiques réels
-- Développer leurs compétences techniques avec des organigrammes guidés
+- Développer leurs compétences techniques avec des logigrammes guidés
 - Se préparer aux certifications professionnelles
 - Réviser les concepts clés
 
@@ -111,47 +111,63 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    - Auto-évaluation (Réussi/À revoir)
    - Statistiques persistantes par difficulté
    - Mode Défi Chifoumi
-   - Accès aux organigrammes interactifs [NOUVEAU v1.3.011025]
+   - Accès aux logigrammes interactifs [NOUVEAU v1.3.011025]
 
-4. Organigrammes Interactifs [✅ STABILISÉ v1.3.041025]
+4. Logigrammes Interactifs [✅ OPTIMISÉ v1.3.061025]
    
-   Système de diagnostic guidé étape par étape :
+   Système de diagnostic guidé étape par étape avec 4 logigrammes Hardware complets :
+   
+   Logigrammes disponibles :
+   - "L'ordinateur ne s'allume pas" (Hardware - Diagnostic alimentation/carte mère)
+   - "Pas d'affichage à l'écran" (Hardware - Résolution problèmes vidéo/moniteur)
+   - "L'ordinateur ne démarre pas" (Hardware - Diagnostic boot/démarrage système)
+   - "Arrêts/redémarrages inattendus" (Hardware - Analyse stabilité/température)
    
    Fonctionnalités :
-   - Navigation guidée avec choix multiples
-   - Détection automatique de l'organigramme pertinent par mots-clés
-   - Barre de progression et historique (corrections bugs d'affichage v1.3.041025)
-   - Retour arrière possible à tout moment
-   - Interface optimisée avec suggestions intelligentes améliorées
+   - Navigation guidée avec choix multiples et sous-titres explicatifs
+   - Système de visualisation d'images intégré avec mode plein écran
+   - Interface multi-ligne avec layout Wrap pour affichage optimal des boutons
+   - Barre de progression et historique avec navigation retour renforcée
+   - Bouton "Étape précédente" redesigné (ElevatedButton avec style visuel amélioré)
+   - Espacement de sécurité optimisé (20px) entre bouton retour et timer
+   - Interface perfectionnée avec suggestions intelligentes améliorées
    - Résultats contextuels avec codes couleur :
      * Succès (vert) : Solution trouvée
      * Échec (rouge) : Composant défectueux
      * Info (bleu) : Prochaines étapes suggérées
    - Options visuellement distinctes (✓ vert / ✗ rouge)
-   - Intégration dans Mode Dépanneur (bouton visible si disponible)
-   - Ergonomie améliorée pour interfaces d'aide
+   - Intégration dans Mode Dépanneur avec boutons organisés sur plusieurs lignes
+   - Ergonomie optimisée pour interfaces d'aide avec icônes et descriptions standardisées
    
-   Organigramme disponible :
+   Logigrammes disponibles détaillés :
    - "L'ordinateur ne s'allume pas" (Hardware - Bleu #64B5F6)
-     * 5 étapes de diagnostic guidées
-     * Vérifications : électrique, carte mère, CMOS, périphériques, composants HS
+     * Diagnostic alimentation, carte mère, CMOS, périphériques
+   - "Pas d'affichage à l'écran" (Hardware - Orange #FFB74D)  
+     * Résolution problèmes vidéo, moniteur, connexions
+   - "L'ordinateur ne démarre pas" (Hardware - Vert #81C784)
+     * Diagnostic boot, démarrage système, ROM
+   - "Arrêts/redémarrages inattendus" (Hardware - Violet #9575CD)
+     * Analyse stabilité, température, alimentation
    
    Architecture technique :
-   - Modèles : FlowchartInfo, FlowchartStep, FlowchartOption
+   - Modèles : FlowchartInfo, FlowchartStep, FlowchartOption (étendu avec subtitle)
    - Énumérations : FlowchartCategory, ResultType
    - Service centralisé : FlowchartService
      * getAllFlowcharts()
      * getFlowchartsByCategory()
      * detectBestFlowchart()
      * hasCategoryFlowcharts()
-   - Données structurées : FlowchartData (extensible)
-   - Interface : InteractiveFlowchartScreen
+   - Données structurées : FlowchartData (4 logigrammes Hardware complets)
+   - Interface : InteractiveFlowchartScreen (optimisée v1.3.061025)
+   - Visualisateur : FlowchartImageViewer avec mode plein écran
    - Détection intelligente par mots-clés et catégorie
    
-   Organigrammes prévus (13+ à développer) :
-   - Hardware : 
-     * Démarre mais s'éteint/freeze (Violet #9575CD)
-     * Pas d'affichage (Orange #FFB74D)
+   Logigrammes prévus (10+ à développer) :
+   - Software : Problèmes OS, applications, drivers
+   - BIOS/UEFI : Configuration firmware, boot sequence  
+   - Network : Connectivité, configuration réseau
+   - Printer : Problèmes d'impression, drivers imprimante
+   - Peripheral : Souris, clavier, USB, périphériques
      * Ne boot pas (Vert #81C784)
    - Software (à définir)
    - BIOS/UEFI (à définir)
@@ -269,15 +285,15 @@ HISTORIQUE DES VERSIONS
 
 v1.3.011025 (01 Octobre 2025) :
 ✨ Nouveautés majeures :
-- 🗺️ SYSTÈME D'ORGANIGRAMMES INTERACTIFS
+- 🗺️ SYSTÈME DE LOGIGRAMMES INTERACTIFS
   * Navigation guidée étape par étape
-  * Détection automatique de l'organigramme pertinent
+  * Détection automatique du logigramme pertinent
   * Interface interactive avec choix multiples
   * Barre de progression et historique
   * Retour arrière possible
   * Résultats contextuels (Succès/Échec/Info)
 
-- 📊 Premier organigramme : "L'ordinateur ne s'allume pas"
+- 📊 Premier logigramme : "L'ordinateur ne s'allume pas"
   * 5 étapes de diagnostic guidées
   * Catégorie Hardware
 
@@ -286,10 +302,10 @@ v1.3.011025 (01 Octobre 2025) :
 - Service centralisé : FlowchartService
 - Données structurées : FlowchartData
 - Interface dédiée : InteractiveFlowchartScreen
-- Architecture extensible pour 13+ organigrammes
+- Architecture extensible pour 13+ logigrammes
 
 🎨 Intégration :
-- Bouton "Organigramme HARDWARE" dans Mode Dépanneur
+- Bouton "Logigramme HARDWARE" dans Mode Dépanneur
 - Visible uniquement si disponible pour la catégorie
 - Suggestion automatique ou sélection manuelle
 
@@ -328,14 +344,14 @@ v1.0.0 (Septembre 2025) :
 NOTES DE DÉVELOPPEMENT
 -----------------------
 
-Organigrammes - Bonnes pratiques :
-- Un organigramme = un parcours de diagnostic complet
+Logigrammes - Bonnes pratiques :
+- Un logigramme = un parcours de diagnostic complet
 - Étapes logiques et progressives
 - Options claires (✓ succès / ✗ problème)
 - Messages de résolution contextuels
 - Ajout facile dans flowchart_data.dart
 
-Structure d'un organigramme :
+Structure d'un logigramme :
 - id : identifiant unique (ex: 'hw_no_startup')
 - category : FlowchartCategory (hardware, software, etc.)
 - title : titre affiché
@@ -363,7 +379,7 @@ Architecture décentralisée :
 - Autonomie et maintenabilité
 
 Améliorations futures suggérées :
-- Développer les 13+ organigrammes restants
+- Développer les 13+ logigrammes restants
 - Compléter la Boîte à Outils (6 outils)
 - Historique des diagnostics effectués
 - Export/import statistiques
@@ -381,7 +397,7 @@ Pannes (malfunction.dart) :
 - id, name, description, symptoms, difficulty, category
 - creationSteps, clientAttitude, skillsWorked
 
-Organigrammes (flowchart_models.dart) :
+Logigrammes (flowchart_models.dart) :
 - FlowchartInfo : informations générales
 - FlowchartStep : étape de diagnostic
 - FlowchartOption : choix de réponse
@@ -405,12 +421,12 @@ Pour reprendre le projet avec Claude :
 
 Exemples de prompts :
 
-Pour ajouter un organigramme :
-"Voici le PROJECT_REFERENCE.txt. Je veux développer l'organigramme
+Pour ajouter un logigramme :
+"Voici le PROJECT_REFERENCE.txt. Je veux développer le logigramme
 'Pas d'affichage' pour les pannes hardware. Il doit avoir 6 étapes."
 
-Pour une nouvelle catégorie d'organigrammes :
-"Voici le PROJECT_REFERENCE.txt. Je veux créer des organigrammes
+Pour une nouvelle catégorie de logigrammes :
+"Voici le PROJECT_REFERENCE.txt. Je veux créer des logigrammes
 pour la catégorie Software (pannes logicielles)."
 
 Pour développer un outil :

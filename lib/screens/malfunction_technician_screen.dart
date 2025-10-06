@@ -540,7 +540,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     _showReadyTimer();
   }
 
-  // ========== PARTIE 3/5 : Méthodes Timer, Chifoumi et Organigrammes ==========
+  // ========== PARTIE 3/5 : Méthodes Timer, Chifoumi et Logigrammes ==========
 
   String _getChifoumiIcon(ChifoumiChoice choice) {
     switch (choice) {
@@ -598,7 +598,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     }
   }
 
-// ========== Méthodes Organigrammes ==========
+// ========== Méthodes Logigrammes ==========
 
   void _showFlowchartInBottomSheet(FlowchartInfo flowchart) {
     showModalBottomSheet(
@@ -620,11 +620,11 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
             children: [
               Icon(Icons.info_outline, color: Colors.orange.shade700),
               const SizedBox(width: 8),
-              const Text('Organigramme non disponible'),
+              const Text('Logigramme non disponible'),
             ],
           ),
           content: Text(
-            'Les organigrammes pour la catégorie "${_currentMalfunction!.categoryLabel}" '
+            'Les logigrammes pour la catégorie "${_currentMalfunction!.categoryLabel}" '
             'seront bientôt disponibles.\n\n'
             'Utilisez les procédures de diagnostic classiques en attendant.'
           ),
@@ -666,7 +666,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
           children: [
             Icon(Icons.lightbulb_outline, color: Colors.orange),
             SizedBox(width: 8),
-            Text('Organigramme suggéré'),
+            Text('Logigramme suggéré'),
           ],
         ),
         content: Column(
@@ -709,7 +709,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
             if (allFlowcharts.length > 1) ...[
               const SizedBox(height: 16),
               Text(
-                '${allFlowcharts.length - 1} autre(s) organigramme(s) disponible(s)',
+                '${allFlowcharts.length - 1} autre(s) logigramme(s) disponible(s)',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
@@ -755,7 +755,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Choisir un organigramme'),
+        title: const Text('Choisir un logigramme'),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
@@ -1511,7 +1511,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
 
 
   // Les widgets _buildChifoumiInterface, _buildMalfunctionSymptoms et _buildSolutionSheet 
-  // restent identiques à votre code actuel, sauf pour l'ajout du bouton organigramme
+  // restent identiques à votre code actuel, sauf pour l'ajout du bouton logigramme
   // dans _buildMalfunctionSymptoms() après la section CONSIGNES :
   
   // Ajouter dans _buildMalfunctionSymptoms(), après le Container des CONSIGNES :
@@ -1523,7 +1523,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
         child: ElevatedButton.icon(
           onPressed: _showFlowchartHelp,
           icon: const Icon(Icons.account_tree, size: 20),
-          label: Text('Organigramme ${_currentMalfunction!.categoryLabel}'),
+          label: Text('Logigramme ${_currentMalfunction!.categoryLabel}'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.purple.shade600,
             foregroundColor: Colors.white,
@@ -1536,7 +1536,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
 
 // Note : Les méthodes _buildChifoumiInterface(), _buildMalfunctionSymptoms(), 
 // _buildSolutionSheet() et _buildSolutionSection() restent identiques à votre code existant
-// Il faut juste ajouter le bouton organigramme mentionné ci-dessus dans _buildMalfunctionSymptoms()
+// Il faut juste ajouter le bouton logigramme mentionné ci-dessus dans _buildMalfunctionSymptoms()
 
 // ========== PARTIE 1/2 : Widgets Chifoumi ==========
 
@@ -2071,7 +2071,7 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                                 ],
                               ),
                             )),
-                            // Nouvelle section d'organigrammes
+                            // Nouvelle section de logigrammes
                             if (FlowchartService.hasCategoryFlowcharts(_currentMalfunction!.category)) ...[
                               const SizedBox(height: 16),
                               const Divider(height: 1, color: Colors.blue),
@@ -2085,22 +2085,18 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        children: FlowchartService.getFlowchartsByCategory(_currentMalfunction!.category)
-                                          .map((flowchart) => Padding(
-                                            padding: const EdgeInsets.only(right: 8),
-                                            child: ActionChip(
-                                              avatar: const Icon(Icons.account_tree, size: 18),
-                                              label: Text(flowchart.title),
-                                              onPressed: () => _showFlowchartInBottomSheet(flowchart),
-                                              backgroundColor: flowchart.color.withOpacity(0.1),
-                                              side: BorderSide(color: flowchart.color),
-                                              labelStyle: TextStyle(color: flowchart.color),
-                                            ),
-                                          )).toList(),
-                                      ),
+                                    child: Wrap(
+                                      spacing: 8, // Espacement horizontal entre les boutons
+                                      runSpacing: 8, // Espacement vertical entre les lignes
+                                      children: FlowchartService.getFlowchartsByCategory(_currentMalfunction!.category)
+                                        .map((flowchart) => ActionChip(
+                                          avatar: const Icon(Icons.account_tree, size: 18),
+                                          label: Text(flowchart.title),
+                                          onPressed: () => _showFlowchartInBottomSheet(flowchart),
+                                          backgroundColor: flowchart.color.withOpacity(0.1),
+                                          side: BorderSide(color: flowchart.color),
+                                          labelStyle: TextStyle(color: flowchart.color),
+                                        )).toList(),
                                     ),
                                   ),
                                 ],

@@ -26,6 +26,7 @@ class FlowchartInfo {
   final Color color;
   final List<String> keywords; // Pour la détection automatique
   final Map<String, FlowchartStep> steps; // Les étapes de l'organigramme
+  final String? imagePath; // Chemin vers l'image du logigramme
   
   const FlowchartInfo({
     required this.id,
@@ -34,6 +35,7 @@ class FlowchartInfo {
     required this.color,
     required this.keywords,
     required this.steps,
+    this.imagePath,
   });
   
   // Convertir MalfunctionCategory vers FlowchartCategory
@@ -75,12 +77,14 @@ class FlowchartStep {
 // Une option de réponse à une étape
 class FlowchartOption {
   final String label;
+  final String? subtitle; // Texte explicatif sous le label principal
   final String? nextStepId; // null = fin du parcours
   final String? resultMessage; // Message si c'est une conclusion
   final ResultType? resultType; // Type de résultat
   
   const FlowchartOption({
     required this.label,
+    this.subtitle,
     this.nextStepId,
     this.resultMessage,
     this.resultType,

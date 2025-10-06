@@ -11,7 +11,7 @@
 
 - **Nom** : XR Tech Tools
 - **Tech** : Flutter / Dart
-- **Version actuelle** : v1.3.041025 (04/10/2025)
+- **Version actuelle** : v1.3.061025 (06/10/2025)
 - **Objectif** : Boîte à outils pro + pédagogique techniciens IT
 - **Titres visés** : IDI, ADRN, TIP (RNCP34147, RNCP38718, RNCP40799)
 - **Contact** : WolwX@hotmail.com
@@ -25,21 +25,44 @@
 - ✅ Scénarios Commerciaux (100 scénarios - 3 niveaux) [v1.2.0]
 - ✅ Mode Créateur de Pannes (14 pannes - 6 catégories) [v1.3.300925]
 - ✅ Mode Dépanneur (14 pannes - diagnostic technicien) [v1.3.300925]
-- ✅ Organigrammes Interactifs (1/14+ disponible) [v1.3.011025]
-- ✅ Timer Intelligent avec Confirmation (protection + navigation fluide) [v1.3.041025] ⭐ NOUVEAU
+- ✅ Logigrammes Interactifs (4 Hardware complets + interface optimisée) [v1.3.061025]
+- ✅ Timer Intelligent avec Confirmation (protection + navigation fluide) [v1.3.041025] ⭐ STABLE
 
-**Organigramme disponible** :
-- "L'ordinateur ne s'allume pas" (Hardware - 5 étapes guidées)
+**Logigrammes disponibles** :
+- "L'ordinateur ne s'allume pas" (Hardware - Diagnostic alimentation/carte mère)
+- "Pas d'affichage à l'écran" (Hardware - Résolution problèmes vidéo/moniteur)  
+- "L'ordinateur ne démarre pas" (Hardware - Diagnostic boot/démarrage système)
+- "Arrêts/redémarrages inattendus" (Hardware - Analyse stabilité/température)
 
 **En développement** : 
-- 13+ organigrammes restants (Hardware, Software, BIOS/UEFI, Network, Printer, Peripheral)
+- 10+ logigrammes restants (Software, BIOS/UEFI, Network, Printer, Peripheral)
 - 6 outils de la Boîte à Outils
 
 ---
 
-## 🆕 DERNIERS CHANGEMENTS (v1.3.041025 - 04/10/2025)
+## 🆕 DERNIERS CHANGEMENTS (v1.3.061025 - 06/10/2025)
 
 ### Améliorations majeures :
+1. **Développement massif logigrammes - 4 Hardware complets**
+   - 4 logigrammes Hardware entièrement fonctionnels et opérationnels
+   - Plus de 50 étapes de diagnostic cumulées avec logique conditionnelle complète
+   - Couverture complète des pannes hardware principales
+   - Système de visualisation d'images avec mode plein écran intégré
+
+2. **Interface perfectionnée et optimisée**
+   - Système de sous-titres explicatifs sous chaque option de choix
+   - Bouton "Étape précédente" redesigné en ElevatedButton avec style visuel renforcé
+   - Layout Wrap implementé pour affichage multi-ligne des boutons logigrammes
+   - Espacement de sécurité augmenté entre bouton et timer (20px)
+   - FlowchartOption model étendu avec champ subtitle optionnel
+
+3. **Ergonomie et cohérence améliorées**
+   - Boutons logigrammes organisés sur plusieurs lignes avec espacement optimal
+   - Texte descriptif standardisé pour cohérence utilisateur
+   - Interface AppBar optimisée avec icône jaune et espacement perfectionné
+   - Navigation fluide entre étapes avec historique complet
+
+### Changements précédents (v1.3.041025 - 04/10/2025)
 1. **Système de timer intelligent avec confirmation**
    - Protection automatique contre les tirages accidentels via popup confirmation
    - Navigation fluide depuis timer : Double-clic pour retour direct sans interruption
@@ -47,7 +70,7 @@
    - Interface contextuelle : Messages personnalisés selon le type d'action
    - Workflow optimisé : Sécurité préservée + expérience utilisateur fluide
 
-2. **Corrections système organigrammes**
+2. **Corrections système logigrammes**
    - Interface de sélection optimisée avec suggestions intelligentes
    - Résolution bugs d'affichage dans barres de recherche
    - Stabilisation intégration système de diagnostic
@@ -63,15 +86,15 @@
 ### Changements précédents (v1.3.011025 - 01/10/2025)
 
 #### Nouveautés majeures :
-1. **Système d'organigrammes interactifs** complet
+1. **Système de logigrammes interactifs** complet
    - Navigation guidée étape par étape
-   - Détection automatique de l'organigramme pertinent
+   - Détection automatique du logigramme pertinent
    - Barre de progression et historique
    - Retour arrière possible
    - Résultats contextuels (Succès/Échec/Info) avec codes couleur
    - Options visuellement distinctes (✓ vert / ✗ rouge)
 
-2. **Architecture technique organigrammes** :
+2. **Architecture technique logigrammes** :
    - Nouveaux modèles : FlowchartInfo, FlowchartStep, FlowchartOption
    - Service centralisé : FlowchartService
    - Données structurées : FlowchartData
@@ -79,8 +102,8 @@
    - Détection intelligente par mots-clés
 
 3. **Intégration Mode Dépanneur** :
-   - Bouton "Organigramme HARDWARE" visible uniquement si disponible
-   - Suggestion automatique de l'organigramme le plus adapté
+   - Bouton "Logigramme HARDWARE" visible uniquement si disponible
+   - Suggestion automatique du logigramme le plus adapté
    - Sélection manuelle si plusieurs disponibles
 
 ### Fichiers ajoutés :
@@ -97,17 +120,17 @@
 ## 📝 NOTES PERSONNELLES DE DÉVELOPPEMENT
 
 ### Décisions architecture v1.3.011025
-- Architecture décentralisée maintenue pour les organigrammes
+- Architecture décentralisée maintenue pour les logigrammes
 - Détection automatique par mots-clés plutôt que mapping manuel
-- Service centralisé pour faciliter l'ajout de nouveaux organigrammes
+- Service centralisé pour faciliter l'ajout de nouveaux logigrammes
 - Format FlowchartStep/FlowchartOption extensible et maintenable
 
 ### TODO prioritaires
-- [ ] Développer les 3 autres organigrammes Hardware :
+- [ ] Développer les 3 autres logigrammes Hardware :
   * Démarre mais s'éteint/freeze (Violet)
   * Pas d'affichage (Orange)
   * Ne boot pas (Vert)
-- [ ] Créer organigrammes pour autres catégories (Software, Network, etc.)
+- [ ] Créer logigrammes pour autres catégories (Software, Network, etc.)
 - [ ] Compléter les 6 outils de la Boîte à Outils
 
 ### Questions ouvertes
@@ -116,9 +139,9 @@
 - Gamification avec badges de progression ?
 
 ### Contexte de développement
-- Architecture extensible : ajout d'organigrammes simple via flowchart_data.dart
-- Structure testée et validée avec premier organigramme
-- Prêt pour déploiement des 13+ organigrammes restants
+- Architecture extensible : ajout de logigrammes simple via flowchart_data.dart
+- Structure testée et validée avec premier logigramme
+- Prêt pour déploiement des 13+ logigrammes restants
 
 ---
 
@@ -132,17 +155,17 @@
 
 **Lors de chaque demande** :
 - Version actuelle : v1.3.011025 (01/10/2025)
-- Système d'organigrammes interactifs opérationnel
-- Architecture extensible pour 13+ organigrammes futurs
+- Système de logigrammes interactifs opérationnel
+- Architecture extensible pour 13+ logigrammes futurs
 - Ne jamais supposer l'état du projet sans vérifier
 
-**Pour ajouter un organigramme** :
+**Pour ajouter un logigramme** :
 1. Créer les étapes dans flowchart_data.dart (format Map<String, FlowchartStep>)
 2. Ajouter l'entrée FlowchartInfo dans allFlowcharts
 3. Définir : id, category, title, color, keywords, steps
 4. Tester la détection automatique avec mots-clés pertinents
 
-**Architecture organigrammes** :
+**Architecture logigrammes** :
 - FlowchartInfo : métadonnées et configuration
 - FlowchartStep : étapes avec question, description, icône, options
 - FlowchartOption : choix avec label, nextStepId (ou conclusion)
@@ -163,7 +186,7 @@
 
 - 100 scénarios commerciaux (3 niveaux)
 - 14 pannes (6 catégories)
-- 1 organigramme interactif (13+ prévus)
+- 1 logigramme interactif (13+ prévus)
 - 4 modes de jeu/travail (Scénarios, Créateur, Dépanneur, Organigrammes)
 - Architecture décentralisée (SharedPreferences)
 - Multiplateforme (Android, iOS, Windows, macOS, Linux, Web)
@@ -171,4 +194,4 @@
 ---
 
 *Dernière mise à jour : 01/10/2025 - v1.3.011025*
-*Prochaine étape suggérée : Développer les 3 autres organigrammes Hardware*
+*Prochaine étape suggérée : Développer les 3 autres logigrammes Hardware*

@@ -32,6 +32,7 @@ class GlobalTimerService extends ChangeNotifier {
   bool _hasBeenClicked = false; // Pour persister l'état du texte
 
   bool get isTimerActive => _overlayEntry != null;
+  bool get isTimerRunning => _currentTimerRunning && _overlayEntry != null;
   String? get associatedItemId => _associatedItemId;
   String? get associatedItemType => _associatedItemType;
   String? get associatedScreenRoute => _associatedScreenRoute;
@@ -343,6 +344,21 @@ class GlobalTimerService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Masquer temporairement le timer (pour le mode plein écran)
+  void hideTimer() {
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      // Ne pas set _overlayEntry à null pour pouvoir le restaurer
+    }
+  }
+
+  // Restaurer le timer masqué
+  void showTimer() {
+    if (_overlayEntry != null && _context != null) {
+      Overlay.of(_context!).insert(_overlayEntry!);
+    }
+  }
+
   void _showTimeUpDialog() {
     if (_context == null) return;
 
@@ -495,7 +511,7 @@ class GlobalTimerService extends ChangeNotifier {
 
   // Méthode pour gérer l'arrêt du timer lors d'un nouveau tirage au sort
   Future<bool> handleNewDrawRequest(BuildContext context, String actionType) async {
-    if (isTimerActive) {
+    if (isTimerRunning) {
       bool shouldContinue = await showTimerStopConfirmation(context, actionType);
       if (shouldContinue) {
         stopAndResetTimer();
@@ -503,7 +519,7 @@ class GlobalTimerService extends ChangeNotifier {
       }
       return false;
     }
-    return true; // Pas de timer actif, on peut continuer
+    return true; // Pas de timer en cours, on peut continuer
   }
 
   @override

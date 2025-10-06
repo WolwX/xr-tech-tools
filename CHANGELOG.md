@@ -15,7 +15,7 @@ DOUBLE OBJECTIF
 ---------------
 Pour les Apprenants (IDI, ADRN, TIP) :
 - S'entraîner sur des cas pratiques réels
-- Développer leurs compétences techniques avec des organigrammes guidés
+- Développer leurs compétences techniques avec des logigrammes guidés
 - Se préparer aux certifications professionnelles
 - Réviser les concepts clés
 
@@ -103,11 +103,11 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    - Statistiques persistantes par difficulté
    - Mode Défi Chifoumi
 
-4. Organigrammes Interactifs [NOUVEAU v1.3.011025]
+4. Logigrammes Interactifs [NOUVEAU v1.3.011025]
    
    Système de diagnostic guidé :
    - Navigation étape par étape avec choix multiples
-   - Détection automatique de l'organigramme pertinent
+   - Détection automatique du logigramme pertinent
    - Barre de progression et historique
    - Retour arrière possible à tout moment
    - Résultats contextuels avec codes couleur :
@@ -116,7 +116,7 @@ FONCTIONNALITÉS IMPLÉMENTÉES
      * Info (bleu) : Prochaines étapes suggérées
    - Options visuellement distinctes (✓ vert / ✗ rouge)
    
-   Organigramme disponible :
+   Logigramme disponible :
    - "L'ordinateur ne s'allume pas" (Hardware - Bleu)
      * 5 étapes de diagnostic guidées
      * Vérifications : électrique, carte mère, CMOS, périphériques
@@ -125,17 +125,17 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    Architecture :
    - Service centralisé : FlowchartService
    - Détection intelligente par mots-clés
-   - Extensible : 13+ organigrammes prévus
+   - Extensible : 13+ logigrammes prévus
    - Intégration dans Mode Dépanneur (bouton visible si disponible)
    
-   Organigrammes prévus :
+   Logigrammes prévus :
    - Hardware : Freeze/Shutdown (Violet), Pas d'affichage (Orange), Ne boot pas (Vert)
    - Software, BIOS/UEFI, Network, Printer, Peripheral (à définir)
 
 THÈME & DESIGN
 --------------
 Couleur principale : Bleu (#00B0FF)
-Palette organigrammes :
+Palette logigrammes :
 - Bleu (#64B5F6) : Ne s'allume pas
 - Violet (#9575CD) : Freeze/Shutdown
 - Orange (#FFB74D) : Pas d'affichage
@@ -152,6 +152,38 @@ dependencies:
 
 HISTORIQUE DES VERSIONS
 ========================
+
+v1.3.061025 (06 Octobre 2025)
+------------------------------
+🗺️ DÉVELOPPEMENT MASSIF LOGIGRAMMES - 4 Logigrammes Hardware Complets :
+
+- 📚 EXPANSION CONTENU :
+  * 4 logigrammes Hardware complets et opérationnels
+  * "L'ordinateur ne s'allume pas" - Diagnostic alimentation/carte mère
+  * "Pas d'affichage à l'écran" - Résolution problèmes vidéo/moniteur
+  * "L'ordinateur ne démarre pas" - Diagnostic boot/démarrage système
+  * "Arrêts/redémarrages inattendus" - Analyse stabilité/température
+  * Plus de 50 étapes de diagnostic cumulées avec logique conditionnelle complète
+
+- 🎨 INTERFACE PERFECTIONNÉE :
+  * Système de sous-titres explicatifs sous chaque option de choix
+  * Bouton "Étape précédente" transformé en ElevatedButton avec style visuel renforcé
+  * Couleur de fond colorée, bordure épaisse, ombre et coins arrondis
+  * Espacement de sécurité augmenté (20px) entre bouton et timer
+  * Icônes d'étape et indicateurs visuels améliorés dans l'AppBar
+
+- 🔧 OPTIMISATIONS TECHNIQUES :
+  * Layout Wrap implementé dans malfunction_technician_screen.dart pour affichage multi-ligne des boutons logigrammes
+  * FlowchartOption model étendu avec champ subtitle optionnel
+  * Système de visualisation d'images intégré avec flowchart_image_viewer.dart
+  * Mode plein écran pour les images de diagnostic avec gestes de navigation
+  * Corrections de texte descriptif standardisé pour cohérence utilisateur
+
+- 🎯 ERGONOMIE AVANCÉE :
+  * Boutons logigrammes organisés sur plusieurs lignes avec Wrap (spacing: 8, runSpacing: 8)
+  * Texte descriptif harmonisé : "Vérifiez la température du processeur et les ventilateurs"
+  * Interface AppBar optimisée avec icône jaune et espacement perfectionné
+  * Navigation fluide entre étapes avec historique complet et retour arrière ergonomique
 
 v1.3.041025 (04 Octobre 2025)
 ------------------------------
@@ -189,8 +221,8 @@ v1.3.041025 (04 Octobre 2025)
 - Experience utilisateur : Navigation timer instantanée et fluide
 - Protection intelligente : Sécurité contre les arrêts accidentels préservée
 
-🗺️ Corrections système organigrammes :
-- Interface de sélection des organigrammes optimisée
+🗺️ Corrections système logigrammes :
+- Interface de sélection des logigrammes optimisée
 - Suggestions intelligentes basées sur les symptômes améliorées
 - Corrections de bugs d'affichage dans les barres de recherche
 - Stabilisation de l'intégration avec le système de diagnostic
@@ -249,16 +281,16 @@ v1.3.031025 (03 Octobre 2025)
 v1.3.011025 (01 Octobre 2025)
 ------------------------------
 ✨ Nouveautés majeures :
-- 🗺️ SYSTÈME D'ORGANIGRAMMES INTERACTIFS
+- 🗺️ SYSTÈME DE LOGIGRAMMES INTERACTIFS
   * Navigation guidée étape par étape pour diagnostic pannes
-  * Détection automatique de l'organigramme pertinent
+  * Détection automatique du logigramme pertinent
   * Interface interactive avec choix multiples
   * Barre de progression et historique de navigation
   * Retour arrière possible à tout moment
   * Résultats contextuels (Succès/Échec/Info) avec codes couleur
   * Options visuellement distinctes (✓ vert / ✗ rouge)
 
-- 📊 Premier organigramme : "L'ordinateur ne s'allume pas"
+- 📊 Premier logigramme : "L'ordinateur ne s'allume pas"
   * 5 étapes de diagnostic guidées
   * Vérification branchements électriques
   * Contrôle alimentation carte mère
@@ -272,13 +304,13 @@ v1.3.011025 (01 Octobre 2025)
 - Données structurées : FlowchartData
 - Interface dédiée : InteractiveFlowchartScreen
 - Détection intelligente par mots-clés et catégorie
-- Architecture extensible pour 13+ organigrammes futurs
+- Architecture extensible pour 13+ logigrammes futurs
 
 🎨 Intégration UX :
-- Bouton "Organigramme HARDWARE" dans Mode Dépanneur
-- Visible uniquement si organigramme disponible pour la catégorie
-- Suggestion automatique de l'organigramme le plus adapté
-- Sélection manuelle si plusieurs organigrammes disponibles
+- Bouton "Logigramme HARDWARE" dans Mode Dépanneur
+- Visible uniquement si logigramme disponible pour la catégorie
+- Suggestion automatique du logigramme le plus adapté
+- Sélection manuelle si plusieurs logigrammes disponibles
 - Message informatif si non disponible
 
 📁 Fichiers ajoutés :
@@ -288,7 +320,7 @@ v1.3.011025 (01 Octobre 2025)
 - lib/screens/interactive_flowchart_screen.dart
 
 📝 Fichiers modifiés :
-- lib/screens/malfunction_technician_screen.dart (intégration organigrammes)
+- lib/screens/malfunction_technician_screen.dart (intégration logigrammes)
 
 v1.3.300925 (30 Septembre 2025)
 --------------------------------
@@ -352,8 +384,8 @@ v1.0.0 (Septembre 2025)
 NOTES DE DÉVELOPPEMENT
 -----------------------
 
-Organigrammes - Bonnes pratiques :
-- Un organigramme = un parcours de diagnostic complet
+Logigrammes - Bonnes pratiques :
+- Un logigramme = un parcours de diagnostic complet
 - Étapes logiques et progressives
 - Options claires et distinctes visuellement
 - Messages de résolution contextuels
@@ -366,7 +398,7 @@ Architecture décentralisée :
 - Autonomie et maintenabilité
 
 Améliorations suggérées :
-- Développer les 13+ organigrammes restants
+- Développer les 13+ logigrammes restants
 - Compléter la Boîte à Outils (9 outils restants)
 - Historique des scénarios/pannes
 - Mode révision ciblée
@@ -389,10 +421,10 @@ Pour reprendre le projet avec Claude :
 3. Mentionner le(s) titre(s) RNCP concerné(s) si pertinent
 
 Exemples :
-"Voici le CHANGELOG. Je veux développer l'organigramme 
+"Voici le CHANGELOG. Je veux développer le logigramme 
 'Pas d'affichage' pour les pannes hardware."
 
-"Voici le CHANGELOG. Je veux créer des organigrammes 
+"Voici le CHANGELOG. Je veux créer des logigrammes 
 pour la catégorie Software (pannes logicielles)."
 
 ==============================================

@@ -1,0 +1,65 @@
+<!-- Placeholder SVG pour test -->
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  
+  <!-- Title -->
+  <text x="400" y="50" text-anchor="middle" font-family="Arial" font-size="24" font-weight="bold" fill="#1A237E">
+    Logigramme: L'ordinateur ne s'allume pas
+  </text>
+  
+  <!-- Start box -->
+  <rect x="350" y="80" width="100" height="40" fill="#64B5F6" stroke="#1976D2" stroke-width="2" rx="5"/>
+  <text x="400" y="105" text-anchor="middle" font-family="Arial" font-size="12" fill="white">DÉBUT</text>
+  
+  <!-- First step -->
+  <rect x="300" y="150" width="200" height="60" fill="#E3F2FD" stroke="#64B5F6" stroke-width="2" rx="5"/>
+  <text x="400" y="175" text-anchor="middle" font-family="Arial" font-size="11" fill="#1A237E">Vérifier les branchements</text>
+  <text x="400" y="190" text-anchor="middle" font-family="Arial" font-size="11" fill="#1A237E">électriques</text>
+  
+  <!-- Arrow -->
+  <path d="M400 120 L400 150" stroke="#1976D2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Decision diamond -->
+  <polygon points="400,250 350,280 400,310 450,280" fill="#FFF3E0" stroke="#FF9800" stroke-width="2"/>
+  <text x="400" y="285" text-anchor="middle" font-family="Arial" font-size="10" fill="#E65100">OK?</text>
+  
+  <!-- Arrow from step to decision -->
+  <path d="M400 210 L400 250" stroke="#1976D2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Success branch -->
+  <rect x="500" y="260" width="150" height="40" fill="#E8F5E8" stroke="#4CAF50" stroke-width="2" rx="5"/>
+  <text x="575" y="285" text-anchor="middle" font-family="Arial" font-size="11" fill="#2E7D32">Étape suivante</text>
+  
+  <!-- Failure branches -->
+  <rect x="150" y="360" width="120" height="50" fill="#FFEBEE" stroke="#F44336" stroke-width="2" rx="5"/>
+  <text x="210" y="380" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828">Multiprise</text>
+  <text x="210" y="395" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828">défectueuse</text>
+  
+  <rect x="300" y="360" width="120" height="50" fill="#FFEBEE" stroke="#F44336" stroke-width="2" rx="5"/>
+  <text x="360" y="380" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828">Switch sur "O"</text>
+  
+  <rect x="450" y="360" width="120" height="50" fill="#FFEBEE" stroke="#F44336" stroke-width="2" rx="5"/>
+  <text x="510" y="380" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828">Câble</text>
+  <text x="510" y="395" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828">défectueux</text>
+  
+  <!-- Arrows -->
+  <path d="M450 280 L575 280" stroke="#1976D2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M350 310 L210 360" stroke="#1976D2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M400 310 L360 360" stroke="#1976D2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M450 310 L510 360" stroke="#1976D2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Labels -->
+  <text x="500" y="270" font-family="Arial" font-size="10" fill="#2E7D32">OUI</text>
+  <text x="320" y="340" font-family="Arial" font-size="10" fill="#C62828">NON</text>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976D2"/>
+    </marker>
+  </defs>
+  
+  <!-- Watermark -->
+  <text x="700" y="580" font-family="Arial" font-size="10" fill="#BDBDBD">XR Tech Tools v1.3</text>
+</svg>

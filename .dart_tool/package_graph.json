@@ -9,6 +9,7 @@
       "dependencies": [
         "cupertino_icons",
         "flutter",
+        "flutter_svg",
         "package_info_plus",
         "shared_preferences",
         "url_launcher"
@@ -47,6 +48,17 @@
       "name": "cupertino_icons",
       "version": "1.0.8",
       "dependencies": []
+    },
+    {
+      "name": "flutter_svg",
+      "version": "2.2.1",
+      "dependencies": [
+        "flutter",
+        "http",
+        "vector_graphics",
+        "vector_graphics_codec",
+        "vector_graphics_compiler"
+      ]
     },
     {
       "name": "package_info_plus",
@@ -193,6 +205,42 @@
       ]
     },
     {
+      "name": "vector_graphics_compiler",
+      "version": "1.1.19",
+      "dependencies": [
+        "args",
+        "meta",
+        "path",
+        "path_parsing",
+        "vector_graphics_codec",
+        "xml"
+      ]
+    },
+    {
+      "name": "vector_graphics_codec",
+      "version": "1.1.13",
+      "dependencies": []
+    },
+    {
+      "name": "vector_graphics",
+      "version": "1.1.19",
+      "dependencies": [
+        "flutter",
+        "http",
+        "vector_graphics_codec"
+      ]
+    },
+    {
+      "name": "http",
+      "version": "1.5.0",
+      "dependencies": [
+        "async",
+        "http_parser",
+        "meta",
+        "web"
+      ]
+    },
+    {
       "name": "win32",
       "version": "5.14.0",
       "dependencies": [
@@ -211,16 +259,6 @@
         "flutter",
         "meta",
         "plugin_platform_interface"
-      ]
-    },
-    {
-      "name": "http",
-      "version": "1.5.0",
-      "dependencies": [
-        "async",
-        "http_parser",
-        "meta",
-        "web"
       ]
     },
     {
@@ -426,11 +464,26 @@
       ]
     },
     {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
+      "name": "xml",
+      "version": "6.6.1",
       "dependencies": [
-        "meta"
+        "collection",
+        "meta",
+        "petitparser"
       ]
+    },
+    {
+      "name": "path_parsing",
+      "version": "1.1.0",
+      "dependencies": [
+        "meta",
+        "vector_math"
+      ]
+    },
+    {
+      "name": "args",
+      "version": "2.7.0",
+      "dependencies": []
     },
     {
       "name": "http_parser",
@@ -440,6 +493,13 @@
         "source_span",
         "string_scanner",
         "typed_data"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
       ]
     },
     {
@@ -484,6 +544,14 @@
       "name": "vm_service",
       "version": "15.0.2",
       "dependencies": []
+    },
+    {
+      "name": "petitparser",
+      "version": "7.0.1",
+      "dependencies": [
+        "collection",
+        "meta"
+      ]
     },
     {
       "name": "typed_data",
