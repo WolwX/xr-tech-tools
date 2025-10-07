@@ -32,6 +32,10 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
   int _chifousiWins = 0;
   int _chifousiDraws = 0;
   int _chifousiLosses = 0;
+  
+  // Variables pour gérer le temps écoulé
+  DateTime? _timerStartTime;
+  Duration? _elapsedTime;
 
   final Map<DifficultyLevel, int> _successByDifficulty = {
     DifficultyLevel.easy: 0,
@@ -140,6 +144,9 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _showChifoumi = false;
       _chifousiGame = null;
       _hasEvaluated = false;
+      // Réinitialiser le timer
+      _timerStartTime = null;
+      _elapsedTime = null;
     });
     
     // S'assurer que le service de timer est prêt pour un nouveau timer
@@ -193,6 +200,9 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _showCorrection = false;
       _chifousiGame = null;
       _hasEvaluated = false;
+      // Réinitialiser le timer
+      _timerStartTime = null;
+      _elapsedTime = null;
     });
     
     _saveStatistics();
@@ -243,6 +253,9 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _showChifoumi = false;
       _chifousiGame = null;
       _hasEvaluated = false;
+      // Réinitialiser le timer
+      _timerStartTime = null;
+      _elapsedTime = null;
     });
     
     // Si c'est une navigation depuis le timer, ne pas réinitialiser le timer
@@ -287,6 +300,9 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
       _showChifoumi = false;
       _chifousiGame = null;
       _hasEvaluated = false;
+      // Réinitialiser le timer
+      _timerStartTime = null;
+      _elapsedTime = null;
     });
     _showReadyTimer();
   }
@@ -298,6 +314,9 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
     if (!GlobalTimerService().isTimerActive) {
       print('Création d\'un nouveau timer pour le scénario #${_currentScenario?.id}');
     }
+    
+    // Enregistrer le temps de début
+    _timerStartTime = DateTime.now();
     
     GlobalTimerService().startReadyTimer(
       duration: duration,
@@ -317,6 +336,11 @@ class _CommercialScenarioScreenState extends State<CommercialScenarioScreen> {
   }
 
   void _finishTimer() {
+    // Calculer le temps écoulé si on a un temps de début (cas du timer automatique)
+    if (_timerStartTime != null && _elapsedTime == null) {
+      _elapsedTime = DateTime.now().difference(_timerStartTime!);
+    }
+    
     setState(() {
       _showCorrection = true;
     });
@@ -1253,6 +1277,17 @@ Widget _buildScenarioDisplay() {
                 ),
               ],
             ),
+            
+            const SizedBox(height: 16),
+            
+            // Boutons Correction/Abandon
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _buildDiagonalSolutionButton(),
+              ],
+            ),
+            
             const Divider(height: 30, thickness: 2),
             
             // Section DEMANDE CLIENT
@@ -1460,13 +1495,6 @@ Widget _buildScenarioDisplay() {
                   ),
                 ],
               ),
-            
-            const SizedBox(height: 24),
-            
-            // Boutons Correction/Abandon
-            Center(
-              child: _buildDiagonalSolutionButton(),
-            ),
           ],
         ),
       ),
@@ -1514,6 +1542,14 @@ Widget _buildScenarioDisplay() {
                 icon: Icons.lightbulb_outline,
                 isLeft: true,
                 onTap: () {
+                  // Arrêter le timer et calculer le temps écoulé
+                  if (_timerStartTime != null) {
+                    _elapsedTime = DateTime.now().difference(_timerStartTime!);
+                  }
+                  
+                  // Arrêter le timer flottant
+                  GlobalTimerService().stopFloatingTimer();
+                  
                   setState(() {
                     // Ouvrir directement la correction du scénario
                     _showCorrection = true;
@@ -1738,12 +1774,32 @@ Widget _buildScenarioDisplay() {
     if (_currentScenario == null) return const SizedBox();
     
     return Card(
-      color: Colors.green.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Colors.green,
+          width: 4,
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.green.shade50,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green, size: 32),
@@ -1757,31 +1813,58 @@ Widget _buildScenarioDisplay() {
                       ),
                     ),
                   ),
-                Tooltip(
-                  message: 'Signaler une anomalie',
-                  waitDuration: const Duration(milliseconds: 300),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _showReclamationDialog,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade100,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.error_outline,
-                          color: Colors.red.shade700,
-                          size: 24,
+                  // Affichage du temps écoulé (toujours visible si disponible)
+                  if (_elapsedTime != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue.shade300),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.timer, color: Colors.blue.shade700, size: 18),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${_elapsedTime!.inMinutes}:${(_elapsedTime!.inSeconds % 60).toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Tooltip(
+                    message: 'Signaler une anomalie',
+                    waitDuration: const Duration(milliseconds: 300),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _showReclamationDialog,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.error_outline,
+                            color: Colors.red.shade700,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             const Divider(height: 30),
             
             _buildCorrectionSection(
@@ -1982,12 +2065,19 @@ Row(
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCorrectionSection(String title, List<String> items, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade200),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2005,12 +2095,29 @@ Row(
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          ...items.map((item) => Padding(
-            padding: const EdgeInsets.only(left: 28, bottom: 4),
-            child: Text(
-              '• $item',
-              style: const TextStyle(fontSize: 14),
+          const SizedBox(height: 12),
+          ...items.asMap().entries.map((entry) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 2),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade700,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    entry.value,
+                    style: const TextStyle(fontSize: 14, height: 1.5),
+                  ),
+                ),
+              ],
             ),
           )),
         ],
@@ -2023,8 +2130,14 @@ Row(
     List<ScenarioSolution> solutions,
     IconData icon,
   ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade200),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2044,12 +2157,12 @@ Row(
           ),
           const SizedBox(height: 12),
           ...solutions.map((solution) => Container(
-            margin: const EdgeInsets.only(left: 16, bottom: 12),
+            margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.green.shade200),
+              border: Border.all(color: Colors.grey.shade200),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

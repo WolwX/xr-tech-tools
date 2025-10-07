@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/malfunction.dart';
 import '../services/malfunction_service.dart';
 import '../services/flowchart_service.dart';
@@ -800,6 +801,144 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
         ],
       ),
     );
+  }
+
+  void _showReclamationDialog() {
+    final TextEditingController commentController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.flag, color: Colors.red.shade700),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Signaler une anomalie',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Panne #${_currentMalfunction?.id ?? "N/A"}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Décrivez le problème constaté :',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: commentController,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    hintText: 'Exemple : La solution proposée ne fonctionne pas...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _sendReclamationEmail(commentController.text);
+              },
+              icon: const Icon(Icons.send, size: 18),
+              label: const Text('Envoyer'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _sendReclamationEmail(String userComment) async {
+    if (_currentMalfunction == null) return;
+
+    final emailBody = '''
+=== COMMENTAIRE UTILISATEUR ===
+${userComment.isNotEmpty ? userComment : '[Aucun commentaire]'}
+
+=====================================
+
+PANNE #${_currentMalfunction!.id} - ${_currentMalfunction!.difficulty.name.toUpperCase()}
+
+Nom : ${_currentMalfunction!.name}
+Description : ${_currentMalfunction!.description}
+Catégorie : ${_currentMalfunction!.categoryLabel}
+Symptômes : ${_currentMalfunction!.symptoms.join(', ')}
+Attitude client : ${_currentMalfunction!.clientAttitude}
+
+ÉTAPES DE CRÉATION :
+${_currentMalfunction!.creationSteps.map((step) => '• $step').join('\n')}
+
+ÉTAPES DE DIAGNOSTIC :
+${_currentMalfunction!.diagnosisSteps.map((step) => '• $step').join('\n')}
+
+ÉTAPES DE SOLUTION :
+${_currentMalfunction!.solutionSteps.map((step) => '• $step').join('\n')}
+
+COMPÉTENCES TRAVAILLÉES : ${_currentMalfunction!.skillsWorked.join(', ')}
+TEMPS ESTIMÉ : ${_currentMalfunction!.estimatedTime}
+''';
+
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'xavier.redondo@groupeleparc.fr',
+      query: Uri.encodeFull(
+        'subject=XR Tech Tools : panne ${_currentMalfunction!.id} signalement'
+        '&body=$emailBody'
+      ).replaceAll('+', '%20'),
+    );
+
+    try {
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Email ouvert. Merci de votre signalement !'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur : $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   // ========== PARTIE 4/5 : Build method et widgets principaux ==========
@@ -2290,6 +2429,31 @@ class _MalfunctionTechnicianScreenState extends State<MalfunctionTechnicianScree
                     ),
                   ),
                 ],
+                // Bouton signaler une anomalie
+                const SizedBox(width: 12),
+                Tooltip(
+                  message: 'Signaler une anomalie',
+                  waitDuration: const Duration(milliseconds: 300),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _showReclamationDialog,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade100,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.error_outline,
+                          color: Colors.red.shade700,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
             const Divider(height: 30),

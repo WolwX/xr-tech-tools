@@ -26,7 +26,7 @@ class _AppFooterState extends State<AppFooter> {
     } catch (e) {
       // Fallback en cas d'erreur
       setState(() {
-        _version = '1.3.041025';
+        _version = '1.3.071025';
       });
     }
   }
