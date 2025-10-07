@@ -22,11 +22,12 @@
 ## 📋 ÉTAT ACTUEL (Résumé)
 
 **Outils fonctionnels** :
-- ✅ Scénarios Commerciaux (100 scénarios - 3 niveaux) [v1.2.0]
+- ✅ Scénarios Commerciaux (100 scénarios - 3 niveaux) [v1.2.0 + UI v1.3.071025] ⭐ HARMONISÉ
 - ✅ Mode Créateur de Pannes (14 pannes - 6 catégories) [v1.3.300925]
 - ✅ Mode Dépanneur (14 pannes - diagnostic technicien) [v1.3.300925]
 - ✅ Logigrammes Interactifs (4 Hardware complets + interface optimisée) [v1.3.061025]
-- ✅ Timer Intelligent avec Confirmation (protection + navigation fluide) [v1.3.041025] ⭐ STABLE
+- ✅ Timer Intelligent avec Gestion Automatique (arrêt sur correction) [v1.3.071025] ⭐ PERFECTIONNÉ
+- ✅ Interface Unifiée (design cohérent tous modules) [v1.3.071025] ⭐ HARMONISÉ
 
 **Logigrammes disponibles** :
 - "L'ordinateur ne s'allume pas" (Hardware - Diagnostic alimentation/carte mère)
@@ -40,7 +41,42 @@
 
 ---
 
-## 🆕 DERNIERS CHANGEMENTS (v1.3.061025 - 06/10/2025)
+## 🆕 DERNIERS CHANGEMENTS (v1.3.071025 - 07/10/2025)
+
+### 🎨 HARMONISATION UI ET TIMER INTELLIGENT ⭐ MAJEUR
+1. **Harmonisation Design Complete**
+   - Design parfaitement cohérent entre scénarios commerciaux et fiches de panne
+   - Boutons Correction/Abandon maintenant présents sur TOUS les scénarios commerciaux
+   - Même style diagonal, même positionnement que les fiches de pannes
+   - Expérience utilisateur unifiée et professionnelle
+
+2. **Timer Intelligent et Contextuel**
+   - Timer s'arrête automatiquement lors du clic sur "Correction"
+   - Affichage du temps écoulé directement dans les fiches de correction
+   - Intégration complète avec GlobalTimerService pour cohérence inter-modules
+   - Plus besoin d'arrêter manuellement le timer - gestion automatique
+
+3. **Améliorations Visuelles Majeures**
+   - Sections encadrées avec bordures blanches pour meilleure délimitation
+   - Positionnement uniforme des éléments d'interface entre tous les modules
+   - Design épuré et professionnel harmonisé
+   - Lisibilité considérablement améliorée
+
+4. **Améliorations Techniques**
+   - Footer automatique : version récupérée du pubspec.yaml
+   - Correction complète des dépendances Flutter
+   - Build automatique GitHub Actions (Windows + Android)
+   - Stabilité et performance optimisées
+
+### 📊 IMPACT UTILISATEUR
+- **Cohérence** : Plus de différences visuelles entre modules
+- **Efficacité** : Timer intelligent = moins de manipulations
+- **Professionnalisme** : Interface unifiée et épurée
+- **Fiabilité** : Dépendances corrigées = plus stable
+
+---
+
+## 🔄 HISTORIQUE PRÉCÉDENT (v1.3.061025 - 06/10/2025)
 
 ### Améliorations majeures :
 1. **Développement massif logigrammes - 4 Hardware complets**
