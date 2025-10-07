@@ -1,7 +1,7 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.061025-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.071025-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
@@ -32,7 +32,27 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - **ADRN** - Agent De Reconditionnement en appareil Numérique (RNCP38718)
 - **TIP** - Technicien Informatique de Proximité (RNCP40799)
 
-## ✨ Fonctionnalités Actuelles
+## 🚀 Nouveautés v1.3.071025 (07/10/2025)
+
+### 🎨 Harmonisation UI
+- **Design cohérent** entre scénarios commerciaux et fiches de panne
+- **Boutons Correction/Abandon** maintenant disponibles sur les scénarios commerciaux
+- **Sections encadrées** avec bordures blanches pour améliorer la lisibilité
+- **Positionnement uniforme** des éléments d'interface
+
+### ⏱️ Gestion Timer Intelligente
+- **Timer contextuel** : s'arrête automatiquement lors du clic sur "Correction"
+- **Affichage du temps écoulé** dans les fiches de correction
+- **Intégration GlobalTimerService** pour une gestion cohérente entre modules
+
+### 🔧 Améliorations Techniques
+- **Version automatique** : le footer récupère automatiquement la version du pubspec.yaml
+- **Correction dépendances** Flutter pour une meilleure stabilité
+- **Build automatique** via GitHub Actions pour Windows et Android
+
+---
+
+## ✨ Fonctionnalités Principales
 
 ### ✅ Scénarios Commerciaux (Complet - v1.2.0)
 - **100 scénarios** répartis en 3 niveaux de difficulté

@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.061025
+- Version actuelle : v1.3.071025
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -24,6 +24,21 @@ Pour les Professionnels :
 - Consulter des références techniques (BIOS, hardware)
 - Utiliser des guides de diagnostic interactifs
 - Optimiser leurs interventions quotidiennes
+
+DERNIÈRES AMÉLIORATIONS v1.3.071025 (07/10/2025)
+--------------------------------------------------
+
+HARMONISATION UI ET TIMER INTELLIGENT :
+- Design cohérent entre scénarios commerciaux et fiches de panne
+- Boutons Correction/Abandon maintenant sur les scénarios commerciaux
+- Timer intelligent : arrêt automatique lors du clic "Correction"
+- Sections encadrées avec bordures blanches pour meilleure lisibilité
+- Positionnement uniforme des éléments d'interface
+- Affichage du temps écoulé dans les fiches de correction
+- Intégration complète avec GlobalTimerService
+- Version automatique dans footer (récupération du pubspec.yaml)
+- Correction des dépendances Flutter pour stabilité
+- Build automatique GitHub Actions (Windows + Android)
 
 TITRES PROFESSIONNELS VISÉS
 ----------------------------

@@ -1,11 +1,34 @@
 XR TECH TOOLS - HISTORIQUE DES VERSIONS
 ========================================
 
+## Version 1.3.071025 (07/10/2025) - Harmonisation UI et Timer
+
+### ✨ Nouvelles fonctionnalités
+- **Harmonisation UI** : Design cohérent entre scénarios commerciaux et fiches de panne
+- **Boutons Correction/Abandon** : Ajout sur les scénarios commerciaux (même design que les pannes)
+- **Timer intelligent** : Arrêt automatique lors du clic sur "Correction"
+- **Sections encadrées** : Ajout de bordures blanches pour améliorer la lisibilité
+- **Footer automatique** : Version récupérée automatiquement du pubspec.yaml
+
+### 🔧 Améliorations techniques
+- Intégration complète avec GlobalTimerService
+- Gestion cohérente des états de timer entre modules
+- Amélioration de l'expérience utilisateur avec timer contextuel
+- Correction des dépendances Flutter
+
+### 🎨 Améliorations visuelles
+- Design uniforme des boutons diagonaux Correction/Abandon
+- Positionnement cohérent des éléments UI
+- Affichage du temps écoulé dans les fiches de correction
+- Sections visuellement délimitées avec bordures blanches
+
+---
+
 INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.041025
+- Version actuelle : v1.3.071025
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
