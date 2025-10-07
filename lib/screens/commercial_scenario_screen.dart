@@ -1460,13 +1460,279 @@ Widget _buildScenarioDisplay() {
                   ),
                 ],
               ),
+            
+            const SizedBox(height: 24),
+            
+            // Boutons Correction/Abandon
+            Center(
+              child: _buildDiagonalSolutionButton(),
+            ),
           ],
         ),
       ),
     ),
   );
 }
-// PARTIE 4BIS/4 : Méthodes _buildCorrectionSheet et _buildWelcomeMessage
+// PARTIE 4BIS/4 : Méthodes boutons Correction/Abandon, _buildCorrectionSheet et _buildWelcomeMessage
+
+  Widget _buildDiagonalSolutionButton() {
+    return Container(
+      height: 36, // Hauteur alignée avec les badges
+      width: 140, // Largeur réduite
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          // Ombre principale pour l'effet 3D
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+          // Ombre secondaire pour plus de profondeur
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+          // Highlight subtil en haut
+          BoxShadow(
+            color: Colors.white.withOpacity(0.2),
+            blurRadius: 2,
+            offset: const Offset(0, -1),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            // Zone gauche - Correction (vert)
+            Expanded(
+              child: _buildButtonSide(
+                text: 'Correction',
+                color: Colors.green.shade600,
+                icon: Icons.lightbulb_outline,
+                isLeft: true,
+                onTap: () {
+                  setState(() {
+                    // Ouvrir directement la correction du scénario
+                    _showCorrection = true;
+                  });
+                },
+              ),
+            ),
+            // Séparateur vertical avec effet 3D
+            Container(
+              width: 2,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.3),
+                    Colors.white.withOpacity(0.1),
+                    Colors.black.withOpacity(0.3),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+            // Zone droite - Abandon (rouge)
+            Expanded(
+              child: _buildButtonSide(
+                text: 'Abandon',
+                color: Colors.red.shade600,
+                icon: Icons.close,
+                isLeft: false,
+                onTap: () {
+                  _showAbandonConfirmation();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButtonSide({
+    required String text,
+    required Color color,
+    required IconData icon,
+    required bool isLeft,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.only(
+          topLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+          bottomLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+          topRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+          bottomRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+        ),
+        splashColor: Colors.white.withOpacity(0.4),
+        highlightColor: Colors.white.withOpacity(0.2),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Builder(
+            builder: (context) {
+              bool isHovering = false;
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return MouseRegion(
+                    onEnter: (_) => setState(() => isHovering = true),
+                    onExit: (_) => setState(() => isHovering = false),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            color.withOpacity(isHovering ? 0.7 : 0.9),
+                            color.withOpacity(isHovering ? 0.8 : 1.0),
+                            color.withOpacity(isHovering ? 0.6 : 0.8),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+                          bottomLeft: isLeft ? const Radius.circular(12) : Radius.zero,
+                          topRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+                          bottomRight: !isLeft ? const Radius.circular(12) : Radius.zero,
+                        ),
+                        border: Border(
+                          top: BorderSide(color: Colors.white.withOpacity(0.3), width: 1),
+                          left: isLeft ? BorderSide(color: Colors.white.withOpacity(0.3), width: 1) : BorderSide.none,
+                          right: !isLeft ? BorderSide(color: Colors.white.withOpacity(0.3), width: 1) : BorderSide.none,
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Icône en arrière-plan - toujours visible mais plus ou moins opaque
+                          Positioned.fill(
+                            child: Center(
+                              child: Icon(
+                                icon,
+                                size: 28,
+                                color: Colors.white.withOpacity(isHovering ? 0.3 : 0.6),
+                              ),
+                            ),
+                          ),
+                          // Texte au premier plan - visible seulement au survol
+                          if (isHovering)
+                            Center(
+                              child: Text(
+                                text,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      offset: const Offset(0, 1),
+                                      blurRadius: 3,
+                                    ),
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.3),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 6,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          // Padding pour maintenir la hauteur minimale
+                          const SizedBox(
+                            height: 36,
+                            width: double.infinity,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAbandonConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.orange.shade700),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Abandonner le scénario ?',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Êtes-vous sûr de vouloir abandonner ce scénario ?\n\n'
+            'Cette action sera comptabilisée dans vos statistiques.',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _abandonScenario();
+              },
+              icon: const Icon(Icons.flag, size: 18),
+              label: const Text('Confirmer l\'abandon'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _abandonScenario() {
+    setState(() {
+      // Incrémenter les statistiques d'abandon
+      if (_currentScenario != null) {
+        _attemptsByDifficulty[_currentScenario!.difficulty] = 
+          (_attemptsByDifficulty[_currentScenario!.difficulty] ?? 0) + 1;
+        // Note: On n'incrémente pas les succès pour un abandon
+      }
+      
+      // Revenir à l'écran de sélection
+      _currentScenario = null;
+      _showCorrection = false;
+      _showChifoumi = false;
+      _hasEvaluated = false;
+    });
+    
+    _saveStatistics();
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Scénario abandonné'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 
   Widget _buildCorrectionSheet() {
     if (_currentScenario == null) return const SizedBox();
