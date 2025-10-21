@@ -25,20 +25,12 @@ jobs:
         echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
         echo "Version détectée: $VERSION"
         
-        # Convertit la version au format MSIX (ex: 1.3.1+20251021 -> 1.3.1.1021)
+        # Convertit la version au format MSIX (ex: 1.3.1 -> 1.3.1.0)
         $PARTS = $VERSION -split '\.'
         if ($PARTS.Count -eq 3) {
-          # Si le tag contient un suffixe de date (ex: 1.3.1+20251021), on l'utilise comme 4ème partie
-          if ($VERSION -match '\+(\d+)$') {
-            $MSIX_VERSION = "$($PARTS[0]).$($PARTS[1]).$($PARTS[2]).$($Matches[1])"
-          } else {
-            $MSIX_VERSION = "$VERSION.0"
-          }
-        } elseif ($PARTS.Count -eq 4) {
-          $MSIX_VERSION = $VERSION
+          $MSIX_VERSION = "$VERSION.0"
         } else {
-          # Fallback: force à 1.0.0.0
-          $MSIX_VERSION = "1.0.0.0"
+          $MSIX_VERSION = $VERSION
         }
         echo "MSIX_VERSION=$MSIX_VERSION" >> $env:GITHUB_OUTPUT
         echo "Version MSIX: $MSIX_VERSION"
@@ -51,22 +43,42 @@ jobs:
         $MSIX_VERSION = "${{ steps.get_version.outputs.MSIX_VERSION }}"
         $DATE = Get-Date -Format "yyMMdd"
         
+        # Conversion MSIX au format strict X.X.X.X
+        $PARTS = $MSIX_VERSION -split '\.'
+        if ($PARTS.Count -eq 3) {
+          # Si format 1.3.1, ajouter .0
+          $MSIX_FINAL = "$MSIX_VERSION.0"
+        } elseif ($PARTS.Count -eq 4) {
+          # Si format 1.3.1.1021, extraire MMJJ et formater
+          $MAJOR = $PARTS[0]
+          $MINOR = $PARTS[1]
+          $PATCH = $PARTS[2]
+          $BUILD = $PARTS[3]
+          # Si BUILD > 9999, prendre seulement les 4 derniers chiffres
+          if ([int]$BUILD -gt 9999) {
+            $BUILD = $BUILD.Substring($BUILD.Length - 4)
+          }
+          $MSIX_FINAL = "$MAJOR.$MINOR.$PATCH.$BUILD"
+        } else {
+          $MSIX_FINAL = "$VERSION.0"
+        }
+        
         # Mise à jour version Flutter
         (Get-Content pubspec.yaml) -replace 'version: .*', "version: $VERSION+$DATE" | Set-Content pubspec.yaml
         
         # Mise à jour version MSIX
-        (Get-Content pubspec.yaml) -replace 'msix_version: .*', "msix_version: $MSIX_VERSION" | Set-Content pubspec.yaml
+        (Get-Content pubspec.yaml) -replace 'msix_version: .*', "msix_version: $MSIX_FINAL" | Set-Content pubspec.yaml
         
         echo "✅ pubspec.yaml mis à jour"
         echo "   Flutter: $VERSION+$DATE"
-        echo "   MSIX: $MSIX_VERSION"
+        echo "   MSIX: $MSIX_FINAL"
       shell: pwsh
     
     # 4. Installe Flutter
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.35.6'
+        flutter-version: '3.27.1'
         channel: 'stable'
     
     # 5. Installe les dépendances
