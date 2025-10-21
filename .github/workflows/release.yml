@@ -25,13 +25,24 @@ jobs:
         echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
         echo "Version détectée: $VERSION"
         
-        # Convertit la version au format MSIX (ex: 1.3.1 -> 1.3.1.0)
+        # Convertit la version au format MSIX strict (X.X.X.X)
         $PARTS = $VERSION -split '\.'
         if ($PARTS.Count -eq 3) {
+          # Format: 1.3.1 -> 1.3.1.0
           $MSIX_VERSION = "$VERSION.0"
+        } elseif ($PARTS.Count -eq 4) {
+          # Format: 1.3.1.1021 -> Déjà bon si < 65535
+          $LAST = [int]$PARTS[3]
+          if ($LAST -gt 65535) {
+            # Prendre seulement les 4 derniers chiffres
+            $PARTS[3] = $PARTS[3].Substring($PARTS[3].Length - 4)
+          }
+          $MSIX_VERSION = $PARTS -join '.'
         } else {
-          $MSIX_VERSION = $VERSION
+          # Fallback
+          $MSIX_VERSION = "$VERSION.0.0.0"
         }
+        
         echo "MSIX_VERSION=$MSIX_VERSION" >> $env:GITHUB_OUTPUT
         echo "Version MSIX: $MSIX_VERSION"
       shell: pwsh
