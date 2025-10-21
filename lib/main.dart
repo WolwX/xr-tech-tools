@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // CORRECTION : Assurer que le chemin de l'écran est correct
-import 'screens/introduction_screen.dart'; 
+import 'screens/introduction_screen.dart';
+import 'widgets/version_display.dart';
 
 // Définition d'une couleur d'accent pour l'ensemble de l'application (le bleu)
 const MaterialColor primaryBlue = MaterialColor(

@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    # 1. Récupère ton code
+    # 1. Récupère le code
     - name: Checkout code
       uses: actions/checkout@v4
     
@@ -24,85 +24,248 @@ jobs:
         $VERSION = $env:GITHUB_REF -replace 'refs/tags/v', ''
         echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
         echo "Version détectée: $VERSION"
+        
+        # Convertit la version au format MSIX (ex: 1.3.1 -> 1.3.1.0)
+        $PARTS = $VERSION -split '\.'
+        if ($PARTS.Count -eq 3) {
+          $MSIX_VERSION = "$VERSION.0"
+        } else {
+          $MSIX_VERSION = $VERSION
+        }
+        echo "MSIX_VERSION=$MSIX_VERSION" >> $env:GITHUB_OUTPUT
+        echo "Version MSIX: $MSIX_VERSION"
       shell: pwsh
     
-    # 3. Installe Flutter
+    # 3. Met à jour la version dans pubspec.yaml automatiquement
+    - name: Update version in pubspec.yaml
+      run: |
+        $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+        $MSIX_VERSION = "${{ steps.get_version.outputs.MSIX_VERSION }}"
+        $DATE = Get-Date -Format "yyMMdd"
+        
+        # Mise à jour version Flutter
+        (Get-Content pubspec.yaml) -replace 'version: .*', "version: $VERSION+$DATE" | Set-Content pubspec.yaml
+        
+        # Mise à jour version MSIX
+        (Get-Content pubspec.yaml) -replace 'msix_version: .*', "msix_version: $MSIX_VERSION" | Set-Content pubspec.yaml
+        
+        echo "✅ pubspec.yaml mis à jour"
+        echo "   Flutter: $VERSION+$DATE"
+        echo "   MSIX: $MSIX_VERSION"
+      shell: pwsh
+    
+    # 4. Installe Flutter
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.35.5'
+        flutter-version: '3.27.1'
         channel: 'stable'
     
-    # 4. Installe les dépendances
+    # 5. Installe les dépendances
     - name: Install dependencies
       run: flutter pub get
     
-    # 5. Build Windows
+    # 6. Build Windows en Release
     - name: Build Windows Release
       run: flutter build windows --release
     
-    # 6. Copie les DLL nécessaires dans le build
-    - name: Copy required DLLs
+    # 7. Crée le package MSIX
+    - name: Create MSIX Package
       run: |
-        New-Item -ItemType Directory -Force -Path "build/windows/x64/runner/Release/dll"
-        if (Test-Path "dll/*.dll") {
-          Copy-Item -Path "dll/*.dll" -Destination "build/windows/x64/runner/Release/" -Force
-          echo "DLLs copiées avec succès"
+        echo "🔨 Création du package MSIX..."
+        flutter pub run msix:create
+        
+        # Vérifie que le MSIX a été créé
+        if (Test-Path "build/windows/x64/runner/Release/*.msix") {
+          echo "✅ Package MSIX créé avec succès"
+          Get-ChildItem build/windows/x64/runner/Release/*.msix
         } else {
-          echo "⚠️ Aucune DLL trouvée dans le dossier dll/"
+          echo "❌ Erreur: Package MSIX non trouvé"
+          exit 1
         }
       shell: pwsh
     
-    # 7. Compresse le build Windows avec version dans le nom
-    - name: Archive Windows Build
+    # 8. Renomme le MSIX avec la version
+    - name: Rename MSIX with version
+      run: |
+        $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+        $MSIX_FILE = Get-ChildItem -Path "build/windows/x64/runner/Release/*.msix" | Select-Object -First 1
+        
+        if ($MSIX_FILE) {
+          $NEW_NAME = "XRTechTools-Windows-v$VERSION.msix"
+          Copy-Item $MSIX_FILE.FullName -Destination $NEW_NAME
+          echo "✅ MSIX renommé: $NEW_NAME"
+          echo "Taille: $([math]::Round($MSIX_FILE.Length / 1MB, 2)) MB"
+        } else {
+          echo "❌ Fichier MSIX non trouvé"
+          exit 1
+        }
+      shell: pwsh
+    
+    # 9. Crée aussi un ZIP portable (optionnel)
+    - name: Create Portable ZIP
       run: |
         $VERSION = "${{ steps.get_version.outputs.VERSION }}"
         cd build/windows/x64/runner/Release
-        Compress-Archive -Path * -DestinationPath "../../../../../XRTechTools-Windows-v$VERSION.zip"
-        echo "Archive créée: XRTechTools-Windows-v$VERSION.zip"
+        
+        # Exclut le MSIX du ZIP
+        $FILES = Get-ChildItem -Exclude "*.msix"
+        Compress-Archive -Path $FILES -DestinationPath "../../../../../XRTechTools-Windows-Portable-v$VERSION.zip"
+        
+        echo "✅ Version portable créée: XRTechTools-Windows-Portable-v$VERSION.zip"
       shell: pwsh
     
-    # 8. Build Android APK
+    # 10. Build Android APK
     - name: Build Android APK
       run: flutter build apk --release
     
-    # 9. Renomme l'APK avec la version
+    # 11. Renomme l'APK avec la version
     - name: Rename APK with version
       run: |
         $VERSION = "${{ steps.get_version.outputs.VERSION }}"
-        Copy-Item build/app/outputs/flutter-apk/app-release.apk -Destination "XRTechTools-v$VERSION.apk"
-        echo "APK créé: XRTechTools-v$VERSION.apk"
+        Copy-Item build/app/outputs/flutter-apk/app-release.apk -Destination "XRTechTools-Android-v$VERSION.apk"
+        echo "✅ APK créé: XRTechTools-Android-v$VERSION.apk"
       shell: pwsh
     
-    # 10. Crée la Release GitHub
+    # 12. Calcule les checksums (sécurité)
+    - name: Generate checksums
+      run: |
+        $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+        
+        echo "# XR Tech Tools v$VERSION - Checksums SHA256" > checksums.txt
+        echo "" >> checksums.txt
+        
+        # MSIX
+        $MSIX_HASH = (Get-FileHash "XRTechTools-Windows-v$VERSION.msix" -Algorithm SHA256).Hash
+        echo "## Windows MSIX" >> checksums.txt
+        echo "``````" >> checksums.txt
+        echo "$MSIX_HASH  XRTechTools-Windows-v$VERSION.msix" >> checksums.txt
+        echo "``````" >> checksums.txt
+        echo "" >> checksums.txt
+        
+        # ZIP Portable
+        $ZIP_HASH = (Get-FileHash "XRTechTools-Windows-Portable-v$VERSION.zip" -Algorithm SHA256).Hash
+        echo "## Windows Portable (ZIP)" >> checksums.txt
+        echo "``````" >> checksums.txt
+        echo "$ZIP_HASH  XRTechTools-Windows-Portable-v$VERSION.zip" >> checksums.txt
+        echo "``````" >> checksums.txt
+        echo "" >> checksums.txt
+        
+        # APK
+        $APK_HASH = (Get-FileHash "XRTechTools-Android-v$VERSION.apk" -Algorithm SHA256).Hash
+        echo "## Android APK" >> checksums.txt
+        echo "``````" >> checksums.txt
+        echo "$APK_HASH  XRTechTools-Android-v$VERSION.apk" >> checksums.txt
+        echo "``````" >> checksums.txt
+        
+        echo "✅ Checksums générés"
+        Get-Content checksums.txt
+      shell: pwsh
+    
+    # 13. Crée la Release GitHub
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.zip
-          XRTechTools-v${{ steps.get_version.outputs.VERSION }}.apk
+          XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix
+          XRTechTools-Windows-Portable-v${{ steps.get_version.outputs.VERSION }}.zip
+          XRTechTools-Android-v${{ steps.get_version.outputs.VERSION }}.apk
+          checksums.txt
         body: |
           ## 📦 XR Tech Tools v${{ steps.get_version.outputs.VERSION }}
           
-          ### 📥 Téléchargements
-          - **Windows** : `XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.zip`
-          - **Android** : `XRTechTools-v${{ steps.get_version.outputs.VERSION }}.apk`
+          **Application d'entraînement et de pratique professionnelle pour techniciens informatique**
           
-          ### ⚙️ Installation Windows
+          ---
+          
+          ### 🪟 Windows
+          
+          #### Option 1 : MSIX (Recommandé - Windows 10/11)
+          📥 **`XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix`**
+          
+          **Installation :**
+          1. Double-cliquez sur le fichier `.msix`
+          2. Cliquez sur "Installer" dans la fenêtre qui s'ouvre
+          3. L'application apparaîtra dans le menu Démarrer
+          
+          **Avantages :**
+          - ✅ Installation propre et sécurisée
+          - ✅ Désinstallation facile via Paramètres Windows
+          - ✅ Auto-mise à jour (si configurée)
+          - ✅ Format natif Windows 10/11
+          
+          ⚠️ **Note :** Windows SmartScreen peut afficher un avertissement car l'application n'est pas signée avec un certificat Code Signing. Cliquez sur "Informations complémentaires" puis "Exécuter quand même". C'est normal et sans danger.
+          
+          #### Option 2 : Version Portable (ZIP)
+          📥 **`XRTechTools-Windows-Portable-v${{ steps.get_version.outputs.VERSION }}.zip`**
+          
+          **Installation :**
           1. Extraire le fichier ZIP
           2. Lancer `xr_tech_tools.exe`
-          3. Les DLLs nécessaires sont incluses dans le package
+          3. Aucune installation requise
           
-          ### 📱 Installation Android
-          1. Activer "Sources inconnues" dans les paramètres
-          2. Installer l'APK
+          ---
+          
+          ### 📱 Android
+          
+          📥 **`XRTechTools-Android-v${{ steps.get_version.outputs.VERSION }}.apk`**
+          
+          **Installation :**
+          1. Activez "Sources inconnues" dans les paramètres de sécurité
+          2. Ouvrez le fichier APK téléchargé
+          3. Suivez les instructions d'installation
+          
+          ---
+          
+          ### 🔒 Vérification de l'intégrité
+          
+          Pour vérifier que vos fichiers téléchargés n'ont pas été altérés, comparez les checksums SHA256 avec ceux du fichier `checksums.txt` inclus dans cette release.
+          
+          **Windows (PowerShell) :**
+          ```powershell
+          Get-FileHash "XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix" -Algorithm SHA256
+          ```
+          
+          **Linux/macOS :**
+          ```bash
+          sha256sum XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix
+          ```
+          
+          ---
           
           ### 📝 Changements
-          Voir le [CHANGELOG.md](https://github.com/WolwX/xr-tech-tools/blob/main/CHANGELOG.md)
           
-          ### 🔧 DLLs incluses
-          Toutes les dépendances nécessaires sont incluses dans le package Windows.
+          Consultez le [CHANGELOG.md](https://github.com/WolwX/xr-tech-tools/blob/main/CHANGELOG.md) pour la liste complète des modifications.
+          
+          ---
+          
+          ### 🐛 Signaler un problème
+          
+          Si vous rencontrez un bug, ouvrez une [issue sur GitHub](https://github.com/WolwX/xr-tech-tools/issues).
+          
+          ---
+          
+          **Développé par Xavier Redondo avec l'assistance de Claude (Anthropic)**
         draft: false
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    # 14. Notification de succès
+    - name: Build Summary
+      run: |
+        echo "══════════════════════════════════════"
+        echo "✅ BUILD TERMINÉ AVEC SUCCÈS"
+        echo "══════════════════════════════════════"
+        echo ""
+        echo "📦 Fichiers créés:"
+        echo "   • MSIX Windows (installateur)"
+        echo "   • ZIP Windows (portable)"
+        echo "   • APK Android"
+        echo "   • Checksums SHA256"
+        echo ""
+        echo "🔗 Release disponible sur:"
+        echo "   https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+        echo ""
+        echo "══════════════════════════════════════"
+      shell: pwsh

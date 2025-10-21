@@ -15,15 +15,27 @@ class _IntroductionScreenState extends State<IntroductionScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late List<StarParticle> _stars;
+  late String _backgroundImage;
 
   @override
   void initState() {
     super.initState();
-    
+
+    // Choix aléatoire du background parmi tous les fichiers qui commencent par 'xrtechtools-bg'
+    final imageAssets = [
+      'assets/images/xrtechtools-bg1.png',
+      'assets/images/xrtechtools-bg2.png',
+      'assets/images/xrtechtools-bg3.png',
+      'assets/images/xrtechtools-bg4.png',
+      // Si d'autres fichiers sont ajoutés dans le pubspec.yaml, ils seront pris en compte ici
+    ];
+    final bgList = imageAssets.where((path) => path.contains('xrtechtools-bg')).toList();
+    _backgroundImage = (bgList..shuffle()).first;
+
     _animationController = AnimationController(
       duration: const Duration(seconds: 10),
       vsync: this,
-    )..repeat(reverse: true); 
+    )..repeat(reverse: true);
 
     _generateStars();
   }
@@ -76,80 +88,65 @@ class _IntroductionScreenState extends State<IntroductionScreen>
     
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration( 
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF1A237E),
-              Color(0xFF00B0FF),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(_backgroundImage),
+            fit: BoxFit.cover,
           ),
         ),
-        
         child: Stack(
           children: [
+            // Overlay sombre sur le background
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.55),
+              ),
+            ),
+            // Effet étoiles
             AnimatedBuilder(
               animation: _animationController,
               builder: (context, child) {
                 return CustomPaint(
-                  painter: StarsPainter(_stars, _animationController.value),
+                  painter: StarsPainter(_stars, _animationController.value, starSizeMultiplier: 1.5),
                   size: Size.infinite,
                 );
               },
             ),
-
+            // Bouton avec halo vermeil
             Positioned.fill(
-              child: SafeArea( 
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24.0, 40.0, 24.0, 80.0),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 500),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          const SizedBox(height: 50), 
-                          
-                          const Icon(
-                            Icons.construction,
-                            size: 100,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(height: 30),
-                          
-                          Text(
-                            "XR Tech Tools",
-                            style: theme.textTheme.displaySmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          
-                          const SizedBox(height: 180),
-                          
-                          PowerOnButton(
-                            onTap: () => _navigateToDashboard(context),
-                          ),
-
-                          const SizedBox(height: 30),
-                        ],
+              child: SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      const SizedBox(height: 200),
+                      AnimatedGoldBorderButton(
+                        onTap: () => _navigateToDashboard(context),
                       ),
-                    ),
+
+                      const SizedBox(height: 30),
+                    ],
                   ),
                 ),
               ),
             ),
-
-            const Align(
+            // Footer sur fond sombre
+            Align(
               alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 12.0),
-                child: AppFooter(),
+              child: Container(
+                width: double.infinity,
+                color: Colors.black.withOpacity(0.5), // 50% d'opacité
+                padding: const EdgeInsets.only(bottom: 12.0, top: 8.0),
+                child: const AppFooter(
+                  forceWhite: true,
+                  // On force tout en blanc (texte et icônes)
+                ),
               ),
             ),
+
+// Widget pour bordure dorée animée et glow subtil autour du bouton
+
           ],
         ),
       ),
@@ -208,18 +205,7 @@ class _PowerOnButtonState extends State<PowerOnButton>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(50),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
+                // Suppression des boxShadow pour un fit parfait de la bordure
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -233,7 +219,7 @@ class _PowerOnButtonState extends State<PowerOnButton>
                   const Text(
                     'Power On',
                     style: TextStyle(
-                      color: Color(0xFF00B0FF),
+                      color: Color(0xFF00B0FF), // bleu
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -279,8 +265,9 @@ class StarParticle {
 class StarsPainter extends CustomPainter {
   final List<StarParticle> stars;
   final double animationValue;
+  final double starSizeMultiplier;
 
-  StarsPainter(this.stars, this.animationValue);
+  StarsPainter(this.stars, this.animationValue, {this.starSizeMultiplier = 1.0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -309,7 +296,7 @@ class StarsPainter extends CustomPainter {
       if (finalX < 0) finalX += size.width;
       if (finalY < 0) finalY += size.height;
 
-      final currentSize = star.size + (twinkle * 0.3);
+  final currentSize = (star.size + (twinkle * 0.3)) * starSizeMultiplier;
 
       canvas.drawCircle(
         Offset(finalX, finalY),
@@ -351,5 +338,100 @@ class StarsPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant StarsPainter oldDelegate) {
     return animationValue != oldDelegate.animationValue;
+  }
+}
+
+
+// Nouveau bouton Power On avec bordure dorée animée (sweep gradient rotatif)
+class AnimatedGoldBorderButton extends StatefulWidget {
+  final VoidCallback onTap;
+  const AnimatedGoldBorderButton({required this.onTap});
+
+  @override
+  State<AnimatedGoldBorderButton> createState() => _AnimatedGoldBorderButtonState();
+}
+
+class _AnimatedGoldBorderButtonState extends State<AnimatedGoldBorderButton> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _hovering = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: CustomPaint(
+        painter: _GoldBorderPainter(
+          progress: _controller.value,
+          highlight: _hovering,
+        ),
+        child: PowerOnButton(
+          onTap: widget.onTap,
+        ),
+      ),
+    );
+  }
+}
+
+class _GoldBorderPainter extends CustomPainter {
+  final double progress;
+  final bool highlight;
+  _GoldBorderPainter({required this.progress, required this.highlight});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // (rect et paint inutiles)
+
+    // Sweep gradient doré animé
+    // Bordure principale discrète
+    final borderRect = Rect.fromLTWH(2, 2, size.width - 4, size.height - 4);
+    final borderPath = Path()
+      ..addRRect(RRect.fromRectAndRadius(borderRect, const Radius.circular(48)));
+    final basePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
+      ..color = const Color(0x2200B0FF); // bleu très léger
+    canvas.drawPath(borderPath, basePaint);
+
+    // Effet d'éclat lumineux qui tourne (sweep gradient)
+    final sweepPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
+      ..shader = SweepGradient(
+        startAngle: 0,
+        endAngle: 2 * 3.141592653589793,
+        colors: [
+          Colors.transparent,
+          const Color(0xFF00B0FF).withOpacity(0.7),
+          Colors.transparent,
+        ],
+        stops: const [0.0, 0.08, 1.0],
+        transform: GradientRotation(progress * 2 * 3.141592653589793),
+      ).createShader(borderRect);
+    canvas.drawPath(borderPath, sweepPaint);
+
+    // (point lumineux désactivé)
+
+  // (fin du paint)
+  }
+
+  @override
+  bool shouldRepaint(covariant _GoldBorderPainter oldDelegate) {
+    return progress != oldDelegate.progress || highlight != oldDelegate.highlight;
   }
 }

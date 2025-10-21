@@ -1,12 +1,65 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.071025-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.1-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
 
 XR Tech Tools est une application mobile et desktop développée en Flutter, conçue pour accompagner aussi bien les **apprenants en formation** que les **techniciens en exercice** dans leurs activités quotidiennes. L'application propose des outils pratiques, des scénarios d'entraînement, **des logigrammes de dépannage interactifs** et des ressources techniques adaptées aux référentiels RNCP.
+
+---
+
+## 📥 Installation
+
+### 🪟 Windows (Version Portable - Recommandé)
+
+**Téléchargement :** [XRTechTools-Windows-Portable-v1.3.1.zip](https://github.com/WolwX/xr-tech-tools/releases/latest)
+
+#### Installation en 3 étapes :
+
+1. **Télécharger** le fichier ZIP depuis les [Releases GitHub](https://github.com/WolwX/xr-tech-tools/releases/latest)
+2. **Extraire** tous les fichiers dans un dossier de votre choix (ex: `C:\XRTechTools\`)
+3. **Lancer** `xr_tech_tools.exe`
+
+#### ⚠️ Avertissement Windows Defender
+
+Lors du premier lancement, Windows Defender peut afficher un avertissement car l'application n'est pas signée numériquement. **C'est normal et sans danger.**
+
+**Solution 1 : Autoriser temporairement (rapide)**
+1. Cliquez sur **"Informations complémentaires"**
+2. Cliquez sur **"Exécuter quand même"**
+
+**Solution 2 : Ajouter une exception permanente (recommandé)**
+1. Ouvrez **Windows Security** (Sécurité Windows)
+2. Allez dans **"Protection contre les virus et menaces"**
+3. Sous **"Paramètres de protection..."**, cliquez sur **"Gérer les paramètres"**
+4. Descendez jusqu'à **"Exclusions"**
+5. Cliquez sur **"Ajouter ou supprimer des exclusions"**
+6. Cliquez sur **"Ajouter une exclusion"** → **"Dossier"**
+7. Sélectionnez le dossier où vous avez extrait l'application (ex: `C:\XRTechTools\`)
+8. Validez → L'application ne sera plus bloquée
+
+**Raccourci rapide :** `Windows + I` → Recherchez "exclusions" → Ajoutez le dossier
+
+---
+
+### 🪟 Windows (Installation Système - Optionnel)
+
+**Téléchargement :** [XRTechTools-Windows-v1.3.1.msix](https://github.com/WolwX/xr-tech-tools/releases/latest)
+
+**Note :** Le format MSIX nécessite l'activation du mode développeur Windows ou l'installation manuelle du certificat. Pour une installation simple, préférez la version portable (ZIP) ci-dessus.
+
+---
+
+### 📱 Android
+
+**Téléchargement :** [XRTechTools-Android-v1.3.1.apk](https://github.com/WolwX/xr-tech-tools/releases/latest)
+
+**Installation :**
+1. Téléchargez le fichier APK
+2. Activez **"Sources inconnues"** dans les paramètres Android si demandé
+3. Ouvrez le fichier APK et suivez les instructions
 
 ---
 
@@ -32,25 +85,23 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - **ADRN** - Agent De Reconditionnement en appareil Numérique (RNCP38718)
 - **TIP** - Technicien Informatique de Proximité (RNCP40799)
 
-## 🚀 Nouveautés v1.3.071025 (07/10/2025)
+## 🚀 Nouveautés v1.3.1 (21/10/2025)
 
-### 🎨 Harmonisation UI
-- **Design cohérent** entre scénarios commerciaux et fiches de panne
-- **Boutons Correction/Abandon** maintenant disponibles sur les scénarios commerciaux
-- **Sections encadrées** avec bordures blanches pour améliorer la lisibilité
-- **Positionnement uniforme** des éléments d'interface
+### 📦 Distribution Améliorée
+- **Format ZIP portable** : Installation simplifiée sans contraintes système
+- **Package MSIX** : Format Windows moderne disponible en option
+- **Build automatisé** : GitHub Actions génère automatiquement Windows (ZIP + MSIX) et Android (APK)
+- **Checksums SHA256** : Vérification de l'intégrité des fichiers
 
-### ⏱️ Gestion Timer Intelligente
-- **Timer contextuel** : s'arrête automatiquement lors du clic sur "Correction"
-- **Affichage du temps écoulé** dans les fiches de correction
-- **Intégration GlobalTimerService** pour une gestion cohérente entre modules
+### 🔧 Versioning avec Date
+- **Système de double versioning** : Version applicative (ex: 1.3.1+20251021) et version technique
+- **Date de build** : Affichage automatique de la date de compilation dans l'application
+- **Traçabilité** : Identification précise de chaque version distribuée
 
-### 🔧 Améliorations Techniques
-- **Version automatique** : le footer récupère automatiquement la version du pubspec.yaml
-- **Correction dépendances** Flutter pour une meilleure stabilité
-- **Build automatique** via GitHub Actions pour Windows et Android
-
----
+### ⚙️ Améliorations Techniques
+- **Script d'automatisation** : `set_version.bat` pour mise à jour automatique des versions
+- **Workflow GitHub optimisé** : Compilation multi-plateforme automatisée
+- **Documentation complète** : Guides d'installation et de build pour développeurs
 
 ## ✨ Fonctionnalités Principales
 
@@ -76,12 +127,13 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
   - Chifoumi : Victoires/Égalités/Défaites
   - Scénarios : Réussis/Essais par difficulté
   - Format "X / Y" (réussis sur total d'essais)
+- Numérotation : Chaque scénario identifié par "#numéro" dans la demande client
 - Signalement d'anomalies par email
 
 ### ✅ Mode Créateur de Pannes (v1.3.300925)
 - **14 pannes** réparties sur 3 niveaux (4 faciles, 6 moyennes, 4 difficiles)
 - **6 catégories** : Matériel, Logiciel, BIOS/UEFI, Réseau, Impression, Périphérique
-- **Tirage aléatoire** de pannes
+- Tirage aléatoire de pannes
 - **Sélection avancée** :
   - Par numéro de panne
   - Par difficulté (3 boutons)
@@ -92,16 +144,7 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
   - Total de pannes tirées
   - Compteur par difficulté
   - Persistance avec SharedPreferences
-
-### ✅ Mode Dépanneur (v1.3.300925)
-- Utilise les 14 pannes du Mode Créateur
-- Affichage des symptômes uniquement (vision technicien)
-- Timer 30 minutes avec pause/reprise
-- Sélection avancée (par numéro ou difficulté)
-- Solution complète avec procédure de résolution
-- Auto-évaluation (Réussi/À revoir)
-- Statistiques persistantes par difficulté
-- Mode Défi Chifoumi
+  - Affichage en bas de l'écran
 
 ### 🗺️ Logigrammes Interactifs de Dépannage **[OPTIMISÉ v1.3.061025]**
 - **Navigation guidée étape par étape** pour diagnostiquer les pannes
@@ -116,7 +159,7 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
   - 🟢 Succès : Solution trouvée
   - 🔴 Échec : Composant défectueux
   - 🔵 Info : Prochaines étapes suggérées
-- **Options visuellement distinctes** (✓ vert / ✗ rouge)
+- **Options visuellement distinctes** (✔ vert / ✗ rouge)
 - **Interface perfectionnée** avec icônes, mise en page Wrap pour affichage multi-ligne
 - **Système de visualisation d'images** intégré avec mode plein écran
 
@@ -167,8 +210,9 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
   - `url_launcher` : Ouverture de liens externes
   - `shared_preferences` : Sauvegarde des données locales
   - `package_info_plus` : Récupération automatique de la version
+  - `msix` : Génération de packages MSIX pour Windows
 
-## 📱 Installation
+## 🔧 Développement
 
 ### Prérequis
 - Flutter SDK (>= 3.0.0)
@@ -189,6 +233,17 @@ flutter pub get
 flutter run
 ```
 
+### Build Windows (MSIX)
+```bash
+# Build Windows Release
+flutter build windows --release
+
+# Créer le package MSIX
+flutter pub run msix:create
+```
+
+Voir [README_BUILD.md](README_BUILD.md) pour plus de détails sur le build et la publication.
+
 ## 📊 Gestion des Statistiques
 
 L'application utilise une architecture **décentralisée** pour la gestion des statistiques :
@@ -198,14 +253,37 @@ L'application utilise une architecture **décentralisée** pour la gestion des s
 
 ## 📝 Versions
 
-- **v1.3.031025** (03/10/2025) : Timer flottant automatique + Interface épurée logigrammes
-- **v1.3.011025** (01/10/2025) : Ajout des logigrammes interactifs de dépannage
-- **v1.3.300925** (30/09/2025) : Sélection avancée scénarios + statistiques décentralisées pannes
-- **v1.2.0** : Ajout Mode Créateur de pannes + 100 scénarios commerciaux
+- **v1.3.1** (21/10/2025) : Distribution ZIP + MSIX, versioning avec date, build automatisé
+- **v1.3.071025** (07/10/2025) : Harmonisation UI + Timer intelligent
+- **v1.3.061025** (06/10/2025) : 4 logigrammes Hardware complets
+- **v1.3.041025** (04/10/2025) : Système de confirmation timer
+- **v1.3.031025** (03/10/2025) : Timer flottant automatique
+- **v1.3.011025** (01/10/2025) : Ajout des logigrammes interactifs
+- **v1.3.300925** (30/09/2025) : Sélection avancée + statistiques décentralisées
+- **v1.2.0** : Mode Créateur de pannes + 100 scénarios commerciaux
 - **v1.1.0** : Statistiques persistantes + Mode Défi Chifoumi
 - **v1.0.0** : Version initiale avec dashboard
 
 Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet.
+
+## 🆘 Support & Problèmes
+
+### Questions fréquentes
+
+**Q : Windows Defender bloque l'application, est-ce un virus ?**  
+R : Non, c'est une fausse alerte. L'application n'est pas signée numériquement, ce qui est normal pour un logiciel gratuit. Ajoutez une exception dans Windows Defender (voir section Installation).
+
+**Q : Le fichier MSIX ne s'installe pas**  
+R : Le format MSIX nécessite des configurations Windows avancées. Utilisez plutôt la **version ZIP portable** qui est plus simple.
+
+**Q : L'application ne se lance pas**  
+R : Vérifiez que vous avez bien extrait TOUS les fichiers du ZIP, pas seulement l'exécutable.
+
+### Signaler un bug
+
+Si vous rencontrez un problème :
+1. Ouvrez une [issue sur GitHub](https://github.com/WolwX/xr-tech-tools/issues)
+2. Ou envoyez un email à : [WolwX@hotmail.com](mailto:WolwX@hotmail.com)
 
 ## 👨‍💻 Développement
 
