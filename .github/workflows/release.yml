@@ -25,12 +25,20 @@ jobs:
         echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
         echo "Version détectée: $VERSION"
         
-        # Convertit la version au format MSIX (ex: 1.3.1 -> 1.3.1.0)
+        # Convertit la version au format MSIX (ex: 1.3.1+20251021 -> 1.3.1.1021)
         $PARTS = $VERSION -split '\.'
         if ($PARTS.Count -eq 3) {
-          $MSIX_VERSION = "$VERSION.0"
-        } else {
+          # Si le tag contient un suffixe de date (ex: 1.3.1+20251021), on l'utilise comme 4ème partie
+          if ($VERSION -match '\+(\d+)$') {
+            $MSIX_VERSION = "$($PARTS[0]).$($PARTS[1]).$($PARTS[2]).$($Matches[1])"
+          } else {
+            $MSIX_VERSION = "$VERSION.0"
+          }
+        } elseif ($PARTS.Count -eq 4) {
           $MSIX_VERSION = $VERSION
+        } else {
+          # Fallback: force à 1.0.0.0
+          $MSIX_VERSION = "1.0.0.0"
         }
         echo "MSIX_VERSION=$MSIX_VERSION" >> $env:GITHUB_OUTPUT
         echo "Version MSIX: $MSIX_VERSION"
