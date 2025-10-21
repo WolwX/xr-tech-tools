@@ -11,7 +11,7 @@
 
 - **Nom** : XR Tech Tools
 - **Tech** : Flutter / Dart
-- **Version actuelle** : v1.3.071025 (07/10/2025)
+- **Version actuelle** : v1.3.2 (21/10/2025)
 - **Objectif** : Boîte à outils pro + pédagogique techniciens IT
 - **Titres visés** : IDI, ADRN, TIP (RNCP34147, RNCP38718, RNCP40799)
 - **Contact** : WolwX@hotmail.com
@@ -42,6 +42,18 @@
 ---
 
 ## 🆕 DERNIERS CHANGEMENTS (v1.3.071025 - 07/10/2025)
+
+## Version 1.3.2 (21/10/2025) - UI/UX, icônes et dashboard
+
+### ✨ Changements principaux
+- Harmonisation du Splash et du Dashboard
+- Icônes multi-plateformes harmonisées (favicon, web icons, app icon)
+- Bordures 3D pour AppBar et Footer ; suppression des ombres images
+- Synchronisation du background entre Intro et Dashboard
+
+### 🔧 Divers
+- Nettoyage des assets et mise à jour des configurations
+
 
 ### 🎨 HARMONISATION UI ET TIMER INTELLIGENT ⭐ MAJEUR
 1. **Harmonisation Design Complete**

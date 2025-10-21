@@ -38,9 +38,10 @@ class _AppFooterState extends State<AppFooter> {
     
     // Le code utilise un Wrap pour s'assurer que si l'écran est très étroit,
     // le texte passe à la ligne sans déborder.
-  final Color textColor = widget.forceWhite ? Colors.grey[600]! : theme.colorScheme.onSurface.withOpacity(0.7);
-  final Color strongColor = widget.forceWhite ? Colors.grey[600]! : theme.colorScheme.onSurface;
-  final Color iconColor = widget.forceWhite ? Colors.grey[400]! : theme.colorScheme.onSurface;
+  final Color appBarBlue = const Color(0xFF2196F3); // Couleur AppBar Flutter par défaut
+  final Color textColor = widget.forceWhite ? appBarBlue : theme.colorScheme.onSurface.withOpacity(0.7);
+  final Color strongColor = widget.forceWhite ? appBarBlue : theme.colorScheme.onSurface;
+  final Color iconColor = widget.forceWhite ? appBarBlue.withOpacity(0.7) : theme.colorScheme.onSurface;
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: 4.0, // Espacement horizontal

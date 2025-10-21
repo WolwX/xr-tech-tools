@@ -1,7 +1,7 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.1-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.2-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
@@ -85,7 +85,7 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - **ADRN** - Agent De Reconditionnement en appareil Numérique (RNCP38718)
 - **TIP** - Technicien Informatique de Proximité (RNCP40799)
 
-## 🚀 Nouveautés v1.3.1 (21/10/2025)
+## 🚀 Nouveautés v1.3.2 (21/10/2025)
 
 ### 📦 Distribution Améliorée
 - **Format ZIP portable** : Installation simplifiée sans contraintes système

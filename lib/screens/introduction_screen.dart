@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_footer.dart';
+import '../widgets/animated_border_button.dart'; // NOUVEAU IMPORT
 import '../services/global_timer_service.dart';
 import 'dashboard_screen.dart';
 import 'dart:math' as math;
@@ -77,7 +78,7 @@ class _IntroductionScreenState extends State<IntroductionScreen>
   void _navigateToDashboard(BuildContext context) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (ctx) => const DashboardScreen(),
+        builder: (ctx) => DashboardScreen(backgroundImage: _backgroundImage),
       ),
     );
   }
@@ -112,7 +113,7 @@ class _IntroductionScreenState extends State<IntroductionScreen>
                 );
               },
             ),
-            // Bouton avec halo vermeil
+            // Bouton avec bordure lumineuse animée
             Positioned.fill(
               child: SafeArea(
                 child: Center(
@@ -124,7 +125,6 @@ class _IntroductionScreenState extends State<IntroductionScreen>
                       AnimatedGoldBorderButton(
                         onTap: () => _navigateToDashboard(context),
                       ),
-
                       const SizedBox(height: 30),
                     ],
                   ),
@@ -144,91 +144,8 @@ class _IntroductionScreenState extends State<IntroductionScreen>
                 ),
               ),
             ),
-
-// Widget pour bordure dorée animée et glow subtil autour du bouton
-
           ],
         ),
-      ),
-    );
-  }
-}
-
-class PowerOnButton extends StatefulWidget {
-  final VoidCallback onTap;
-
-  const PowerOnButton({super.key, required this.onTap});
-
-  @override
-  State<PowerOnButton> createState() => _PowerOnButtonState();
-}
-
-class _PowerOnButtonState extends State<PowerOnButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) {
-        _controller.reverse();
-        widget.onTap();
-      },
-      onTapCancel: () => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(50),
-                // Suppression des boxShadow pour un fit parfait de la bordure
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.power_settings_new,
-                    color: Color(0xFF00B0FF),
-                    size: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Power On',
-                    style: TextStyle(
-                      color: Color(0xFF00B0FF), // bleu
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -296,7 +213,7 @@ class StarsPainter extends CustomPainter {
       if (finalX < 0) finalX += size.width;
       if (finalY < 0) finalY += size.height;
 
-  final currentSize = (star.size + (twinkle * 0.3)) * starSizeMultiplier;
+      final currentSize = (star.size + (twinkle * 0.3)) * starSizeMultiplier;
 
       canvas.drawCircle(
         Offset(finalX, finalY),
@@ -338,100 +255,5 @@ class StarsPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant StarsPainter oldDelegate) {
     return animationValue != oldDelegate.animationValue;
-  }
-}
-
-
-// Nouveau bouton Power On avec bordure dorée animée (sweep gradient rotatif)
-class AnimatedGoldBorderButton extends StatefulWidget {
-  final VoidCallback onTap;
-  const AnimatedGoldBorderButton({required this.onTap});
-
-  @override
-  State<AnimatedGoldBorderButton> createState() => _AnimatedGoldBorderButtonState();
-}
-
-class _AnimatedGoldBorderButtonState extends State<AnimatedGoldBorderButton> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  bool _hovering = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: CustomPaint(
-        painter: _GoldBorderPainter(
-          progress: _controller.value,
-          highlight: _hovering,
-        ),
-        child: PowerOnButton(
-          onTap: widget.onTap,
-        ),
-      ),
-    );
-  }
-}
-
-class _GoldBorderPainter extends CustomPainter {
-  final double progress;
-  final bool highlight;
-  _GoldBorderPainter({required this.progress, required this.highlight});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // (rect et paint inutiles)
-
-    // Sweep gradient doré animé
-    // Bordure principale discrète
-    final borderRect = Rect.fromLTWH(2, 2, size.width - 4, size.height - 4);
-    final borderPath = Path()
-      ..addRRect(RRect.fromRectAndRadius(borderRect, const Radius.circular(48)));
-    final basePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0
-      ..color = const Color(0x2200B0FF); // bleu très léger
-    canvas.drawPath(borderPath, basePaint);
-
-    // Effet d'éclat lumineux qui tourne (sweep gradient)
-    final sweepPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0
-      ..shader = SweepGradient(
-        startAngle: 0,
-        endAngle: 2 * 3.141592653589793,
-        colors: [
-          Colors.transparent,
-          const Color(0xFF00B0FF).withOpacity(0.7),
-          Colors.transparent,
-        ],
-        stops: const [0.0, 0.08, 1.0],
-        transform: GradientRotation(progress * 2 * 3.141592653589793),
-      ).createShader(borderRect);
-    canvas.drawPath(borderPath, sweepPaint);
-
-    // (point lumineux désactivé)
-
-  // (fin du paint)
-  }
-
-  @override
-  bool shouldRepaint(covariant _GoldBorderPainter oldDelegate) {
-    return progress != oldDelegate.progress || highlight != oldDelegate.highlight;
   }
 }

@@ -5,18 +5,14 @@ import '../widgets/app_footer.dart';
 import '../services/global_timer_service.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final String backgroundImage;
+  const DashboardScreen({super.key, required this.backgroundImage});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // L'initialisation du GlobalTimerService se fera dans didChangeDependencies()
-  }
 
   @override
   void didChangeDependencies() {
@@ -34,42 +30,100 @@ class _DashboardScreenState extends State<DashboardScreen> {
     int crossAxisCount = screenWidth > 600 ? 3 : 2;
     
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('XR Tech Tools \\ Dashboard'),
-        toolbarHeight: 50,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(50),
+        child: Container(
+          // Bordure 3D subtile : ligne claire en haut + ligne sombre en bas
+          decoration: BoxDecoration(
+            color: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).primaryColor,
+            border: Border(
+              top: BorderSide(color: Colors.white.withOpacity(0.15), width: 1),
+              bottom: BorderSide(color: Colors.black.withOpacity(0.08), width: 2),
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            toolbarHeight: 50,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/app-icon.png',
+                  width: 28,
+                  height: 28,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'XR Tech Tools / Dashboard',
+                  style: Theme.of(context).appBarTheme.titleTextStyle ?? const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      childAspectRatio: 1.4,
-                      crossAxisSpacing: 6,
-                      mainAxisSpacing: 6,
+          // Image de fond
+          Positioned.fill(
+            child: Image.asset(
+              widget.backgroundImage,
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Filtre blanc pour éclaircir
+          Positioned.fill(
+            child: Container(
+              color: Colors.white.withOpacity(0.45),
+            ),
+          ),
+          // Contenu principal
+          Column(
+            children: [
+              // Marge sous l'AppBar
+              const SizedBox(height: 12),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 800),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          childAspectRatio: 1.4,
+                          crossAxisSpacing: 6,
+                          mainAxisSpacing: 6,
+                        ),
+                        itemCount: availableTools.length,
+                        itemBuilder: (context, index) {
+                          final tool = availableTools[index];
+                          return CompactToolTile(tool: tool);
+                        },
+                      ),
                     ),
-                    itemCount: availableTools.length,
-                    itemBuilder: (context, index) {
-                      final tool = availableTools[index];
-                      return CompactToolTile(tool: tool);
-                    },
                   ),
                 ),
               ),
-            ),
-          ),
-          
-          Container(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: const AppFooter(),
+              // Footer avec bordure 3D subtile
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    top: BorderSide(color: Colors.white.withOpacity(0.15), width: 1),
+                    bottom: BorderSide(color: Colors.black.withOpacity(0.08), width: 2),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: const AppFooter(forceWhite: true),
+              ),
+            ],
           ),
         ],
       ),

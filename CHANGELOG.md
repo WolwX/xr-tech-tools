@@ -1,6 +1,18 @@
 XR TECH TOOLS - HISTORIQUE DES VERSIONS
 ========================================
 
+## Version 1.3.2 (21/10/2025) - UI/UX, icônes et dashboard
+
+### ✨ Changements principaux
+- Améliorations UI/UX : refinement du Splash et du Dashboard
+- Icônes multi-plateformes : favicon/web icons et app icon harmonisées
+- Bordures 3D pour AppBar et Footer ; suppression des ombres image
+- Synchronisation du background entre Intro et Dashboard
+
+### 🔧 Divers
+- Nettoyage des assets et mise à jour des configurations
+
+
 ## Version 1.3.1 (21/10/2025) - Distribution & Build Automatisé
 
 ### 📦 Nouveautés Distribution
