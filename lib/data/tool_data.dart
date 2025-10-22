@@ -3,11 +3,13 @@ import '../models/tool.dart'; // Importe la classe Tool
 // Utilisation du nom de fichier exact pour l'écran de tirage
 import '../screens/commercial_scenario_screen.dart'; 
 import '../screens/malfunction_home_screen.dart';
+import '../screens/bios_boot_home_screen.dart';
 
 // === VERSIONS CENTRALISÉES ===
 class ToolVersions {
   static const String commercialScenarios = 'v1.3';
   static const String malfunctionTools = 'v1.2';
+  static const String biosBootTools = 'v0.1';
   // Ajoutez d'autres versions ici au besoin
 }
 
@@ -83,10 +85,11 @@ const Tool(
 
   // 6. Touches de BIOS et BOOT (Ancien index 7)
   Tool(
-    name: 'Touches de BIOS et BOOT',
-    description: 'Référence rapide pour les raccourcis BIOS et les touches de menu de démarrage (BOOT) des principaux fabricants.',
-    icon: Icons.keyboard_command_key_outlined,
-    destination: _comingSoonPage('Touches de BIOS et BOOT'),
+    name: 'Touches BIOS/Boot',
+    description: 'Touches et procédure pour accéder au BIOS/UEFI et au menu de démarrage.',
+    icon: Icons.keyboard,
+    destination: const BiosBootHomeScreen(),
+    version: 'v0.1',
   ),
   
   // 7. Fiches Hardware (Ancien index 8)

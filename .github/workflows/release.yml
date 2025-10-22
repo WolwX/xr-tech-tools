@@ -100,38 +100,38 @@ jobs:
     - name: Build Windows Release
       run: flutter build windows --release
     
-    # 7. Crée le package MSIX
-    - name: Create MSIX Package
-      run: |
-        echo "🔨 Création du package MSIX..."
-        flutter pub run msix:create
-        
-        # Vérifie que le MSIX a été créé
-        if (Test-Path "build/windows/x64/runner/Release/*.msix") {
-          echo "✅ Package MSIX créé avec succès"
-          Get-ChildItem build/windows/x64/runner/Release/*.msix
-        } else {
-          echo "❌ Erreur: Package MSIX non trouvé"
-          exit 1
-        }
-      shell: pwsh
+    # 7. Crée le package MSIX (DÉSACTIVÉ TEMPORAIREMENT)
+    # - name: Create MSIX Package
+    #   run: |
+    #     echo "🔨 Création du package MSIX..."
+    #     flutter pub run msix:create
+    #     
+    #     # Vérifie que le MSIX a été créé
+    #     if (Test-Path "build/windows/x64/runner/Release/*.msix") {
+    #       echo "✅ Package MSIX créé avec succès"
+    #       Get-ChildItem build/windows/x64/runner/Release/*.msix
+    #     } else {
+    #       echo "❌ Erreur: Package MSIX non trouvé"
+    #       exit 1
+    #     }
+    #   shell: pwsh
     
-    # 8. Renomme le MSIX avec la version
-    - name: Rename MSIX with version
-      run: |
-        $VERSION = "${{ steps.get_version.outputs.VERSION }}"
-        $MSIX_FILE = Get-ChildItem -Path "build/windows/x64/runner/Release/*.msix" | Select-Object -First 1
-        
-        if ($MSIX_FILE) {
-          $NEW_NAME = "XRTechTools-Windows-v$VERSION.msix"
-          Copy-Item $MSIX_FILE.FullName -Destination $NEW_NAME
-          echo "✅ MSIX renommé: $NEW_NAME"
-          echo "Taille: $([math]::Round($MSIX_FILE.Length / 1MB, 2)) MB"
-        } else {
-          echo "❌ Fichier MSIX non trouvé"
-          exit 1
-        }
-      shell: pwsh
+    # 8. Renomme le MSIX avec la version (DÉSACTIVÉ TEMPORAIREMENT)
+    # - name: Rename MSIX with version
+    #   run: |
+    #     $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+    #     $MSIX_FILE = Get-ChildItem -Path "build/windows/x64/runner/Release/*.msix" | Select-Object -First 1
+    #     
+    #     if ($MSIX_FILE) {
+    #       $NEW_NAME = "XRTechTools-Windows-v$VERSION.msix"
+    #       Copy-Item $MSIX_FILE.FullName -Destination $NEW_NAME
+    #       echo "✅ MSIX renommé: $NEW_NAME"
+    #       echo "Taille: $([math]::Round($MSIX_FILE.Length / 1MB, 2)) MB"
+    #     } else {
+    #       echo "❌ Fichier MSIX non trouvé"
+    #       exit 1
+    #     }
+    #   shell: pwsh
     
     # 9. Crée aussi un ZIP portable (optionnel)
     - name: Create Portable ZIP

@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "xr_tech_tools",
-      "version": "1.3.1+20251021",
+      "version": "1.3.3+20251022",
       "dependencies": [
         "cupertino_icons",
         "flutter",
