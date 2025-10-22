@@ -1,11 +1,11 @@
 {
-    "name": "form_informatique",
-    "short_name": "form_informatique",
+    "name": "XR Tech Tools",
+    "short_name": "XR Tech Tools",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
