@@ -1,6 +1,67 @@
 XR TECH TOOLS - HISTORIQUE DES VERSIONS
 ========================================
 
+## Version 1.3.3 (22/10/2025) - Outil Touches BIOS/BOOT - Version Bêta 0.1
+
+### 🔧 NOUVEL OUTIL PROFESSIONNEL : TOUCHES BIOS/BOOT
+
+#### 📚 Fonctionnalités Principales
+- **Référence visuelle par fabricant** : Interface dédiée pour HP, Dell, Asus, MSI
+- **Logos officiels intégrés** : Marques reconnues avec affichage haute qualité
+- **Interface zoomable** : Touches de raccourci BIOS/BOOT avec alignement dynamique
+- **Système de favoris** : Accès rapide aux fabricants les plus utilisés (4 en ligne)
+- **Navigation intuitive** : Accès direct depuis le dashboard principal
+- **Design responsive** : Adaptation automatique aux différentes tailles d'écran
+
+#### 🎨 Interface Utilisateur
+- **Cartes compactes** : Design moderne avec logos et informations optimisées
+- **Grille adaptative** : 4 colonnes pour les favoris, affichage responsive
+- **Alignement dynamique** : LayoutBuilder pour positionnement précis des touches
+- **Catégorisation intelligente** : Groupement par type de raccourci (BIOS/UEFI, Boot Menu, etc.)
+- **Navigation fluide** : Transitions harmonieuses entre écrans
+
+#### 🛠️ Architecture Technique
+- **Nouveaux écrans** :
+  - `BiosBootHomeScreen` : Page d'accueil avec favoris et catégories
+  - `BiosBootCategoryScreen` : Affichage détaillé par fabricant
+  - `BiosBootDetailScreen` : Vue détaillée des touches avec zoom
+
+- **Nouveaux modèles** :
+  - `BiosBootData` : Structure des données BIOS par fabricant
+  - `BiosManufacturersData` : Données des fabricants avec logos
+  - `BiosFavorites` : Gestion des favoris utilisateur
+
+- **Nouveaux services** :
+  - `BiosFavoritesService` : Persistance et gestion des favoris
+
+- **Nouveaux widgets** :
+  - `KeyDisplayWidget` : Affichage des touches avec alignement dynamique
+  - `ManufacturerCard` : Cartes des fabricants avec logos
+
+#### 📦 Assets Ajoutés
+- **Logos haute qualité** : hp.png, dell.png, asus.png, msi.png
+- **Organisation** : Dossier `assets/images/logos/` dédié
+
+#### 🎯 Fabricants Supportés
+- **HP** : Touches F10, ESC+F9, F2, etc.
+- **Dell** : Touches F2, F12, F10, etc.
+- **Asus** : Touches DEL, F8, F2, etc.
+- **MSI** : Touches DEL, F11, F2, etc.
+
+#### 🔧 Fonctionnalités Techniques
+- **Persistance des favoris** : SharedPreferences pour sauvegarde utilisateur
+- **Interface tactile optimisée** : Navigation fluide sur mobile et desktop
+- **Responsive design** : Adaptation automatique aux tailles d'écran
+- **Intégration complète** : Cohérente avec le design global de l'application
+
+#### 📊 Impact Utilisateur
+- **Outil professionnel essentiel** : Référence rapide pour techniciens
+- **Interface intuitive** : Accès visuel aux touches BIOS/BOOT
+- **Productivité améliorée** : Pas besoin de rechercher les touches en ligne
+- **Formation facilitée** : Support visuel pour apprenants
+
+---
+
 ## Version 1.3.2 (21/10/2025) - UI/UX, icônes et dashboard
 
 ### ✨ Changements principaux
@@ -67,9 +128,9 @@ XR TECH TOOLS - HISTORIQUE DES VERSIONS
 
 ### 📦 Fichiers Générés par Release
 Chaque release GitHub contient maintenant :
-- `XRTechTools-Windows-Portable-v1.3.1.zip` (version recommandée)
-- `XRTechTools-Windows-v1.3.1.msix` (installation système)
-- `XRTechTools-Android-v1.3.1.apk`
+- `XRTechTools-Windows-Portable-v1.3.3.zip` (version recommandée)
+- `XRTechTools-Windows-v1.3.3.msix` (installation système)
+- `XRTechTools-Android-v1.3.3.apk`
 - `checksums.txt` (hashes SHA256 pour vérification intégrité)
 
 ---
@@ -305,7 +366,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - **Nom du projet** : XR Tech Tools
 - **Technologie** : Flutter / Dart
-- **Version actuelle** : v1.3.1
+- **Version actuelle** : v1.3.3
 - **Développeurs** : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - **Objectif** : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - **Contact** : WolwX@hotmail.com
@@ -615,5 +676,5 @@ release avec les dernières modifications."
 ---
 
 ==============================================
-FIN DU DOCUMENT - Version 1.3.1 (21/10/2025)
+FIN DU DOCUMENT - Version 1.3.3 (22/10/2025)
 ==============================================

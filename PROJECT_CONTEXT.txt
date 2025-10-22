@@ -11,7 +11,7 @@
 
 - **Nom** : XR Tech Tools
 - **Tech** : Flutter / Dart
-- **Version actuelle** : v1.3.2 (21/10/2025)
+- **Version actuelle** : v1.3.3 (22/10/2025)
 - **Objectif** : Boîte à outils pro + pédagogique techniciens IT
 - **Titres visés** : IDI, ADRN, TIP (RNCP34147, RNCP38718, RNCP40799)
 - **Contact** : WolwX@hotmail.com
@@ -36,6 +36,7 @@
 - "Arrêts/redémarrages inattendus" (Hardware - Analyse stabilité/température)
 
 **En développement** : 
+- 🔧 **Outil Touches BIOS/BOOT** : Référence visuelle par fabricant (HP, Dell, Asus, MSI) - Version bêta 0.1 déployée
 - 10+ logigrammes restants (Software, BIOS/UEFI, Network, Printer, Peripheral)
 - 6 outils de la Boîte à Outils
 
@@ -88,7 +89,67 @@
 
 ---
 
-## 🔄 HISTORIQUE PRÉCÉDENT (v1.3.061025 - 06/10/2025)
+## 🆕 DERNIÈRES AMÉLIORATIONS v1.3.3 (22/10/2025) - Outil Touches BIOS/BOOT Bêta 0.1
+
+### � NOUVEL OUTIL PROFESSIONNEL : TOUCHES BIOS/BOOT
+
+#### 📚 Fonctionnalités Principales
+- **Référence visuelle par fabricant** : Interface dédiée pour HP, Dell, Asus, MSI
+- **Logos officiels intégrés** : Marques reconnues avec affichage haute qualité
+- **Interface zoomable** : Touches de raccourci BIOS/BOOT avec alignement dynamique
+- **Système de favoris** : Accès rapide aux fabricants les plus utilisés (4 en ligne)
+- **Navigation intuitive** : Accès direct depuis le dashboard principal
+- **Design responsive** : Adaptation automatique aux différentes tailles d'écran
+
+#### 🎨 Interface Utilisateur
+- **Cartes compactes** : Design moderne avec logos et informations optimisées
+- **Grille adaptative** : 4 colonnes pour les favoris, affichage responsive
+- **Alignement dynamique** : LayoutBuilder pour positionnement précis des touches
+- **Catégorisation intelligente** : Groupement par type de raccourci (BIOS/UEFI, Boot Menu, etc.)
+- **Navigation fluide** : Transitions harmonieuses entre écrans
+
+#### 🛠️ Architecture Technique
+- **Nouveaux écrans** :
+  - `BiosBootHomeScreen` : Page d'accueil avec favoris et catégories
+  - `BiosBootCategoryScreen` : Affichage détaillé par fabricant
+  - `BiosBootDetailScreen` : Vue détaillée des touches avec zoom
+
+- **Nouveaux modèles** :
+  - `BiosBootData` : Structure des données BIOS par fabricant
+  - `BiosManufacturersData` : Données des fabricants avec logos
+  - `BiosFavorites` : Gestion des favoris utilisateur
+
+- **Nouveaux services** :
+  - `BiosFavoritesService` : Persistance et gestion des favoris
+
+- **Nouveaux widgets** :
+  - `KeyDisplayWidget` : Affichage des touches avec alignement dynamique
+  - `ManufacturerCard` : Cartes des fabricants avec logos
+
+#### 📦 Assets Ajoutés
+- **Logos haute qualité** : hp.png, dell.png, asus.png, msi.png
+- **Organisation** : Dossier `assets/images/logos/` dédié
+
+#### 🎯 Fabricants Supportés
+- **HP** : Touches F10, ESC+F9, F2, etc.
+- **Dell** : Touches F2, F12, F10, etc.
+- **Asus** : Touches DEL, F8, F2, etc.
+- **MSI** : Touches DEL, F11, F2, etc.
+
+#### 📊 Impact Utilisateur
+- **Outil professionnel essentiel** : Référence rapide pour techniciens
+- **Interface intuitive** : Accès visuel aux touches BIOS/BOOT
+- **Productivité améliorée** : Pas besoin de rechercher les touches en ligne
+- **Formation facilitée** : Support visuel pour apprenants
+
+### 📈 État du Projet Après v1.3.3
+- **Outils fonctionnels** : 5/11 (Scénarios, Créateur, Dépanneur, Logigrammes, BIOS)
+- **Logigrammes** : 4/14 disponibles (Hardware complets)
+- **Version actuelle** : v1.3.3 - Prête pour déploiement bêta
+
+---
+
+## �🔄 HISTORIQUE PRÉCÉDENT (v1.3.071025 - 07/10/2025)
 
 ### Améliorations majeures :
 1. **Développement massif logigrammes - 4 Hardware complets**
@@ -241,5 +302,5 @@
 
 ---
 
-*Dernière mise à jour : 01/10/2025 - v1.3.011025*
+*Dernière mise à jour : 22/10/2025 - v1.3.3*
 *Prochaine étape suggérée : Développer les 3 autres logigrammes Hardware*

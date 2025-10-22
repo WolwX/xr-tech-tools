@@ -5,7 +5,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - Nom du projet : XR Tech Tools
 - Technologie : Flutter / Dart
-- Version actuelle : v1.3.2 (21/10/2025)
+- Version actuelle : v1.3.3 (22/10/2025)
 - Développeurs : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - Objectif : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - Contact : WolwX@hotmail.com
@@ -250,6 +250,37 @@ FONCTIONNALITÉS IMPLÉMENTÉES
    - Protection intelligente maintenue contre arrêts accidentels
    - Cohérence système : Même logique sur MalfunctionTechnicianScreen et CommercialScenarioScreen
 
+6. Outil Touches BIOS/BOOT [✅ NOUVEAU v1.3.3 - BÊTA 0.1]
+   
+   Référence visuelle des touches BIOS/BOOT par fabricant :
+   
+   Fonctionnalités principales :
+   - Interface dédiée avec logos officiels (HP, Dell, Asus, MSI)
+   - Système de favoris : Accès rapide aux fabricants préférés (4 en ligne)
+   - Interface zoomable : Touches de raccourci avec alignement dynamique
+   - Navigation intuitive : Accès direct depuis le dashboard
+   - Design responsive : Adaptation automatique aux tailles d'écran
+   - Catégorisation par type : BIOS/UEFI, Boot Menu, raccourcis avancés
+   
+   Fabricants supportés :
+   - HP : F10, ESC+F9, F2, etc.
+   - Dell : F2, F12, F10, etc.
+   - Asus : DEL, F8, F2, etc.
+   - MSI : DEL, F11, F2, etc.
+   
+   Architecture technique :
+   - Écrans dédiés : BiosBootHomeScreen, BiosBootCategoryScreen, BiosBootDetailScreen
+   - Modèles de données : BiosBootData, BiosManufacturersData, BiosFavorites
+   - Service de favoris : BiosFavoritesService (persistance SharedPreferences)
+   - Widgets spécialisés : KeyDisplayWidget, ManufacturerCard
+   - Assets : Logos haute qualité dans assets/images/logos/
+   
+   Impact professionnel :
+   - Référence rapide pour techniciens en intervention
+   - Formation facilitée avec support visuel
+   - Productivité améliorée : Pas de recherche en ligne nécessaire
+   - Interface professionnelle et moderne
+
 THÈME & DESIGN
 --------------
 Couleur principale : Bleu (#00B0FF)
@@ -267,21 +298,21 @@ Particularités :
 - Design compact et responsive
 - Footer présent sur tous les écrans
 
-OUTILS À DÉVELOPPER (6 restants)
+OUTILS À DÉVELOPPER (5 restants)
 ---------------------------------
 
 OUTILS À DOUBLE USAGE (Pédagogique + Professionnel) :
+1. ✅ Scénarios Commerciaux - COMPLET (100 scénarios)
 2. Conversion Unités XR - Métriques XR (FOV, PPD, etc.)
 3. Calculateur Espace Disque - Conversions Mo/Go/To
-4. Touches BIOS et BOOT - Référence fabricants
+4. ✅ Touches BIOS et BOOT - COMPLET v1.3.3 (Bêta 0.1)
 5. Fiches Hardware - Spécifications techniques
 6. Liens Utiles - Ressources externes
 
 OUTILS PRINCIPALEMENT PÉDAGOGIQUES :
-1. ✅ Scénarios Commerciaux - COMPLET (100 scénarios)
 7. ✅ Mode Créateur de Pannes - COMPLET (14 pannes)
 8. ✅ Mode Dépanneur - COMPLET
-9. ✅ Organigrammes Interactifs - EN COURS (1/14+ organigrammes)
+9. ✅ Organigrammes Interactifs - EN COURS (4/14+ organigrammes)
 10. Procédures Techniques - Guides pas-à-pas (à développer)
 11. QCM - Tests de connaissances (à développer)
 
@@ -306,6 +337,29 @@ CONTRAINTES TECHNIQUES
 
 HISTORIQUE DES VERSIONS
 ------------------------
+
+v1.3.3 (22 Octobre 2025) - Outil Touches BIOS/BOOT Bêta 0.1 :
+🔧 NOUVEL OUTIL PROFESSIONNEL : Référence visuelle des touches BIOS/BOOT par fabricant
+  * Interface dédiée avec logos officiels (HP, Dell, Asus, MSI)
+  * Système de favoris : Accès rapide aux fabricants préférés (4 en ligne)
+  * Interface zoomable : Touches de raccourci avec alignement dynamique
+  * Navigation intuitive : Accès direct depuis le dashboard
+  * Design responsive : Adaptation automatique aux tailles d'écran
+  * Architecture modulaire : Écrans, modèles et services dédiés
+  * Persistance des favoris : SharedPreferences pour sauvegarde utilisateur
+  * Impact professionnel : Référence rapide pour techniciens en intervention
+
+Fichiers ajoutés :
+- lib/screens/bios_boot_home_screen.dart
+- lib/screens/bios_boot_category_screen.dart
+- lib/screens/bios_boot_detail_screen.dart
+- lib/models/bios_boot_data.dart
+- lib/models/bios_manufacturers_data.dart
+- lib/models/bios_favorites.dart
+- lib/services/bios_favorites_service.dart
+- lib/widgets/key_display_widget.dart
+- lib/widgets/manufacturer_card.dart
+- assets/images/logos/hp.png, dell.png, asus.png, msi.png
 
 v1.3.011025 (01 Octobre 2025) :
 ✨ Nouveautés majeures :
@@ -462,5 +516,5 @@ Pour modifier l'UI :
 Je voudrais [description de la modification UX]."
 
 ==============================================
-FIN DU DOCUMENT - Version 1.3.011025
+FIN DU DOCUMENT - Version 1.3.3 (22/10/2025)
 ==============================================

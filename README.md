@@ -1,7 +1,7 @@
 # XR Tech Tools
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Version](https://img.shields.io/badge/version-1.3.2-blue)](https://github.com/WolwX/xr-tech-tools)
+[![Version](https://img.shields.io/badge/version-1.3.3-blue)](https://github.com/WolwX/xr-tech-tools)
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
 **Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants**
@@ -84,6 +84,24 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 - **IDI** - Installateur Dépanneur en Informatique (RNCP34147)
 - **ADRN** - Agent De Reconditionnement en appareil Numérique (RNCP38718)
 - **TIP** - Technicien Informatique de Proximité (RNCP40799)
+
+## 🚀 Nouveautés v1.3.3 (22/10/2025)
+
+### 🔧 Outil Touches BIOS/BOOT - Version Bêta 0.1
+- **Nouvel outil professionnel** : Référence visuelle des touches BIOS/BOOT par fabricant
+- **4 fabricants supportés** : HP, Dell, Asus, MSI avec logos officiels
+- **Interface zoomable** : Touches de raccourci avec alignement dynamique et responsive
+- **Système de favoris** : Accès rapide aux fabricants les plus utilisés
+- **Navigation intuitive** : Accès direct depuis le dashboard principal
+- **Design optimisé** : Interface moderne avec cartes compactes et logos haute qualité
+
+**Fonctionnalités techniques** :
+- Architecture modulaire : Modèles de données dédiés et service de favoris
+- Interface responsive : Adaptation automatique aux tailles d'écran
+- Persistance des préférences : Sauvegarde des favoris utilisateur
+- Intégration complète : Cohérente avec le design global de l'application
+
+---
 
 ## 🚀 Nouveautés v1.3.2 (21/10/2025)
 
@@ -169,6 +187,34 @@ Cette application s'adresse aux apprenants préparant les certifications suivant
 3. **"L'ordinateur ne démarre pas"** - Diagnostic boot/démarrage système
 4. **"Arrêts/redémarrages inattendus"** - Analyse stabilité/température système
 
+### 🔧 Touches BIOS/BOOT **[NOUVEAU v1.3.3 - BÊTA 0.1]**
+- **Référence visuelle par fabricant** : HP, Dell, Asus, MSI
+- **Interface zoomable** : Touches de raccourci BIOS/BOOT avec alignement dynamique
+- **Navigation intuitive** : Accès direct depuis le dashboard
+- **Design responsive** : Adaptation automatique aux différentes tailles d'écran
+- **Logos officiels** : Marques reconnues avec affichage optimisé
+- **Catégorisation intelligente** : Groupement par type de raccourci (BIOS/UEFI, Boot Menu, etc.)
+
+**Fonctionnalités disponibles** :
+- **Touches BIOS classiques** : Accès au setup BIOS/UEFI
+- **Menu de démarrage** : Sélection du périphérique de boot
+- **Raccourcis avancés** : Options spéciales par fabricant
+- **Interface tactile optimisée** : Navigation fluide sur mobile et desktop
+- **Favoris par marque** : Accès rapide aux fabricants les plus utilisés
+
+**Fabricants supportés** :
+- **HP** : Touches F10, ESC+F9, etc.
+- **Dell** : Touches F2, F12, etc.
+- **Asus** : Touches DEL, F8, etc.
+- **MSI** : Touches DEL, F11, etc.
+
+**Architecture technique** :
+- Interface dédiée : `BiosBootHomeScreen`
+- Modèles de données : `BiosBootData`, `BiosManufacturersData`
+- Service de favoris : `BiosFavoritesService`
+- Widgets spécialisés : `KeyDisplayWidget`, `ManufacturerCard`
+- Persistance : SharedPreferences pour favoris utilisateur
+
 ### ⏱️ Système de Timer Intelligent **[PERFECTIONNÉ v1.3.041025]**
 - **Apparition automatique** lors de la sélection de fiches de dépannage
 - **Système de confirmation anti-accident** : Popup pour nouveaux tirages
@@ -251,9 +297,10 @@ L'application utilise une architecture **décentralisée** pour la gestion des s
 - Pas de prop drilling ni state management global
 - Autonomie et maintenabilité de chaque fonctionnalité
 
-## 📝 Versions
+## � Versions
 
-- **v1.3.1** (21/10/2025) : Distribution ZIP + MSIX, versioning avec date, build automatisé
+- **v1.3.3** (22/10/2025) : Outil Touches BIOS/BOOT - Version bêta 0.1
+- **v1.3.2** (21/10/2025) : Distribution ZIP + MSIX, versioning avec date, build automatisé
 - **v1.3.071025** (07/10/2025) : Harmonisation UI + Timer intelligent
 - **v1.3.061025** (06/10/2025) : 4 logigrammes Hardware complets
 - **v1.3.041025** (04/10/2025) : Système de confirmation timer
