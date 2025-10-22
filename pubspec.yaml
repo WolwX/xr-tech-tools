@@ -28,12 +28,7 @@ flutter:
 
   assets:
   - assets/images/
-  - assets/images/app-icon.png
-  - assets/images/xrtechtools-bg1.png
-  - assets/images/xrtechtools-bg2.png
-  - assets/images/xrtechtools-bg3.png
-  - assets/images/xrtechtools-bg4.png
-  - assets/images/logigrammes/
+
   
 
 # Configuration des icônes multi-plateformes
