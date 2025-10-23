@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.xr.xrtechtools"
+    namespace = "com.wx.xrtechtools"
     compileSdk = 34
     ndkVersion = "25.1.8937393"
 
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.xr.xrtechtools"
+        applicationId = "com.wx.xrtechtools"
         minSdk = flutter.minSdkVersion
         targetSdk = 34
         versionCode = 1
