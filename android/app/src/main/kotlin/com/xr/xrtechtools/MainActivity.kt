@@ -1,4 +1,4 @@
-package com.example.xrtechtools
+package com.xr.xrtechtools
 
 import io.flutter.embedding.android.FlutterActivity
 
