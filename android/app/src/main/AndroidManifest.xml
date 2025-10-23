@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Permissions nécessaires -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
     <application
-    android:label="XR Tech Tools"
+        android:label="XR Tech Tools"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
