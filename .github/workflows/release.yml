@@ -166,13 +166,13 @@ jobs:
         echo "# XR Tech Tools v$VERSION - Checksums SHA256" > checksums.txt
         echo "" >> checksums.txt
         
-        # MSIX
-        $MSIX_HASH = (Get-FileHash "XRTechTools-Windows-v$VERSION.msix" -Algorithm SHA256).Hash
-        echo "## Windows MSIX" >> checksums.txt
-        echo "``````" >> checksums.txt
-        echo "$MSIX_HASH  XRTechTools-Windows-v$VERSION.msix" >> checksums.txt
-        echo "``````" >> checksums.txt
-        echo "" >> checksums.txt
+        # MSIX TEMPORAIREMENT DÉSACTIVÉ
+        # $MSIX_HASH = (Get-FileHash "XRTechTools-Windows-v$VERSION.msix" -Algorithm SHA256).Hash
+        # echo "## Windows MSIX" >> checksums.txt
+        # echo "``````" >> checksums.txt
+        # echo "$MSIX_HASH  XRTechTools-Windows-v$VERSION.msix" >> checksums.txt
+        # echo "``````" >> checksums.txt
+        # echo "" >> checksums.txt
         
         # ZIP Portable
         $ZIP_HASH = (Get-FileHash "XRTechTools-Windows-Portable-v$VERSION.zip" -Algorithm SHA256).Hash
@@ -189,7 +189,7 @@ jobs:
         echo "$APK_HASH  XRTechTools-Android-v$VERSION.apk" >> checksums.txt
         echo "``````" >> checksums.txt
         
-        echo "✅ Checksums générés"
+        echo "✅ Checksums générés (MSIX temporairement désactivé)"
         Get-Content checksums.txt
       shell: pwsh
     
@@ -198,7 +198,6 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix
           XRTechTools-Windows-Portable-v${{ steps.get_version.outputs.VERSION }}.zip
           XRTechTools-Android-v${{ steps.get_version.outputs.VERSION }}.apk
           checksums.txt
@@ -211,29 +210,18 @@ jobs:
           
           ### 🪟 Windows
           
-          #### Option 1 : MSIX (Recommandé - Windows 10/11)
-          📥 **`XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix`**
-          
-          **Installation :**
-          1. Double-cliquez sur le fichier `.msix`
-          2. Cliquez sur "Installer" dans la fenêtre qui s'ouvre
-          3. L'application apparaîtra dans le menu Démarrer
-          
-          **Avantages :**
-          - ✅ Installation propre et sécurisée
-          - ✅ Désinstallation facile via Paramètres Windows
-          - ✅ Auto-mise à jour (si configurée)
-          - ✅ Format natif Windows 10/11
-          
-          ⚠️ **Note :** Windows SmartScreen peut afficher un avertissement car l'application n'est pas signée avec un certificat Code Signing. Cliquez sur "Informations complémentaires" puis "Exécuter quand même". C'est normal et sans danger.
-          
-          #### Option 2 : Version Portable (ZIP)
+          #### Version Portable (ZIP) - RECOMMANDÉ TEMPORAIREMENT
           📥 **`XRTechTools-Windows-Portable-v${{ steps.get_version.outputs.VERSION }}.zip`**
           
           **Installation :**
           1. Extraire le fichier ZIP
-          2. Lancer `xr_tech_tools.exe`
+          2. Lancer `xrtechtools.exe`
           3. Aucune installation requise
+          
+          **Avantages :**
+          - ✅ Aucune installation requise
+          - ✅ Portable et léger
+          - ✅ Fonctionne sur toutes les versions Windows
           
           ---
           
@@ -254,12 +242,12 @@ jobs:
           
           **Windows (PowerShell) :**
           ```powershell
-          Get-FileHash "XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix" -Algorithm SHA256
+          Get-FileHash "XRTechTools-Windows-Portable-v${{ steps.get_version.outputs.VERSION }}.zip" -Algorithm SHA256
           ```
           
           **Linux/macOS :**
           ```bash
-          sha256sum XRTechTools-Windows-v${{ steps.get_version.outputs.VERSION }}.msix
+          sha256sum XRTechTools-Windows-Portable-v${{ steps.get_version.outputs.VERSION }}.zip
           ```
           
           ---
@@ -273,6 +261,12 @@ jobs:
           ### 🐛 Signaler un problème
           
           Si vous rencontrez un bug, ouvrez une [issue sur GitHub](https://github.com/WolwX/xr-tech-tools/issues).
+          
+          ---
+          
+          ### ⚠️ Note importante
+          
+          **Le package MSIX Windows est temporairement désactivé** en raison de problèmes de compatibilité avec le nouveau nom d'application. Utilisez la version ZIP portable pour Windows.
           
           ---
           
@@ -290,8 +284,7 @@ jobs:
         echo "══════════════════════════════════════"
         echo ""
         echo "📦 Fichiers créés:"
-        echo "   • MSIX Windows (installateur)"
-        echo "   • ZIP Windows (portable)"
+        echo "   • ZIP Windows (portable) - MSIX temporairement désactivé"
         echo "   • APK Android"
         echo "   • Checksums SHA256"
         echo ""
