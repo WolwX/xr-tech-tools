@@ -4,6 +4,7 @@ import '../models/tool.dart'; // Importe la classe Tool
 import '../screens/commercial_scenario_screen.dart'; 
 import '../screens/malfunction_home_screen.dart';
 import '../screens/bios_boot_home_screen.dart';
+import '../screens/changelog_screen.dart';
 
 // === VERSIONS CENTRALISÉES ===
 class ToolVersions {
@@ -114,5 +115,14 @@ const Tool(
     description: 'Collection organisée de ressources web et de documentation externe pertinente.',
     icon: Icons.link_outlined,
     destination: _comingSoonPage('Liens utiles'),
+  ),
+
+  // 10. Change Log
+  Tool(
+    name: 'Change Log',
+    description: 'Historique des versions et évolution de l\'application XR Tech Tools.',
+    icon: Icons.history,
+    destination: const ChangelogScreen(),
+    version: '1.0',
   ),
 ];
