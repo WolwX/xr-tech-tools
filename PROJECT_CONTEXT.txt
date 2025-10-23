@@ -11,7 +11,7 @@
 
 - **Nom** : XR Tech Tools
 - **Tech** : Flutter / Dart
-- **Version actuelle** : v1.3.3 (22/10/2025)
+- **Version actuelle** : v1.4.0 (23/10/2025)
 - **Objectif** : Boîte à outils pro + pédagogique techniciens IT
 - **Titres visés** : IDI, ADRN, TIP (RNCP34147, RNCP38718, RNCP40799)
 - **Contact** : WolwX@hotmail.com
@@ -42,21 +42,48 @@
 
 ---
 
-## 🆕 DERNIERS CHANGEMENTS (v1.3.071025 - 07/10/2025)
+## 🆕 DERNIERS CHANGEMENTS (v1.4.0 - 23/10/2025)
 
-## Version 1.3.2 (21/10/2025) - UI/UX, icônes et dashboard
+### 📖 ÉCRAN CHANGELOG PROFESSIONNEL ⭐ MAJEUR
 
-### ✨ Changements principaux
-- Harmonisation du Splash et du Dashboard
-- Icônes multi-plateformes harmonisées (favicon, web icons, app icon)
-- Bordures 3D pour AppBar et Footer ; suppression des ombres images
-- Synchronisation du background entre Intro et Dashboard
+#### Fonctionnalités Principales
+- **Écran ChangeLog dédié** : Interface professionnelle pour consulter l'historique des versions
+- **Parser Markdown personnalisé** : Rendu optimisé sans dépendances externes
+- **Navigation interactive** : Sommaire cliquable avec défilement fluide
+- **Tags de version stylisés** : Présentation visuelle des versions avec icônes
+- **Bouton scroll-to-top discret** : Navigation rapide vers le haut
 
-### 🔧 Divers
-- Nettoyage des assets et mise à jour des configurations
+#### Interface Utilisateur
+- **Design professionnel** : Mise en page claire avec sections distinctes
+- **Tags centrés avec icônes** :
+  - Icône nouvelle version (new_releases) devant le numéro
+  - Icône calendrier (calendar_today) devant la date
+  - Description en gras pour la lisibilité
+- **Bouton flottant optimisé** : Taille réduite (40x40px) collé au footer
+- **Espacement compact** : Interlignes minimisés pour contenu dense
 
+#### Architecture Technique
+- **Nouveau screen** : `ChangelogScreen` avec parser Markdown intégré
+- **Navigation intelligente** : ScrollController avec GlobalKeys pour sections
+- **Rendu personnalisé** : Support gras, italique, listes, citations, blocs de code
+- **Gestion d'état optimisée** : Scroll listener pour bouton flottant
+- **Performance** : Chargement asynchrone du fichier CHANGELOG.md
 
-### 🎨 HARMONISATION UI ET TIMER INTELLIGENT ⭐ MAJEUR
+#### Impact Utilisateur
+- **Navigation intuitive** : Accès rapide aux informations de version
+- **Interface moderne** : Design cohérent avec l'application
+- **Lisibilité optimale** : Espacement réduit, icônes explicites
+- **Expérience fluide** : Scroll-to-top et navigation par tags
+- **Documentation intégrée** : Historique complet accessible in-app
+
+### � État du Projet Après v1.4.0
+- **Outils fonctionnels** : 6/11 (Scénarios, Créateur, Dépanneur, Logigrammes, BIOS, ChangeLog)
+- **Écrans professionnels** : Interface ChangeLog complète et opérationnelle
+- **Version actuelle** : v1.4.0 - Documentation intégrée et accessible
+
+---
+
+## � DERNIÈRES AMÉLIORATIONS v1.3.3 (22/10/2025) - Outil Touches BIOS/BOOT Bêta 0.1
 1. **Harmonisation Design Complete**
    - Design parfaitement cohérent entre scénarios commerciaux et fiches de panne
    - Boutons Correction/Abandon maintenant présents sur TOUS les scénarios commerciaux
@@ -302,5 +329,5 @@
 
 ---
 
-*Dernière mise à jour : 22/10/2025 - v1.3.3*
+*Dernière mise à jour : 23/10/2025 - v1.4.0*
 *Prochaine étape suggérée : Développer les 3 autres logigrammes Hardware*

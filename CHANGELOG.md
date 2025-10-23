@@ -1,6 +1,49 @@
 XR TECH TOOLS - HISTORIQUE DES VERSIONS
 ========================================
 
+## Version 1.4.0 (23/10/2025) - Écran ChangeLog Professionnel
+
+### 📖 NOUVEL ÉCRAN CHANGELOG COMPLET
+
+#### 📚 Fonctionnalités Principales
+- **Écran ChangeLog dédié** : Interface professionnelle pour consulter l'historique des versions
+- **Parser Markdown personnalisé** : Rendu optimisé sans dépendances externes
+- **Navigation interactive** : Sommaire cliquable avec défilement fluide
+- **Tags de version stylisés** : Présentation visuelle des versions avec icônes
+- **Bouton scroll-to-top discret** : Navigation rapide vers le haut
+
+#### 🎨 Interface Utilisateur
+- **Design professionnel** : Mise en page claire avec sections distinctes
+- **Tags centrés avec icônes** :
+  - Icône nouvelle version (new_releases) devant le numéro
+  - Icône calendrier (calendar_today) devant la date
+  - Description en gras pour la lisibilité
+- **Bouton flottant optimisé** : Taille réduite (40x40px) collé au footer
+- **Espacement compact** : Interlignes minimisés pour contenu dense
+
+#### 🔧 Architecture Technique
+- **Nouveau screen** : `ChangelogScreen` avec parser Markdown intégré
+- **Navigation intelligente** : ScrollController avec GlobalKeys pour sections
+- **Rendu personnalisé** : Support gras, italique, listes, citations, blocs de code
+- **Gestion d'état optimisée** : Scroll listener pour bouton flottant
+- **Performance** : Chargement asynchrone du fichier CHANGELOG.md
+
+#### 📊 Impact Utilisateur
+- **Navigation intuitive** : Accès rapide aux informations de version
+- **Interface moderne** : Design cohérent avec l'application
+- **Lisibilité optimale** : Espacement réduit, icônes explicites
+- **Expérience fluide** : Scroll-to-top et navigation par tags
+- **Documentation intégrée** : Historique complet accessible in-app
+
+#### 🎯 Améliorations UX
+- **Sommaire centré** : Tags de version alignés horizontalement
+- **Bouton discret** : Positionné près du footer sans gêner
+- **Typographie optimisée** : Espacement réduit pour contenu dense
+- **Icônes contextuelles** : Version et calendrier pour repérage rapide
+- **Navigation fluide** : Animations de scroll harmonieuses
+
+---
+
 ## Version 1.3.3 (22/10/2025) - Outil Touches BIOS/BOOT - Version Bêta 0.1
 
 ### 🔧 NOUVEL OUTIL PROFESSIONNEL : TOUCHES BIOS/BOOT
@@ -366,7 +409,7 @@ INFORMATIONS GÉNÉRALES
 ----------------------
 - **Nom du projet** : XR Tech Tools
 - **Technologie** : Flutter / Dart
-- **Version actuelle** : v1.3.3
+- **Version actuelle** : v1.4.0
 - **Développeurs** : XR (Xavier Redondo - humain) & Claude (IA Anthropic)
 - **Objectif** : Boîte à outils professionnelle et pédagogique pour techniciens informatique et apprenants
 - **Contact** : WolwX@hotmail.com
@@ -676,5 +719,5 @@ release avec les dernières modifications."
 ---
 
 ==============================================
-FIN DU DOCUMENT - Version 1.3.3 (22/10/2025)
+FIN DU DOCUMENT - Version 1.4.0 (23/10/2025)
 ==============================================
