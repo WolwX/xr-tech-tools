@@ -5,6 +5,7 @@ import '../screens/commercial_scenario_screen.dart';
 import '../screens/malfunction_home_screen.dart';
 import '../screens/bios_boot_home_screen.dart';
 import '../screens/changelog_screen.dart';
+import '../screens/training_access_screen.dart';
 
 // === VERSIONS CENTRALISÉES ===
 class ToolVersions {
@@ -117,7 +118,16 @@ const Tool(
     destination: _comingSoonPage('Liens utiles'),
   ),
 
-  // 10. Change Log
+  // 10. Accès Formation
+  Tool(
+    name: 'Accès Formation',
+    description: 'Accès direct à votre plateforme de formation en ligne. URL configurable.',
+    icon: Icons.school,
+    destination: const TrainingAccessScreen(),
+    version: '1.0',
+  ),
+
+  // 11. Change Log
   Tool(
     name: 'Change Log',
     description: 'Historique des versions et évolution de l\'application XR Tech Tools.',
