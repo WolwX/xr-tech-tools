@@ -3,7 +3,6 @@ import '../data/tool_data.dart';
 import '../models/tool.dart';
 import '../widgets/app_footer.dart';
 import '../services/global_timer_service.dart';
-import 'bios_boot_home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String backgroundImage;

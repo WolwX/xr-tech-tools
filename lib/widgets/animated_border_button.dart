@@ -1,6 +1,5 @@
 // lib/widgets/animated_border_button.dart
 
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 // Nouveau bouton Power On avec bordure lumineuse qui circule

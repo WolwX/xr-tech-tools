@@ -16,6 +16,7 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
   final ScrollController _scrollController = ScrollController();
   final Map<String, GlobalKey> _sectionKeys = {};
   bool _showScrollToTop = false;
+  String? _expandedVersion; // Version actuellement affichée
 
   @override
   void initState() {
@@ -63,121 +64,258 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
   List<Widget> _buildChangelogWidgets(String content) {
     final lines = content.split('\n');
     final widgets = <Widget>[];
+    String? currentVersion;
+    List<Widget> versionContent = [];
 
     for (final line in lines) {
-      if (line.startsWith('# ')) {
-        // Titre H1
-        final title = line.substring(2);
-        _sectionKeys[title] = GlobalKey();
-        widgets.add(
-          Padding(
-            key: _sectionKeys[title],
-            padding: const EdgeInsets.only(top: 16, bottom: 8),
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
-                height: 1.3,
-              ),
-            ),
-          ),
-        );
-      } else if (line.startsWith('## ')) {
-        // Titre H2
+      if (line.startsWith('## Version ')) {
+        // Si on avait une version en cours, on l'ajoute
+        if (currentVersion != null && versionContent.isNotEmpty) {
+          final versionWidgets = List<Widget>.from(versionContent);
+          final versionTitle = currentVersion;
+          widgets.add(
+            _buildExpandableVersion(versionTitle, versionWidgets),
+          );
+          versionContent = [];
+        }
+
+        // Nouvelle version
         final title = line.substring(3);
+        currentVersion = title;
         _sectionKeys[title] = GlobalKey();
-        widgets.add(
-          Padding(
-            key: _sectionKeys[title],
-            padding: const EdgeInsets.only(top: 12, bottom: 6),
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor.withOpacity(0.8),
-                height: 1.4,
+        
+      } else if (currentVersion != null) {
+        // Contenu de la version
+        if (line.startsWith('# ')) {
+          // Titre H1
+          final title = line.substring(2);
+          versionContent.add(
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 8),
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                  height: 1.3,
+                ),
               ),
             ),
-          ),
-        );
-      } else if (line.startsWith('### ')) {
-        // Titre H3
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 4),
-            child: Text(
-              line.substring(4),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue.shade700,
-                height: 1.4,
+          );
+        } else if (line.startsWith('### ')) {
+          // Titre H3
+          versionContent.add(
+            Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 4),
+              child: Text(
+                line.substring(4),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue.shade700,
+                  height: 1.4,
+                ),
               ),
             ),
-          ),
-        );
-      } else if (line.startsWith('- ')) {
-        // Liste
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 0.5),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '• ',
-                  style: TextStyle(
-                    fontSize: 16,
+          );
+        } else if (line.startsWith('- ')) {
+          // Liste
+          versionContent.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 16, bottom: 0.5),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '• ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildRichText(line.substring(2)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else if (line.trim().isEmpty) {
+          // Ligne vide - espacement minimal
+          versionContent.add(const SizedBox(height: 1));
+        } else if (line.startsWith('```')) {
+          // Bloc de code - on ignore les marqueurs pour l'instant
+          continue;
+        } else if (line.startsWith('> ')) {
+          // Citation
+          versionContent.add(
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                border: Border(
+                  left: BorderSide(
                     color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold,
+                    width: 4,
                   ),
                 ),
-                Expanded(
-                  child: _buildRichText(line.substring(2)),
-                ),
-              ],
-            ),
-          ),
-        );
-      } else if (line.trim().isEmpty) {
-        // Ligne vide - espacement minimal
-        widgets.add(const SizedBox(height: 1));
-      } else if (line.startsWith('```')) {
-        // Bloc de code - on ignore les marqueurs pour l'instant
-        continue;
-      } else if (line.startsWith('> ')) {
-        // Citation
-        widgets.add(
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              border: Border(
-                left: BorderSide(
-                  color: Theme.of(context).primaryColor,
-                  width: 4,
-                ),
               ),
+              child: _buildRichText(line.substring(2)),
             ),
-            child: _buildRichText(line.substring(2)),
-          ),
-        );
-      } else {
-        // Texte normal
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 0.5),
-            child: _buildRichText(line),
-          ),
-        );
+          );
+        } else if (line.trim().isNotEmpty) {
+          // Texte normal
+          versionContent.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 0.5),
+              child: _buildRichText(line),
+            ),
+          );
+        }
       }
     }
 
+    // Ajouter la dernière version
+    if (currentVersion != null && versionContent.isNotEmpty) {
+      final versionWidgets = List<Widget>.from(versionContent);
+      final versionTitle = currentVersion;
+      widgets.add(
+        _buildExpandableVersion(versionTitle, versionWidgets),
+      );
+    }
+
     return widgets;
+  }
+
+  Widget _buildExpandableVersion(String version, List<Widget> content) {
+    final isExpanded = _expandedVersion == version;
+    final versionRegex = RegExp(r'Version (\d+\.\d+\.\d+) \((\d{2}/\d{2}/\d{4})\) - (.+)');
+    final match = versionRegex.firstMatch(version);
+    
+    String displayVersion = version;
+    String? date;
+    String? description;
+    
+    if (match != null) {
+      displayVersion = match.group(1)!;
+      date = match.group(2)!;
+      description = match.group(3)!;
+    }
+
+    return Container(
+      key: _sectionKeys[version],
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isExpanded ? Theme.of(context).primaryColor : Colors.grey.shade300,
+          width: isExpanded ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _expandedVersion = isExpanded ? null : version;
+              });
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Theme.of(context).primaryColor,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.new_releases,
+                              size: 18,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Version $displayVersion',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (date != null) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                date,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        if (description != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (isExpanded) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: content,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   List<Map<String, String>> _extractVersionTags(String content) {
@@ -190,11 +328,12 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
         final versionRegex = RegExp(r'## Version (\d+\.\d+\.\d+) \((\d{2}/\d{2}/\d{4})\) - (.+)');
         final match = versionRegex.firstMatch(line);
         if (match != null) {
+          final fullTitle = line.substring(3); // Enlève "## "
           tags.add({
             'version': match.group(1)!,
             'date': match.group(2)!,
             'description': match.group(3)!,
-            'title': '${match.group(1)} - ${match.group(3)}',
+            'title': fullTitle, // Titre complet pour la correspondance
           });
         }
       }
@@ -204,14 +343,23 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
   }
 
   void _scrollToSection(String title) {
-    final key = _sectionKeys[title];
-    if (key != null && key.currentContext != null) {
-      Scrollable.ensureVisible(
-        key.currentContext!,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
+    // D'abord, expand la version
+    setState(() {
+      _expandedVersion = title;
+    });
+    
+    // Attendre que l'expansion soit rendue, puis scroll
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final key = _sectionKeys[title];
+      if (key != null && key.currentContext != null) {
+        Scrollable.ensureVisible(
+          key.currentContext!,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          alignment: 0.1, // Position proche du haut de l'écran
+        );
+      }
+    });
   }
 
   Widget _buildRichText(String text) {
@@ -461,28 +609,7 @@ class _ChangelogScreenState extends State<ChangelogScreen> {
                       const SizedBox(height: 20),
 
                       // Contenu du changelog
-                      Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _buildChangelogWidgets(_changelogContent),
-                        ),
-                      ),
+                      ..._buildChangelogWidgets(_changelogContent),
 
                       const SizedBox(height: 20),
                     ],
