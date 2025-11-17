@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../widgets/app_footer.dart';
 import '../widgets/custom_app_bar.dart';
 import '../services/training_access_service.dart';
+
+// Import conditionnel pour WebView
+import 'package:webview_flutter/webview_flutter.dart'
+    show WebViewController, JavaScriptMode, NavigationDelegate, WebResourceError, WebViewWidget;
 
 class TrainingAccessScreen extends StatefulWidget {
   const TrainingAccessScreen({super.key});
@@ -17,30 +21,34 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
   bool _showWebView = false;
   late WebViewController _webViewController;
   final TextEditingController _urlController = TextEditingController();
+  bool _isWeb = false;
 
   @override
   void initState() {
     super.initState();
+    _isWeb = identical(0, 0.0); // Détecte si on est sur le web
     _loadUrl();
     
-    // Initialiser le WebViewController
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (String url) {
-            // Optionnel : faire quelque chose quand la page commence à charger
-          },
-          onPageFinished: (String url) {
-            // Optionnel : faire quelque chose quand la page est chargée
-          },
-          onWebResourceError: (WebResourceError error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Erreur de chargement : ${error.description}')),
-            );
-          },
-        ),
-      );
+    // Initialiser le WebViewController uniquement si ce n'est pas le web
+    if (!_isWeb) {
+      _webViewController = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageStarted: (String url) {
+              // Optionnel : faire quelque chose quand la page commence à charger
+            },
+            onPageFinished: (String url) {
+              // Optionnel : faire quelque chose quand la page est chargée
+            },
+            onWebResourceError: (WebResourceError error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Erreur de chargement : ${error.description}')),
+              );
+            },
+          ),
+        );
+    }
   }
 
   @override
@@ -141,11 +149,30 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
     );
   }
 
-  void _openWebView() {
-    setState(() {
-      _showWebView = true;
-    });
-    _webViewController.loadRequest(Uri.parse(_currentUrl));
+  void _openWebView() async {
+    // Sur le web, ouvrir dans un nouvel onglet
+    if (_isWeb) {
+      try {
+        if (await canLaunchUrl(Uri.parse(_currentUrl))) {
+          await launchUrl(
+            Uri.parse(_currentUrl),
+            mode: LaunchMode.externalApplication,
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur : $e')),
+          );
+        }
+      }
+    } else {
+      // Sur mobile/desktop, utiliser le WebView
+      setState(() {
+        _showWebView = true;
+      });
+      _webViewController.loadRequest(Uri.parse(_currentUrl));
+    }
   }
 
   void _closeWebView() {
@@ -170,7 +197,7 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
               onPressed: _showSettingsDialog,
               tooltip: 'Configurer l\'URL',
             ),
-          if (_showWebView)
+          if (_showWebView && !_isWeb)
             IconButton(
               icon: const Icon(Icons.close, color: Colors.white),
               onPressed: _closeWebView,
@@ -178,12 +205,12 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
             ),
         ],
       ),
-      bottomNavigationBar: _showWebView ? null : const AppFooter(),
+      bottomNavigationBar: (_showWebView && !_isWeb) ? null : const AppFooter(),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : !_showWebView
+          : (!_showWebView || _isWeb)
               ? _buildConfigurationView()
               : _buildWebView(),
     );
@@ -249,10 +276,10 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: _openWebView,
-              icon: const Icon(Icons.language, size: 24),
-              label: const Text(
-                'Accéder à la formation',
-                style: TextStyle(fontSize: 16),
+              icon: Icon(_isWeb ? Icons.launch : Icons.language, size: 24),
+              label: Text(
+                _isWeb ? 'Ouvrir la formation' : 'Accéder à la formation',
+                style: const TextStyle(fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade600,
@@ -351,10 +378,14 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '• Cliquez sur le bouton "Accéder à la formation" pour ouvrir le site dans l\'application\n'
-                  '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
-                  '• Cliquez sur l\'icône ✕ en haut à droite pour fermer le contenu web\n'
-                  '• L\'URL doit commencer par http:// ou https://',
+                  _isWeb
+                      ? '• Cliquez sur le bouton "Ouvrir la formation" pour accéder au lien dans un nouvel onglet\n'
+                          '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
+                          '• L\'URL doit commencer par http:// ou https://'
+                      : '• Cliquez sur le bouton "Accéder à la formation" pour ouvrir le site dans l\'application\n'
+                          '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
+                          '• Cliquez sur l\'icône ✕ en haut à droite pour fermer le contenu web\n'
+                          '• L\'URL doit commencer par http:// ou https://',
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[700],
@@ -375,8 +406,6 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
     return Stack(
       children: [
         WebViewWidget(controller: _webViewController),
-        // Loader optionnel pour montrer le chargement
-        // Vous pouvez ajouter un progress indicator si désiré
       ],
     );
   }
