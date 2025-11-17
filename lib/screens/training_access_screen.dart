@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import '../widgets/app_footer.dart';
 import '../widgets/custom_app_bar.dart';
 import '../services/training_access_service.dart';
@@ -14,12 +14,33 @@ class TrainingAccessScreen extends StatefulWidget {
 class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
   late String _currentUrl;
   bool _isLoading = true;
+  bool _showWebView = false;
+  late WebViewController _webViewController;
   final TextEditingController _urlController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadUrl();
+    
+    // Initialiser le WebViewController
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            // Optionnel : faire quelque chose quand la page commence à charger
+          },
+          onPageFinished: (String url) {
+            // Optionnel : faire quelque chose quand la page est chargée
+          },
+          onWebResourceError: (WebResourceError error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Erreur de chargement : ${error.description}')),
+            );
+          },
+        ),
+      );
   }
 
   @override
@@ -120,27 +141,17 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
     );
   }
 
-  Future<void> _openUrl() async {
-    try {
-      if (await canLaunchUrl(Uri.parse(_currentUrl))) {
-        await launchUrl(
-          Uri.parse(_currentUrl),
-          mode: LaunchMode.externalApplication,
-        );
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Impossible d\'ouvrir l\'URL')),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur : $e')),
-        );
-      }
-    }
+  void _openWebView() {
+    setState(() {
+      _showWebView = true;
+    });
+    _webViewController.loadRequest(Uri.parse(_currentUrl));
+  }
+
+  void _closeWebView() {
+    setState(() {
+      _showWebView = false;
+    });
   }
 
   @override
@@ -153,196 +164,220 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
         showBackButton: true,
         backgroundColor: Colors.green.shade600,
         additionalActions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: _showSettingsDialog,
-            tooltip: 'Configurer l\'URL',
-          ),
+          if (!_showWebView)
+            IconButton(
+              icon: const Icon(Icons.settings, color: Colors.white),
+              onPressed: _showSettingsDialog,
+              tooltip: 'Configurer l\'URL',
+            ),
+          if (_showWebView)
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: _closeWebView,
+              tooltip: 'Fermer le WebView',
+            ),
         ],
       ),
-      bottomNavigationBar: const AppFooter(),
+      bottomNavigationBar: _showWebView ? null : const AppFooter(),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Carte d'information
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.green.shade200,
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.green.shade700,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Accès à vos ressources de formation',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Accédez directement à votre plateforme de formation. Vous pouvez configurer l\'adresse web à tout moment en cliquant sur l\'icône de réglage en haut à droite.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[700],
-                            height: 1.6,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+          : !_showWebView
+              ? _buildConfigurationView()
+              : _buildWebView(),
+    );
+  }
 
-                  // Bouton principal d'accès
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _openUrl,
-                      icon: const Icon(Icons.launch, size: 24),
-                      label: const Text(
-                        'Accéder à la formation',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Affichage de l'URL actuelle
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'URL configurée',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SelectableText(
-                          _currentUrl,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.blue[600],
-                            fontFamily: 'monospace',
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton.icon(
-                              onPressed: _showSettingsDialog,
-                              icon: const Icon(Icons.edit),
-                              label: const Text('Modifier'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Section d'aide
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.blue.shade200,
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.help_outline,
-                              color: Colors.blue.shade700,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Aide',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '• Cliquez sur le bouton "Accéder à la formation" pour ouvrir le lien dans votre navigateur par défaut\n'
-                          '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
-                          '• L\'URL doit commencer par http:// ou https://',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[700],
-                            height: 1.6,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-                ],
+  Widget _buildConfigurationView() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Carte d'information
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.green.shade200,
+                width: 1,
               ),
             ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.green.shade700,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Accès à vos ressources de formation',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Accédez directement à votre plateforme de formation. Vous pouvez configurer l\'adresse web à tout moment en cliquant sur l\'icône de réglage en haut à droite.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Bouton principal d'accès
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _openWebView,
+              icon: const Icon(Icons.language, size: 24),
+              label: const Text(
+                'Accéder à la formation',
+                style: TextStyle(fontSize: 16),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Affichage de l'URL actuelle
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.grey.shade300,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'URL configurée',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SelectableText(
+                  _currentUrl,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.blue[600],
+                    fontFamily: 'monospace',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _showSettingsDialog,
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Modifier'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Section d'aide
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.blue.shade200,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.help_outline,
+                      color: Colors.blue.shade700,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Aide',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '• Cliquez sur le bouton "Accéder à la formation" pour ouvrir le site dans l\'application\n'
+                  '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
+                  '• Cliquez sur l\'icône ✕ en haut à droite pour fermer le contenu web\n'
+                  '• L\'URL doit commencer par http:// ou https://',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[700],
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebView() {
+    return Stack(
+      children: [
+        WebViewWidget(controller: _webViewController),
+        // Loader optionnel pour montrer le chargement
+        // Vous pouvez ajouter un progress indicator si désiré
+      ],
     );
   }
 }
