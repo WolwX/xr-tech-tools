@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../widgets/app_footer.dart';
 import '../widgets/custom_app_bar.dart';
 import '../services/training_access_service.dart';
@@ -7,6 +6,10 @@ import '../services/training_access_service.dart';
 // Import conditionnel pour WebView
 import 'package:webview_flutter/webview_flutter.dart'
     show WebViewController, JavaScriptMode, NavigationDelegate, WebResourceError, WebViewWidget;
+
+// Import pour le web (conditional)
+import 'dart:html' as html;
+import 'dart:ui_web' as ui;
 
 class TrainingAccessScreen extends StatefulWidget {
   const TrainingAccessScreen({super.key});
@@ -18,10 +21,11 @@ class TrainingAccessScreen extends StatefulWidget {
 class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
   late String _currentUrl;
   bool _isLoading = true;
-  bool _showWebView = false;
+  bool _showWebContent = false;
   late WebViewController _webViewController;
   final TextEditingController _urlController = TextEditingController();
   bool _isWeb = false;
+  final String _iframeId = 'training-iframe';
 
   @override
   void initState() {
@@ -48,7 +52,25 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
             },
           ),
         );
+    } else {
+      // Créer l'iframe pour le web
+      _createIframe();
     }
+  }
+
+  void _createIframe() {
+    ui.platformViewRegistry.registerViewFactory(
+      _iframeId,
+      (int viewId) {
+        final iframe = html.IFrameElement()
+          ..src = _currentUrl
+          ..style.border = 'none'
+          ..style.width = '100%'
+          ..style.height = '100%'
+          ..setAttribute('sandbox', 'allow-same-origin allow-scripts allow-forms allow-popups allow-presentation');
+        return iframe;
+      },
+    );
   }
 
   @override
@@ -87,6 +109,10 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
     await TrainingAccessService.setUrl(newUrl);
     setState(() {
       _currentUrl = newUrl;
+      if (_showWebContent && _isWeb) {
+        // Recréer l'iframe si on est en mode affichage web
+        _createIframe();
+      }
     });
 
     if (mounted) {
@@ -149,35 +175,18 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
     );
   }
 
-  void _openWebView() async {
-    // Sur le web, ouvrir dans un nouvel onglet
-    if (_isWeb) {
-      try {
-        if (await canLaunchUrl(Uri.parse(_currentUrl))) {
-          await launchUrl(
-            Uri.parse(_currentUrl),
-            mode: LaunchMode.externalApplication,
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur : $e')),
-          );
-        }
-      }
-    } else {
-      // Sur mobile/desktop, utiliser le WebView
-      setState(() {
-        _showWebView = true;
-      });
+  void _openWebView() {
+    setState(() {
+      _showWebContent = true;
+    });
+    if (!_isWeb) {
       _webViewController.loadRequest(Uri.parse(_currentUrl));
     }
   }
 
   void _closeWebView() {
     setState(() {
-      _showWebView = false;
+      _showWebContent = false;
     });
   }
 
@@ -191,26 +200,26 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
         showBackButton: true,
         backgroundColor: Colors.green.shade600,
         additionalActions: [
-          if (!_showWebView)
+          if (!_showWebContent)
             IconButton(
               icon: const Icon(Icons.settings, color: Colors.white),
               onPressed: _showSettingsDialog,
               tooltip: 'Configurer l\'URL',
             ),
-          if (_showWebView && !_isWeb)
+          if (_showWebContent)
             IconButton(
               icon: const Icon(Icons.close, color: Colors.white),
               onPressed: _closeWebView,
-              tooltip: 'Fermer le WebView',
+              tooltip: 'Fermer le contenu web',
             ),
         ],
       ),
-      bottomNavigationBar: (_showWebView && !_isWeb) ? null : const AppFooter(),
+      bottomNavigationBar: const AppFooter(),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : (!_showWebView || _isWeb)
+          : !_showWebContent
               ? _buildConfigurationView()
               : _buildWebView(),
     );
@@ -276,10 +285,10 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: _openWebView,
-              icon: Icon(_isWeb ? Icons.launch : Icons.language, size: 24),
-              label: Text(
-                _isWeb ? 'Ouvrir la formation' : 'Accéder à la formation',
-                style: const TextStyle(fontSize: 16),
+              icon: const Icon(Icons.language, size: 24),
+              label: const Text(
+                'Accéder à la formation',
+                style: TextStyle(fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade600,
@@ -378,14 +387,10 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _isWeb
-                      ? '• Cliquez sur le bouton "Ouvrir la formation" pour accéder au lien dans un nouvel onglet\n'
-                          '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
-                          '• L\'URL doit commencer par http:// ou https://'
-                      : '• Cliquez sur le bouton "Accéder à la formation" pour ouvrir le site dans l\'application\n'
-                          '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
-                          '• Cliquez sur l\'icône ✕ en haut à droite pour fermer le contenu web\n'
-                          '• L\'URL doit commencer par http:// ou https://',
+                  '• Cliquez sur le bouton "Accéder à la formation" pour afficher le site dans l\'application\n'
+                  '• Utilisez l\'icône de réglage (⚙️) en haut à droite pour configurer une nouvelle URL\n'
+                  '• Cliquez sur l\'icône ✕ en haut à droite pour fermer le contenu web\n'
+                  '• L\'URL doit commencer par http:// ou https://',
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[700],
@@ -403,10 +408,15 @@ class _TrainingAccessScreenState extends State<TrainingAccessScreen> {
   }
 
   Widget _buildWebView() {
-    return Stack(
-      children: [
-        WebViewWidget(controller: _webViewController),
-      ],
-    );
+    if (_isWeb) {
+      // Sur le web, utiliser UiKitView avec iframe
+      return UiKitView(
+        viewType: _iframeId,
+        key: UniqueKey(),
+      );
+    } else {
+      // Sur mobile/desktop, utiliser WebViewWidget
+      return WebViewWidget(controller: _webViewController);
+    }
   }
 }
